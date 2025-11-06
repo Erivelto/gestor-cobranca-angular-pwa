@@ -45,7 +45,13 @@ export class PessoasListaComponent implements OnInit {
   }
 
   editarPessoa(id: number): void {
+    console.log('Navegando para edição simples, ID:', id);
     this.router.navigate(['/pessoas/editar', id]);
+  }
+
+  editarPessoaAvancado(id: number): void {
+    console.log('Navegando para edição avançada, ID:', id);
+    this.router.navigate(['/pessoas/edit', id]);
   }
 
   deletarPessoa(id: number): void {

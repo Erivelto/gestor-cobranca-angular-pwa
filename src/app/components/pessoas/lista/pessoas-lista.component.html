@@ -44,11 +44,14 @@
             </span>
           </td>
           <td class="actions-column">
-            <button class="btn btn-sm btn-warning" (click)="editarPessoa(pessoa.id!)">
-              Editar
+            <button class="btn btn-sm btn-primary" (click)="editarPessoaAvancado(pessoa.id!)" title="Edição Avançada">
+              📝 Editar
+            </button>
+            <button class="btn btn-sm btn-warning" (click)="editarPessoa(pessoa.id!)" title="Edição Simples">
+              ✏️ Simples
             </button>
             <button class="btn btn-sm btn-danger" (click)="deletarPessoa(pessoa.id!)">
-              Excluir
+              🗑️ Excluir
             </button>
           </td>
         </tr>

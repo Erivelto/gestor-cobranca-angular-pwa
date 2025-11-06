@@ -10,6 +10,8 @@ import { environment } from '../../environments/environment';
 })
 export class PessoaService {
   private apiUrl = `${environment.apiUrl}/Pessoa`;
+  private contatoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaContato';
+  private enderecoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaEndereco';
 
   constructor(
     private http: HttpClient,
@@ -24,6 +26,7 @@ export class PessoaService {
     });
   }
 
+  // === MÉTODOS DE PESSOA ===
   getPessoas(): Observable<Pessoa[]> {
     return this.http.get<Pessoa[]>(this.apiUrl, { headers: this.getHeaders() });
   }
@@ -44,22 +47,38 @@ export class PessoaService {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Contatos
+  // === MÉTODOS DE CONTATO ===
   createContato(contato: PessoaContato): Observable<PessoaContato> {
-    return this.http.post<PessoaContato>(
-      'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaContato',
-      contato,
-      { headers: this.getHeaders() }
-    );
+    return this.http.post<PessoaContato>(this.contatoUrl, contato, { headers: this.getHeaders() });
   }
 
-  // Endereços
+  getContatosByPessoaId(pessoaId: number): Observable<PessoaContato[]> {
+    return this.http.get<PessoaContato[]>(`${this.contatoUrl}/pessoa/${pessoaId}`, { headers: this.getHeaders() });
+  }
+
+  updateContato(id: number, contato: PessoaContato): Observable<any> {
+    return this.http.put(`${this.contatoUrl}/${id}`, contato, { headers: this.getHeaders() });
+  }
+
+  deleteContato(id: number): Observable<any> {
+    return this.http.delete(`${this.contatoUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // === MÉTODOS DE ENDEREÇO ===
   createEndereco(endereco: PessoaEndereco): Observable<PessoaEndereco> {
-    return this.http.post<PessoaEndereco>(
-      'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaEndereco',
-      endereco,
-      { headers: this.getHeaders() }
-    );
+    return this.http.post<PessoaEndereco>(this.enderecoUrl, endereco, { headers: this.getHeaders() });
+  }
+
+  getEnderecosByPessoaId(pessoaId: number): Observable<PessoaEndereco[]> {
+    return this.http.get<PessoaEndereco[]>(`${this.enderecoUrl}/pessoa/${pessoaId}`, { headers: this.getHeaders() });
+  }
+
+  updateEndereco(id: number, endereco: PessoaEndereco): Observable<any> {
+    return this.http.put(`${this.enderecoUrl}/${id}`, endereco, { headers: this.getHeaders() });
+  }
+
+  deleteEndereco(id: number): Observable<any> {
+    return this.http.delete(`${this.enderecoUrl}/${id}`, { headers: this.getHeaders() });
   }
 }
 

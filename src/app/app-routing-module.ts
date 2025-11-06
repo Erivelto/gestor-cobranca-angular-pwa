@@ -5,6 +5,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.component';
 import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.component';
+import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
 import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
 
 const routes: Routes = [
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'pessoas', component: PessoasListaComponent },
   { path: 'pessoas/nova', component: PessoaFormComponent },
   { path: 'pessoas/editar/:id', component: PessoaFormComponent },
+  { path: 'pessoas/edit/:id', component: PessoaEditComponent },
   { path: 'cobrancas', component: CobrancasListaComponent },
   { path: '**', redirectTo: '/login' }
 ];

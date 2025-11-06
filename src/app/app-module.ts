@@ -17,6 +17,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.component';
 import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.component';
+import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
 import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
 
 @NgModule({
@@ -26,6 +27,7 @@ import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-
     DashboardComponent,
     PessoasListaComponent,
     PessoaFormComponent,
+    PessoaEditComponent,
     CobrancasListaComponent
   ],
   imports: [
