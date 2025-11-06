@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "defaultProvider": "azdev",
+  "providers": {
+    "azdev": {
+      "kudu": true,
+      "type": "aca"
+    }
+  },
+  "services": {
+    "web": {
+      "project": ".",
+      "language": "js",
+      "host": "appservice"
+    }
+  }
+}

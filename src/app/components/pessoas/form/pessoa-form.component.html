@@ -1,0 +1,233 @@
+<div class="page-container">
+  <div class="page-header">
+    <button class="btn-back" (click)="voltar()">←</button>
+    <h1>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</h1>
+  </div>
+
+  <div *ngIf="success" class="alert alert-success">
+    {{ success }}
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="form-container">
+    <!-- Dados Básicos -->
+    <div class="form-section">
+      <h2>Dados Básicos</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="codigo">Código *</label>
+          <input
+            type="text"
+            id="codigo"
+            name="codigo"
+            [(ngModel)]="pessoa.codigo"
+            placeholder="Ex: PES001"
+            required
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="nome">Nome Completo *</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            [(ngModel)]="pessoa.nome"
+            placeholder="Digite o nome completo"
+            required
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="documento">CPF/CNPJ *</label>
+          <input
+            type="text"
+            id="documento"
+            name="documento"
+            [(ngModel)]="pessoa.documento"
+            placeholder="000.000.000-00"
+            required
+            [disabled]="loading"
+          />
+          <small>Digite apenas números</small>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select
+            id="status"
+            name="status"
+            [(ngModel)]="pessoa.status"
+            [disabled]="loading"
+          >
+            <option [ngValue]="1">Ativo</option>
+            <option [ngValue]="0">Inativo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contato -->
+    <div class="form-section" *ngIf="!isEditMode">
+      <h2>Contato</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tipoContato">Tipo de Contato</label>
+          <select
+            id="tipoContato"
+            name="tipoContato"
+            [(ngModel)]="contato.tipo"
+            [disabled]="loading"
+          >
+            <option [ngValue]="0">Selecione...</option>
+            <option [ngValue]="1">Celular</option>
+            <option [ngValue]="2">Telefone</option>
+            <option [ngValue]="3">E-mail</option>
+            <option [ngValue]="4">WhatsApp</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="contato">Contato</label>
+          <input
+            type="text"
+            id="contato"
+            name="contato"
+            [(ngModel)]="contato.contato"
+            placeholder="Digite o contato"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="form-section" *ngIf="!isEditMode">
+      <h2>Endereço</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cep">CEP</label>
+          <input
+            type="text"
+            id="cep"
+            name="cep"
+            [(ngModel)]="endereco.cep"
+            placeholder="00000-000"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="buscarCep()"
+            [disabled]="loading || loadingCep || !endereco.cep"
+          >
+            {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group form-group-full">
+          <label for="logradouro">Logradouro</label>
+          <input
+            type="text"
+            id="logradouro"
+            name="logradouro"
+            [(ngModel)]="endereco.logradouro"
+            placeholder="Rua, Avenida, etc."
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="numero">Número</label>
+          <input
+            type="text"
+            id="numero"
+            name="numero"
+            [(ngModel)]="endereco.numero"
+            placeholder="Nº"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="complemento">Complemento</label>
+          <input
+            type="text"
+            id="complemento"
+            name="complemento"
+            [(ngModel)]="endereco.complemento"
+            placeholder="Apto, Bloco, etc."
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bairro">Bairro</label>
+          <input
+            type="text"
+            id="bairro"
+            name="bairro"
+            [(ngModel)]="endereco.bairro"
+            placeholder="Bairro"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="cidade">Cidade</label>
+          <input
+            type="text"
+            id="cidade"
+            name="cidade"
+            [(ngModel)]="endereco.cidade"
+            placeholder="Cidade"
+            [disabled]="loading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <input
+            type="text"
+            id="estado"
+            name="estado"
+            [(ngModel)]="endereco.estado"
+            placeholder="UF"
+            maxlength="2"
+            [disabled]="loading"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="voltar()" [disabled]="loading">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        {{ loading ? 'Salvando...' : (isEditMode ? 'Atualizar Cliente' : 'Salvar Pessoa') }}
+      </button>
+    </div>
+  </form>
+</div>
+

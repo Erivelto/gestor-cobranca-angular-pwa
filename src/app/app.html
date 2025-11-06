@@ -1,0 +1,28 @@
+<div class="app-container">
+  <nav class="navbar" *ngIf="isAuthenticated">
+    <div class="navbar-brand">
+      <a routerLink="/dashboard">Gestor Cobrança</a>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/pessoas" routerLinkActive="active">Clientes</a>
+      <a routerLink="/cobrancas" routerLinkActive="active">Cobranças</a>
+      <button class="btn-logout" (click)="logout()">Sair</button>
+    </div>
+    <button class="navbar-toggle" (click)="toggleMenu()">
+      ☰
+    </button>
+  </nav>
+
+  <div class="mobile-menu" *ngIf="isAuthenticated && mobileMenuOpen">
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="toggleMenu()">Dashboard</a>
+    <a routerLink="/pessoas" routerLinkActive="active" (click)="toggleMenu()">Clientes</a>
+    <a routerLink="/cobrancas" routerLinkActive="active" (click)="toggleMenu()">Cobranças</a>
+    <button class="btn-logout" (click)="logout()">Sair</button>
+  </div>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+

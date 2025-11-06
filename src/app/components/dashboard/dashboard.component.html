@@ -1,0 +1,75 @@
+<div class="dashboard-container">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Visão geral do sistema</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando dados...</p>
+  </div>
+
+  <div *ngIf="!loading" class="stats-grid">
+    <div class="stat-card stat-pessoas">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <h3>{{ totalPessoas }}</h3>
+        <p>Clientes</p>
+      </div>
+    </div>
+
+    <div class="stat-card stat-cobrancas">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <h3>{{ totalCobrancas }}</h3>
+        <p>Cobranças</p>
+      </div>
+    </div>
+
+    <div class="stat-card stat-pendentes">
+      <div class="stat-icon">⏰</div>
+      <div class="stat-content">
+        <h3>{{ cobrancasPendentes }}</h3>
+        <p>Pendentes</p>
+      </div>
+    </div>
+
+    <div class="stat-card stat-valor">
+      <div class="stat-icon">💵</div>
+      <div class="stat-content">
+        <h3>{{ valorTotal | currency:'BRL' }}</h3>
+        <p>Valor Total</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading" class="quick-actions">
+    <h2>Ações Rápidas</h2>
+    <div class="actions-grid">
+      <a routerLink="/pessoas/nova" class="action-card">
+        <div class="action-icon">➕</div>
+        <h3>Nova Pessoa</h3>
+        <p>Cadastrar novo cliente</p>
+      </a>
+
+      <a routerLink="/cobrancas/nova" class="action-card">
+        <div class="action-icon">💳</div>
+        <h3>Nova Cobrança</h3>
+        <p>Registrar cobrança</p>
+      </a>
+
+      <a routerLink="/pessoas" class="action-card">
+        <div class="action-icon">📋</div>
+        <h3>Ver Clientes</h3>
+        <p>Listar todos os clientes</p>
+      </a>
+
+      <a routerLink="/cobrancas" class="action-card">
+        <div class="action-icon">📊</div>
+        <h3>Ver Cobranças</h3>
+        <p>Listar todas as cobranças</p>
+      </a>
+    </div>
+  </div>
+</div>
+

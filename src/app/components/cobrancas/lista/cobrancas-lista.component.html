@@ -1,0 +1,59 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Cobranças</h1>
+    <button class="btn btn-primary" (click)="novaCobranca()">
+      <span class="icon">+</span> Nova Cobrança
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Carregando cobranças...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && cobrancas.length === 0" class="empty-state">
+    <p>Nenhuma cobrança cadastrada.</p>
+    <button class="btn btn-primary" (click)="novaCobranca()">
+      Cadastrar primeira cobrança
+    </button>
+  </div>
+
+  <div *ngIf="!loading && !error && cobrancas.length > 0" class="cobrancas-grid">
+    <div *ngFor="let cobranca of cobrancas" class="cobranca-card">
+      <div class="card-header" [ngClass]="getStatusClass(cobranca.status)">
+        <span class="badge">{{ getStatusText(cobranca.status) }}</span>
+        <span class="valor">{{ cobranca.valor | currency:'BRL' }}</span>
+      </div>
+      <div class="card-body">
+        <h3>{{ cobranca.descricao }}</h3>
+        <div class="card-info">
+          <div class="info-row">
+            <span class="label">Cliente:</span>
+            <span class="value">{{ cobranca.pessoa?.nome || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Vencimento:</span>
+            <span class="value">{{ cobranca.dataVencimento | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row" *ngIf="cobranca.dataPagamento">
+            <span class="label">Pagamento:</span>
+            <span class="value">{{ cobranca.dataPagamento | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-sm btn-warning" (click)="editarCobranca(cobranca.id!)">
+          Editar
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="deletarCobranca(cobranca.id!)">
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
