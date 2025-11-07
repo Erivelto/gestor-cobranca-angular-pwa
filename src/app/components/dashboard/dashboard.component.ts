@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { PessoaService } from '../../services/pessoa.service';
 import { CobrancaService } from '../../services/cobranca.service';
 import { Pessoa, Cobranca } from '../../models/api.models';
@@ -15,6 +15,8 @@ export class DashboardComponent implements OnInit {
   cobrancasPendentes: number = 0;
   valorTotal: number = 0;
   loading: boolean = true;
+  statsCols: number = 4;
+  actionsCols: number = 4;
 
   constructor(
     private pessoaService: PessoaService,
@@ -22,7 +24,27 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setCols(window.innerWidth);
     this.loadDashboardData();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.setCols(event.target.innerWidth);
+  }
+
+  private setCols(width: number) {
+    // Breakpoints: mobile < 576, tablet < 1024
+    if (width < 576) {
+      this.statsCols = 1;
+      this.actionsCols = 1;
+    } else if (width < 1024) {
+      this.statsCols = 2;
+      this.actionsCols = 2;
+    } else {
+      this.statsCols = 4;
+      this.actionsCols = 4;
+    }
   }
 
   loadDashboardData(): void {

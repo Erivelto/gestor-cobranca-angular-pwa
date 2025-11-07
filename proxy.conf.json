@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

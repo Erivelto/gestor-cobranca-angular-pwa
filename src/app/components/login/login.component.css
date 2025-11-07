@@ -1,36 +1,59 @@
 .login-container {
   min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.login-content {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .login-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  padding: 40px;
   width: 100%;
   max-width: 400px;
+  margin: auto;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
 }
 
-.login-header {
+.logo-container {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
-.login-header h1 {
+.logo-icon {
+  width: 64px;
+  height: 64px;
+  font-size: 64px;
+  color: #667eea;
+  margin-bottom: 16px;
+}
+
+.app-title {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 500;
   color: #333;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 
-.login-header p {
+.app-subtitle {
   color: #666;
-  font-size: 14px;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -40,82 +63,98 @@
   gap: 20px;
 }
 
-.form-group {
+.form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-form-field-outline {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+}
+
+.error-message {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  font-size: 14px;
+  animation: shake 0.5s ease-in-out;
+}
+
+.submit-button {
+  width: 100%;
+  height: 48px;
+  border-radius: 24px;
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
-.form-group label {
-  font-weight: 600;
-  color: #333;
+.spinner {
+  margin-right: 8px;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  color: #666;
   font-size: 14px;
 }
 
-.form-group input {
-  padding: 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-group input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
-.btn {
-  padding: 14px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 48px;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.alert {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.alert-error {
-  background-color: #fee;
-  color: #c33;
-  border: 1px solid #fcc;
-}
-
-@media (max-width: 576px) {
+@media (max-width: 480px) {
   .login-card {
-    padding: 30px 20px;
+    margin: 0;
+    padding: 24px;
+    border-radius: 0;
   }
 
-  .login-header h1 {
+  .login-content {
+    padding: 0;
+  }
+
+  .app-title {
     font-size: 24px;
   }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+  }
 }
 
+.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+::ng-deep .error-dialog-panel {
+  .mat-mdc-dialog-container {
+    padding: 0;
+  }
+  
+  .mat-mdc-dialog-surface {
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+}

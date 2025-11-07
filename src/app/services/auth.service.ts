@@ -43,16 +43,34 @@ export class AuthService {
 
   login(username: string, senha: string): Observable<LoginResponse> {
     const loginRequest: LoginRequest = { user: username, password: senha };
-    return this.http.post<LoginResponse>(`${this.apiUrl}/Autenticacao/login`, loginRequest)
-      .pipe(
-        tap(response => {
+    console.log('Enviando requisição para:', `${this.apiUrl}/Autenticacao/login`);
+    console.log('Dados da requisição:', loginRequest);
+    
+    return this.http.post<LoginResponse>(
+      `${this.apiUrl}/Autenticacao/login`, 
+      loginRequest,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      }
+    ).pipe(
+      tap({
+        next: (response) => {
+          console.log('Resposta do servidor:', response);
           if (response && response.token) {
             localStorage.setItem('token', response.token);
             localStorage.setItem('currentUser', JSON.stringify(response.usuario));
             this.currentUserSubject.next(response.usuario);
           }
-        })
-      );
+        },
+        error: (error) => {
+          console.error('Erro na requisição:', error);
+          throw error;
+        }
+      })
+    );
   }
 
   logout(): void {

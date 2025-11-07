@@ -1,46 +1,72 @@
 <div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <h1>Gestor Cobrança</h1>
-      <p>Faça login para continuar</p>
-    </div>
-
-    <form (ngSubmit)="onSubmit()" class="login-form">
-      <div class="form-group">
-        <label for="username">Usuário</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          [(ngModel)]="username"
-          placeholder="Digite seu usuário"
-          [disabled]="loading"
-          required
-        />
+  <div class="login-content">
+    <mat-card class="login-card" [class.loading]="loading">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">account_balance_wallet</mat-icon>
+        <h1 class="app-title">Gestor Cobrança</h1>
+        <p class="app-subtitle">Faça login para continuar</p>
       </div>
 
-      <div class="form-group">
-        <label for="senha">Senha</label>
-        <input
-          type="password"
-          id="senha"
-          name="senha"
-          [(ngModel)]="senha"
-          placeholder="Digite sua senha"
-          [disabled]="loading"
-          required
-        />
-      </div>
+      <form (ngSubmit)="onSubmit()" class="login-form" #loginForm="ngForm">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Usuário</mat-label>
+          <input matInput 
+                 type="text" 
+                 [(ngModel)]="username" 
+                 name="username" 
+                 #usernameInput="ngModel"
+                 placeholder="Digite seu usuário" 
+                 [disabled]="loading" 
+                 required>
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="usernameInput.invalid && usernameInput.touched">
+            Usuário é obrigatório
+          </mat-error>
+        </mat-form-field>
 
-      <div *ngIf="error" class="alert alert-error">
-        {{ error }}
-      </div>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Senha</mat-label>
+          <input matInput 
+                 [type]="hidePassword ? 'password' : 'text'" 
+                 [(ngModel)]="senha" 
+                 name="senha"
+                 #senhaInput="ngModel" 
+                 placeholder="Digite sua senha" 
+                 [disabled]="loading" 
+                 required>
+          <button mat-icon-button 
+                  matSuffix 
+                  type="button" 
+                  (click)="hidePassword = !hidePassword"
+                  [attr.aria-label]="hidePassword ? 'Mostrar senha' : 'Ocultar senha'">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="senhaInput.invalid && senhaInput.touched">
+            Senha é obrigatória
+          </mat-error>
+        </mat-form-field>
 
-      <button type="submit" class="btn btn-primary" [disabled]="loading">
-        <span *ngIf="!loading">Entrar</span>
-        <span *ngIf="loading">Entrando...</span>
-      </button>
-    </form>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                [disabled]="loading || loginForm.invalid" 
+                class="submit-button">
+          <div class="button-content">
+            <mat-icon *ngIf="!loading">login</mat-icon>
+            <mat-progress-spinner *ngIf="loading" 
+                                diameter="20" 
+                                mode="indeterminate" 
+                                class="spinner">
+            </mat-progress-spinner>
+            <span>{{loading ? 'Entrando...' : 'Entrar'}}</span>
+          </div>
+        </button>
+      </form>
+
+      <div class="footer-info">
+        <mat-icon>shield</mat-icon>
+        <span>Acesso seguro</span>
+      </div>
+    </mat-card>
   </div>
 </div>
-

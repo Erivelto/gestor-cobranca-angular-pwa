@@ -1,18 +1,28 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+
+// Módulos do Material
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 
-// Services
+// Serviços
 import { AuthService } from './services/auth.service';
 import { PessoaService } from './services/pessoa.service';
 import { CobrancaService } from './services/cobranca.service';
 import { ViaCepService } from './services/viacep.service';
 
-// Components
+// Componentes
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.component';
@@ -32,9 +42,18 @@ import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    // Material Modules
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatGridListModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
