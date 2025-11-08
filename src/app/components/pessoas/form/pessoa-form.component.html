@@ -18,18 +18,7 @@
       <h2>Dados Básicos</h2>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="codigo">Código *</label>
-          <input
-            type="text"
-            id="codigo"
-            name="codigo"
-            [(ngModel)]="pessoa.codigo"
-            placeholder="Ex: PES001"
-            required
-            [disabled]="loading"
-          />
-        </div>
+
 
         <div class="form-group">
           <label for="nome">Nome Completo *</label>
@@ -60,18 +49,7 @@
           <small>Digite apenas números</small>
         </div>
 
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select
-            id="status"
-            name="status"
-            [(ngModel)]="pessoa.status"
-            [disabled]="loading"
-          >
-            <option [ngValue]="1">Ativo</option>
-            <option [ngValue]="0">Inativo</option>
-          </select>
-        </div>
+        
       </div>
     </div>
 
