@@ -1,4 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 import { PessoaService } from '../../services/pessoa.service';
 import { CobrancaService } from '../../services/cobranca.service';
 import { Pessoa, Cobranca } from '../../models/api.models';
@@ -20,7 +21,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private pessoaService: PessoaService,
-    private cobrancaService: CobrancaService
+    private cobrancaService: CobrancaService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +47,10 @@ export class DashboardComponent implements OnInit {
       this.statsCols = 4;
       this.actionsCols = 4;
     }
+  }
+
+  navegarPara(rota: string): void {
+    this.router.navigate([rota]);
   }
 
   loadDashboardData(): void {

@@ -27,6 +27,12 @@ export class App implements OnInit {
     this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
+  // top-bar controla a navegação; não há mais sidenav aqui
+
+  isLoginRoute(): boolean {
+    return this.router.url === '/login';
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

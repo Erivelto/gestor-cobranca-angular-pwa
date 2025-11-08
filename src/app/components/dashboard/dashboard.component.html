@@ -1,9 +1,5 @@
 <div class="dashboard-container">
-  <mat-card class="page-header-card">
-    <mat-card-title>Dashboard</mat-card-title>
-    <mat-card-subtitle>Visão geral do sistema</mat-card-subtitle>
-  </mat-card>
-
+  
   <div *ngIf="loading" class="loading-container">
     <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
     <p>Carregando dados...</p>
@@ -46,7 +42,7 @@
           <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
           <div class="stat-content">
             <h3>{{ valorTotal | currency:'BRL' }}</h3>
-            <p>Valor Total</p>
+            <p>Valor</p>
           </div>
         </div>
       </mat-card>
@@ -56,45 +52,53 @@
   <div *ngIf="!loading" class="quick-actions">
     <h2>Ações Rápidas</h2>
     <div class="actions-grid-grid">
-      <a routerLink="/pessoas/nova">
-        <mat-card class="action-card">
+      <mat-card class="action-card" (click)="navegarPara('/pessoas/nova')">
           <mat-card-content>
-            <mat-icon class="action-icon">person_add</mat-icon>
-            <h3>Nova Pessoa</h3>
-            <p>Cadastrar novo cliente</p>
+            <div class="action-icon-container">
+              <mat-icon class="action-icon">person_add</mat-icon>
+            </div>
+            <div class="action-text-container">
+              <h3>Nova Pessoa (LIVE)</h3>
+              <p>Cadastrar novo cliente</p>
+            </div>
           </mat-card-content>
         </mat-card>
-      </a>
 
-      <a routerLink="/cobrancas/nova">
-        <mat-card class="action-card">
+      <mat-card class="action-card" (click)="navegarPara('/cobrancas/nova')">
           <mat-card-content>
-            <mat-icon class="action-icon">credit_card</mat-icon>
-            <h3>Nova Cobrança</h3>
-            <p>Registrar cobrança</p>
+            <div class="action-icon-container">
+              <mat-icon class="action-icon">credit_card</mat-icon>
+            </div>
+            <div class="action-text-container">
+              <h3>Nova Cobrança</h3>
+              <p>Registrar cobrança</p>
+            </div>
           </mat-card-content>
         </mat-card>
-      </a>
 
-      <a routerLink="/pessoas">
-        <mat-card class="action-card">
+      <mat-card class="action-card" (click)="navegarPara('/pessoas')">
           <mat-card-content>
-            <mat-icon class="action-icon">people</mat-icon>
-            <h3>Ver Clientes</h3>
-            <p>Listar todos os clientes</p>
+            <div class="action-icon-container">
+              <mat-icon class="action-icon">people</mat-icon>
+            </div>
+            <div class="action-text-container">
+              <h3>Ver Clientes</h3>
+              <p>Listar todos os clientes</p>
+            </div>
           </mat-card-content>
         </mat-card>
-      </a>
 
-      <a routerLink="/cobrancas">
-        <mat-card class="action-card">
+      <mat-card class="action-card" (click)="navegarPara('/cobrancas')">
           <mat-card-content>
-            <mat-icon class="action-icon">bar_chart</mat-icon>
-            <h3>Ver Cobranças</h3>
-            <p>Listar todas as cobranças</p>
+            <div class="action-icon-container">
+              <mat-icon class="action-icon">bar_chart</mat-icon>
+            </div>
+            <div class="action-text-container">
+              <h3>Ver Cobranças</h3>
+              <p>Listar todas as cobranças</p>
+            </div>
           </mat-card-content>
         </mat-card>
-      </a>
     </div>
   </div>
 </div>

@@ -12,6 +12,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -29,6 +34,7 @@ import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.
 import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.component';
 import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
 import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
+import { TopBarComponent } from './components/top-bar/top-bar.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +44,8 @@ import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-
     PessoasListaComponent,
     PessoaFormComponent,
     PessoaEditComponent,
-    CobrancasListaComponent
+    CobrancasListaComponent,
+    TopBarComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +60,12 @@ import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-
     MatFormFieldModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatGridListModule
+  MatGridListModule,
+  MatToolbarModule,
+  MatSidenavModule,
+  MatListModule,
+  MatDividerModule,
+  MatMenuModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

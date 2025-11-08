@@ -1,17 +1,15 @@
-const CACHE_NAME = 'gestor-cobranca-v2';
-const STATIC_CACHE = 'static-v2';
-const DYNAMIC_CACHE = 'dynamic-v2';
-const API_CACHE = 'api-v2';
+const CACHE_NAME = 'gestor-cobranca-v4';
+const STATIC_CACHE = 'static-v4';
+const DYNAMIC_CACHE = 'dynamic-v4';
+const API_CACHE = 'api-v4';
 
+// Arquivos estáticos que não possuem hash (ícones, manifest e index)
 const STATIC_FILES = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icon-192.png',
-  '/icon-512.png',
-  '/styles.css',
-  '/polyfills.js',
-  '/main.js'
+  '/icon-512.png'
 ];
 
 // Função para verificar se é uma requisição da API
@@ -30,13 +28,10 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
-        console.log('[Service Worker] Precaching App Shell');
+        console.log('[Service Worker] Precaching minimal App Shell');
         return cache.addAll(STATIC_FILES);
       })
-      .then(() => {
-        console.log('[Service Worker] Skip waiting on install');
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -68,50 +63,56 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estratégia para requisições da API
+  // Requisições da API -> network-first, com fallback em cache
   if (isApiRequest(url.pathname)) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
           if (response.ok) {
             const clonedResponse = response.clone();
-            caches.open(API_CACHE)
-              .then(cache => {
-                cache.put(event.request, clonedResponse);
-              });
+            caches.open(API_CACHE).then(cache => cache.put(event.request, clonedResponse));
             return response;
           }
-          // Se a requisição falhar, tenta buscar do cache
           return caches.match(event.request);
         })
-        .catch(() => {
-          return caches.match(event.request);
-        })
+        .catch(() => caches.match(event.request))
     );
+    return;
   }
-  // Estratégia para arquivos estáticos
-  else {
+
+  // Navegações (SPA) -> network-first para garantir index atualizado
+  if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'))) {
     event.respondWith(
-      caches.match(event.request)
+      fetch(event.request)
         .then(response => {
-          if (response) {
-            return response;
-          }
-          return fetch(event.request)
-            .then(res => {
-              return caches.open(DYNAMIC_CACHE)
-                .then(cache => {
-                  // Armazena no cache dinâmico
-                  cache.put(event.request.url, res.clone());
-                  return res;
-                });
-            })
-            .catch(err => {
-              // Aqui você pode retornar uma página offline personalizada
-              console.log('[Service Worker] Fetch failed; returning offline page instead.', err);
-            });
+          // atualiza cache do shell
+          const cloned = response.clone();
+          caches.open(STATIC_CACHE).then(cache => cache.put('/index.html', cloned));
+          return response;
         })
+        .catch(() => caches.match('/index.html'))
     );
+    return;
   }
+
+  // Outros recursos (CSS/JS/Assets) -> cache-first com dynamic caching
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) return response;
+        return fetch(event.request)
+          .then(res => {
+            // não cache requests cross-origin (ex: fonts) unless CORS headers allow
+            try {
+              const resClone = res.clone();
+              caches.open(DYNAMIC_CACHE).then(cache => cache.put(event.request, resClone));
+            } catch (e) {
+              // ignore
+            }
+            return res;
+          })
+          .catch(() => null);
+      })
+  );
 });
 

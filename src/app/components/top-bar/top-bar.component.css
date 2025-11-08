@@ -1,0 +1,40 @@
+.topbar-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff !important;
+  color: #222 !important;
+  border-bottom: 1px solid #ccc;
+  box-shadow: none;
+}
+
+.menu-btn {
+  margin-right: 8px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo-icon {
+  font-size: 22px;
+}
+
+.logo-text {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.spacer { flex: 1 1 auto; }
+
+.top-links button mat-icon { margin-right: 4px; }
+
+@media (max-width: 768px) {
+  .top-links {
+    display: none;
+  }
+}

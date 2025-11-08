@@ -4,6 +4,13 @@
   margin: 0 auto;
 }
 
+/* Tamanhos padrão (podem ser ajustados por breakpoint) */
+:host {
+  --action-icon-size: 40px;              /* tamanho do ícone */
+  --action-icon-container-size: 72px;    /* caixa do ícone (coluna esquerda) */
+  --action-grid-icon-col: 84px;          /* largura da coluna do grid */
+}
+
 .page-header-card {
   margin-bottom: 20px;
   padding: 16px;
@@ -134,34 +141,51 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.action-icon {
+.action-icon-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  font-size: 26px;
+  width: var(--action-icon-container-size);
+  height: var(--action-icon-container-size);
+  min-width: var(--action-icon-container-size);
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+}
+
+.action-icon {
+  font-size: var(--action-icon-size);
+  width: 1em;
+  height: 1em;
   color: rgba(0,0,0,0.7);
 }
 
-/* Layout para o conteúdo do cartão de ação: duas colunas (ícone | texto) com padding de 5px */
+.action-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Layout para o cartão de ação: duas colunas (ícone | texto) com padding */
 .action-card mat-card-content {
   display: grid;
-  grid-template-columns: 48px 1fr;
-  gap: 8px;
+  grid-template-columns: var(--action-grid-icon-col) 1fr;
+  gap: 16px;
   align-items: center;
-  padding: 5px !important;
+  padding: 16px !important;
 }
 
 .action-card h3 {
   margin: 0 0 4px 0;
   text-align: left;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .action-card p {
   margin: 0;
   text-align: left;
-  color: #666;
+  color: rgba(0, 0, 0, 0.6);
   font-size: 13px;
 }
 
@@ -189,6 +213,12 @@
   .page-header-card mat-card-title {
     font-size: 22px;
   }
+
+  :host {
+    --action-icon-size: 36px;
+    --action-icon-container-size: 68px;
+    --action-grid-icon-col: 80px;
+  }
 }
 
 @media (max-width: 576px) {
@@ -208,8 +238,10 @@
     font-size: 18px;
   }
 
-  .action-icon {
-    font-size: 28px;
+  :host {
+    --action-icon-size: 28px;
+    --action-icon-container-size: 60px;
+    --action-grid-icon-col: 72px;
   }
 }
 

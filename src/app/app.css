@@ -17,6 +17,122 @@ body {
   flex-direction: column;
 }
 
+/* Layout Material */
+.layout-container {
+  height: 100vh;
+  background: #f5f7fb;
+}
+
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.menu-button mat-icon {
+  font-size: 24px;
+}
+
+.toolbar-title {
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.logout-btn mat-icon {
+  margin-right: 4px;
+}
+
+.app-sidenav {
+  width: 260px;
+  border-right: 1px solid rgba(0,0,0,0.08);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-nav-list .mat-icon {
+  font-size: 20px !important;
+  min-width: 20px;
+  min-height: 20px;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  height: 28px;
+}
+mat-nav-list .mat-list-item {
+  display: flex;
+  align-items: center;
+}
+
+.sidenav-header {
+  padding: 20px 20px 8px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.sidenav-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.sidenav-sub {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+mat-nav-list a.active {
+  background: rgba(0,0,0,0.06);
+  border-left: 4px solid var(--mat-primary-500, #3f51b5);
+}
+
+mat-nav-list a.mat-list-item mat-icon {
+  color: var(--mat-primary-600, #3f51b5);
+}
+
+.main-scroll {
+  padding: 16px;
+  min-height: calc(100vh - 64px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f7;
+}
+
+/* Ajuste do conteúdo principal quando autenticado */
+main {
+  display: block;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .app-sidenav {
+    width: 220px;
+  }
+  .main-scroll {
+    padding: 12px;
+  }
+  .toolbar-title {
+    font-size: 16px;
+  }
+}
+
 /* Navbar */
 .navbar {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
