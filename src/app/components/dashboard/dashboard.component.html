@@ -19,20 +19,20 @@
 
       <mat-card class="stat-card stat-cobrancas">
         <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>paid</mat-icon>
+          <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
           <div class="stat-content">
-            <h3>{{ totalCobrancas }}</h3>
-            <p>Cobranças</p>
+            <h3>{{ totalCobrancas | currency:'BRL' }}</h3>
+            <p>Devedor</p>
           </div>
         </div>
       </mat-card>
 
       <mat-card class="stat-card stat-pendentes">
         <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>schedule</mat-icon>
+          <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
           <div class="stat-content">
-            <h3>{{ cobrancasPendentes }}</h3>
-            <p>Pendentes</p>
+            <h3>{{ cobrancasPendentes | currency:'BRL' }}</h3>
+            <p>À Vencer</p>
           </div>
         </div>
       </mat-card>
@@ -42,7 +42,7 @@
           <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
           <div class="stat-content">
             <h3>{{ valorTotal | currency:'BRL' }}</h3>
-            <p>Valor</p>
+            <p>Em dia</p>
           </div>
         </div>
       </mat-card>
@@ -58,7 +58,7 @@
               <mat-icon class="action-icon">person_add</mat-icon>
             </div>
             <div class="action-text-container">
-              <h3>Nova Pessoa (LIVE)</h3>
+              <h3>Novo Cliente </h3>
               <p>Cadastrar novo cliente</p>
             </div>
           </mat-card-content>
