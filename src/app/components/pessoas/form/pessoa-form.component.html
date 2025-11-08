@@ -1,211 +1,249 @@
 <div class="page-container">
-  <div class="page-header">
-    <button class="btn-back" (click)="voltar()">←</button>
-    <h1>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</h1>
-  </div>
+  <mat-card class="page-header-card">
+    <mat-card-header>
+      <button mat-icon-button (click)="voltar()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-card-title>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</mat-card-title>
+    </mat-card-header>
+  </mat-card>
 
   <div *ngIf="success" class="alert alert-success">
+    <mat-icon>check_circle</mat-icon>
     {{ success }}
   </div>
 
   <div *ngIf="error" class="alert alert-error">
+    <mat-icon>error</mat-icon>
     {{ error }}
   </div>
 
   <form (ngSubmit)="onSubmit()" class="form-container">
     <!-- Dados Básicos -->
-    <div class="form-section">
-      <h2>Dados Básicos</h2>
+    <mat-card class="form-section">
+      <mat-card-title>Dados Básicos</mat-card-title>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Código *</mat-label>
+            <input
+              matInput
+              type="text"
+              name="codigo"
+              [(ngModel)]="pessoa.codigo"
+              placeholder="Ex: PES001"
+              required
+              [disabled]="loading"
+            />
+          </mat-form-field>
 
-      <div class="form-row">
-
-
-        <div class="form-group">
-          <label for="nome">Nome Completo *</label>
-          <input
-            type="text"
-            id="nome"
-            name="nome"
-            [(ngModel)]="pessoa.nome"
-            placeholder="Digite o nome completo"
-            required
-            [disabled]="loading"
-          />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="documento">CPF/CNPJ *</label>
-          <input
-            type="text"
-            id="documento"
-            name="documento"
-            [(ngModel)]="pessoa.documento"
-            placeholder="000.000.000-00"
-            required
-            [disabled]="loading"
-          />
-          <small>Digite apenas números</small>
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Nome Completo *</mat-label>
+            <input
+              matInput
+              type="text"
+              name="nome"
+              [(ngModel)]="pessoa.nome"
+              placeholder="Digite o nome completo"
+              required
+              [disabled]="loading"
+            />
+          </mat-form-field>
         </div>
 
-        
-      </div>
-    </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>CPF/CNPJ *</mat-label>
+            <input
+              matInput
+              type="text"
+              name="documento"
+              [(ngModel)]="pessoa.documento"
+              placeholder="000.000.000-00"
+              required
+              [disabled]="loading"
+            />
+            <mat-hint>Digite apenas números</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Status</mat-label>
+            <mat-select
+              name="status"
+              [(ngModel)]="pessoa.status"
+              [disabled]="loading"
+            >
+              <mat-option [value]="1">Ativo</mat-option>
+              <mat-option [value]="0">Inativo</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Contato -->
-    <div class="form-section" *ngIf="!isEditMode">
-      <h2>Contato</h2>
+    <mat-card class="form-section" *ngIf="!isEditMode">
+      <mat-card-title>Contato</mat-card-title>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Tipo de Contato</mat-label>
+            <mat-select
+              name="tipoContato"
+              [(ngModel)]="contato.tipo"
+              [disabled]="loading"
+            >
+              <mat-option [value]="0">Selecione...</mat-option>
+              <mat-option [value]="1">Celular</mat-option>
+              <mat-option [value]="2">Telefone</mat-option>
+              <mat-option [value]="3">E-mail</mat-option>
+              <mat-option [value]="4">WhatsApp</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="tipoContato">Tipo de Contato</label>
-          <select
-            id="tipoContato"
-            name="tipoContato"
-            [(ngModel)]="contato.tipo"
-            [disabled]="loading"
-          >
-            <option [ngValue]="0">Selecione...</option>
-            <option [ngValue]="1">Celular</option>
-            <option [ngValue]="2">Telefone</option>
-            <option [ngValue]="3">E-mail</option>
-            <option [ngValue]="4">WhatsApp</option>
-          </select>
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Contato</mat-label>
+            <input
+              matInput
+              type="text"
+              name="contato"
+              [(ngModel)]="contato.contato"
+              placeholder="Digite o contato"
+              [disabled]="loading"
+            />
+          </mat-form-field>
         </div>
-
-        <div class="form-group">
-          <label for="contato">Contato</label>
-          <input
-            type="text"
-            id="contato"
-            name="contato"
-            [(ngModel)]="contato.contato"
-            placeholder="Digite o contato"
-            [disabled]="loading"
-          />
-        </div>
-      </div>
-    </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Endereço -->
-    <div class="form-section" *ngIf="!isEditMode">
-      <h2>Endereço</h2>
+    <mat-card class="form-section" *ngIf="!isEditMode">
+      <mat-card-title>Endereço</mat-card-title>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>CEP</mat-label>
+            <input
+              matInput
+              type="text"
+              name="cep"
+              [(ngModel)]="endereco.cep"
+              placeholder="00000-000"
+              [disabled]="loading"
+            />
+          </mat-form-field>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="cep">CEP</label>
-          <input
-            type="text"
-            id="cep"
-            name="cep"
-            [(ngModel)]="endereco.cep"
-            placeholder="00000-000"
-            [disabled]="loading"
-          />
+          <div class="form-group">
+            <button
+              type="button"
+              mat-raised-button
+              color="accent"
+              (click)="buscarCep()"
+              [disabled]="loading || loadingCep || !endereco.cep"
+            >
+              <mat-icon *ngIf="loadingCep">refresh</mat-icon>
+              {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
+            </button>
+          </div>
         </div>
 
-        <div class="form-group">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="buscarCep()"
-            [disabled]="loading || loadingCep || !endereco.cep"
-          >
-            {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
-          </button>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group form-group-full">
-          <label for="logradouro">Logradouro</label>
-          <input
-            type="text"
-            id="logradouro"
-            name="logradouro"
-            [(ngModel)]="endereco.logradouro"
-            placeholder="Rua, Avenida, etc."
-            [disabled]="loading"
-          />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="numero">Número</label>
-          <input
-            type="text"
-            id="numero"
-            name="numero"
-            [(ngModel)]="endereco.numero"
-            placeholder="Nº"
-            [disabled]="loading"
-          />
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group-full">
+            <mat-label>Logradouro</mat-label>
+            <input
+              matInput
+              type="text"
+              name="logradouro"
+              [(ngModel)]="endereco.logradouro"
+              placeholder="Rua, Avenida, etc."
+              [disabled]="loading"
+            />
+          </mat-form-field>
         </div>
 
-        <div class="form-group">
-          <label for="complemento">Complemento</label>
-          <input
-            type="text"
-            id="complemento"
-            name="complemento"
-            [(ngModel)]="endereco.complemento"
-            placeholder="Apto, Bloco, etc."
-            [disabled]="loading"
-          />
-        </div>
-      </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Número</mat-label>
+            <input
+              matInput
+              type="text"
+              name="numero"
+              [(ngModel)]="endereco.numero"
+              placeholder="Nº"
+              [disabled]="loading"
+            />
+          </mat-form-field>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="bairro">Bairro</label>
-          <input
-            type="text"
-            id="bairro"
-            name="bairro"
-            [(ngModel)]="endereco.bairro"
-            placeholder="Bairro"
-            [disabled]="loading"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="cidade">Cidade</label>
-          <input
-            type="text"
-            id="cidade"
-            name="cidade"
-            [(ngModel)]="endereco.cidade"
-            placeholder="Cidade"
-            [disabled]="loading"
-          />
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Complemento</mat-label>
+            <input
+              matInput
+              type="text"
+              name="complemento"
+              [(ngModel)]="endereco.complemento"
+              placeholder="Apto, Bloco, etc."
+              [disabled]="loading"
+            />
+          </mat-form-field>
         </div>
 
-        <div class="form-group">
-          <label for="estado">Estado</label>
-          <input
-            type="text"
-            id="estado"
-            name="estado"
-            [(ngModel)]="endereco.estado"
-            placeholder="UF"
-            maxlength="2"
-            [disabled]="loading"
-          />
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Bairro</mat-label>
+            <input
+              matInput
+              type="text"
+              name="bairro"
+              [(ngModel)]="endereco.bairro"
+              placeholder="Bairro"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Cidade</mat-label>
+            <input
+              matInput
+              type="text"
+              name="cidade"
+              [(ngModel)]="endereco.cidade"
+              placeholder="Cidade"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Estado</mat-label>
+            <input
+              matInput
+              type="text"
+              name="estado"
+              [(ngModel)]="endereco.estado"
+              placeholder="UF"
+              maxlength="2"
+              [disabled]="loading"
+            />
+          </mat-form-field>
         </div>
-      </div>
-    </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Botões -->
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary" (click)="voltar()" [disabled]="loading">
-        Cancelar
-      </button>
-      <button type="submit" class="btn btn-primary" [disabled]="loading">
-        {{ loading ? 'Salvando...' : (isEditMode ? 'Atualizar Cliente' : 'Salvar Pessoa') }}
-      </button>
-    </div>
+    <mat-card class="form-actions">
+      <mat-card-content>
+        <div class="button-row">
+          <button type="button" mat-stroked-button (click)="voltar()" [disabled]="loading">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="loading">
+            <mat-icon *ngIf="loading">refresh</mat-icon>
+            <mat-icon *ngIf="!loading">save</mat-icon>
+            {{ loading ? 'Salvando...' : (isEditMode ? 'Atualizar Cliente' : 'Salvar Pessoa') }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </form>
 </div>
 

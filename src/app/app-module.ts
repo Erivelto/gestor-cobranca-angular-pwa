@@ -17,6 +17,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -60,12 +61,13 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
     MatFormFieldModule,
     MatIconModule,
     MatProgressSpinnerModule,
-  MatGridListModule,
-  MatToolbarModule,
-  MatSidenavModule,
-  MatListModule,
-  MatDividerModule,
-  MatMenuModule
+    MatGridListModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatDividerModule,
+    MatMenuModule,
+    MatSelectModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
