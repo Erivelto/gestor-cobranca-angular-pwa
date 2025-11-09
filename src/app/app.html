@@ -38,3 +38,22 @@
   <router-outlet></router-outlet>
 </ng-template>
 
+<!-- Global Spinner -->
+<div 
+  *ngIf="(spinnerState$ | async)?.isLoading" 
+  class="global-spinner-container"
+  [class.global-spinner-container--fullscreen]="(spinnerState$ | async)?.fullScreen"
+  [class.global-spinner-container--overlay]="(spinnerState$ | async)?.overlay">
+  
+  <div class="global-spinner">
+    <div class="global-spinner__dot"></div>
+    <div class="global-spinner__dot"></div>
+    <div class="global-spinner__dot"></div>
+    <div class="global-spinner__dot"></div>
+  </div>
+  
+  <div class="global-spinner-message" *ngIf="(spinnerState$ | async)?.message">
+    <p>{{ (spinnerState$ | async)?.message }}</p>
+  </div>
+</div>
+

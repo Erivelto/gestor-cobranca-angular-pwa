@@ -11,27 +11,31 @@
     margin: 9px 0 11px 14px;
 }
 
-.header-card {
-  margin-bottom: 24px;
-}
-
-.header-content {
+.dashboard-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-}
-
-.header-title {
-  display: flex;
   align-items: center;
-  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0 4px;
 }
 
-.header-title h1 {
+.dashboard-header h1 {
   margin: 0;
-  color: #1976d2;
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.header-title .subtitle {
+  margin: 4px 0 0 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 400;
+}
+
+.back-button {
+  color: #666;
 }
 
 .section-card {

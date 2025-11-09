@@ -1,67 +1,252 @@
-<div class="page-container">
-  <div class="page-header">
+<div class="pessoas-lista-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
     <h1>Clientes</h1>
-    <button class="btn btn-primary" (click)="novaPessoa()">
-      <span class="icon">+</span> Novo Cliente
-    </button>
   </div>
 
+  <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
-    <div class="spinner"></div>
-    <p>Carregando clientes...</p>
+    <mat-card class="loading-card">
+      <mat-card-content class="loading-content">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Carregando clientes...</p>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <div *ngIf="error && !loading" class="alert alert-error">
-    {{ error }}
+  <!-- Error State -->
+  <mat-card *ngIf="error && !loading" class="error-card">
+    <mat-card-content class="error-content">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="loadPessoas()">
+        <mat-icon>refresh</mat-icon>
+        Tentar Novamente
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Empty State -->
+  <mat-card *ngIf="!loading && !error && pessoas.length === 0" class="empty-card">
+    <mat-card-content class="empty-content">
+      <mat-icon class="empty-icon">person_add</mat-icon>
+      <h2>Nenhum cliente cadastrado</h2>
+      <p>Comece adicionando seu primeiro cliente</p>
+      <button mat-raised-button color="primary" (click)="novaPessoa()">
+        <mat-icon>add</mat-icon>
+        Cadastrar Primeiro Cliente
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Enhanced Desktop Table View -->
+  <div *ngIf="!loading && !error && pessoas.length > 0" class="enhanced-table-container desktop-only">
+    <mat-card class="enhanced-table-card">
+      <!-- Header com busca e ações -->
+      <div class="table-header">
+        <!-- Barra de busca -->
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Buscar clientes...</mat-label>
+          <input matInput 
+                 [(ngModel)]="searchTerm" 
+                 (input)="applyFilter()"
+                 placeholder="Digite para buscar">
+          <mat-icon matPrefix>search</mat-icon>
+          <button mat-icon-button 
+                  matSuffix 
+                  *ngIf="searchTerm" 
+                  (click)="searchTerm=''; applyFilter()"
+                  matTooltip="Limpar busca">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Botão adicionar -->
+        <button mat-raised-button color="primary" (click)="novaPessoa()" class="add-new-btn">
+          <mat-icon>add</mat-icon>
+          Novo Cliente
+        </button>
+      </div>
+
+      <!-- Tabela -->
+      <div class="table-wrapper">
+        <table mat-table 
+               [dataSource]="dataSource" 
+               matSort 
+               class="enhanced-pessoas-table"
+               [class.loading]="loading">
+
+          <!-- Código Column -->
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Código</th>
+            <td mat-cell *matCellDef="let pessoa" (click)="onRowClick(pessoa)">
+              <span class="codigo-badge">{{ pessoa.codigo }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Nome Column -->
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
+            <td mat-cell *matCellDef="let pessoa" (click)="onRowClick(pessoa)">
+              <div class="nome-cell">
+                <mat-icon class="person-icon">person</mat-icon>
+                <span class="nome-text">{{ pessoa.nome }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Documento Column -->
+          <ng-container matColumnDef="documento">
+            <th mat-header-cell *matHeaderCellDef>Documento</th>
+            <td mat-cell *matCellDef="let pessoa" (click)="onRowClick(pessoa)">
+              <span class="documento-text">{{ pessoa.documento }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let pessoa" (click)="onRowClick(pessoa)">
+              <mat-chip [class]="getStatusClass(pessoa.status)">
+                <mat-icon class="status-icon">
+                  {{ pessoa.status === 1 ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+                {{ getStatusText(pessoa.status) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+            <td mat-cell *matCellDef="let pessoa" class="actions-column">
+              <button mat-icon-button 
+                      [matMenuTriggerFor]="actionsMenu"
+                      matTooltip="Ações"
+                      class="actions-btn">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #actionsMenu="matMenu" class="enhanced-menu">
+                <button mat-menu-item (click)="editarPessoaAvancado(pessoa.codigo)">
+                  <mat-icon color="primary">edit</mat-icon>
+                  <span>Editar Avançado</span>
+                </button>
+                <button mat-menu-item (click)="editarPessoa(pessoa.codigo)">
+                  <mat-icon color="accent">edit_note</mat-icon>
+                  <span>Editar Simples</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deletarPessoa(pessoa.codigo)" class="delete-action">
+                  <mat-icon color="warn">delete</mat-icon>
+                  <span>Excluir</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <!-- Header row -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          
+          <!-- Data rows -->
+          <tr mat-row 
+              *matRowDef="let row; columns: displayedColumns;"
+              class="data-row"
+              [class.row-hover]="true">
+          </tr>
+
+          <!-- No data row -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-container">
+                <mat-icon class="no-data-icon">search_off</mat-icon>
+                <p class="no-data-message">
+                  <span *ngIf="searchTerm; else noResults">
+                    Nenhum resultado encontrado para "{{ searchTerm }}"
+                  </span>
+                  <ng-template #noResults>
+                    Nenhum cliente encontrado
+                  </ng-template>
+                </p>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Loading overlay -->
+        <div class="loading-overlay" *ngIf="loading">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Carregando dados...</p>
+        </div>
+      </div>
+
+      <!-- Paginação -->
+      <mat-paginator 
+                     [pageSizeOptions]="[5, 10, 20, 50]"
+                     [pageSize]="10"
+                     showFirstLastButtons
+                     class="table-paginator">
+      </mat-paginator>
+    </mat-card>
   </div>
 
-  <div *ngIf="!loading && !error && pessoas.length === 0" class="empty-state">
-    <p>Nenhum cliente cadastrado.</p>
-    <button class="btn btn-primary" (click)="novaPessoa()">
-      Cadastrar primeiro cliente
-    </button>
-  </div>
-
-  <div *ngIf="!loading && !error && pessoas.length > 0" class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Nome</th>
-          <th>Documento</th>
-          <th>Status</th>
-          <th class="actions-column">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let pessoa of pessoas; let i = index">
-          <td>{{ pessoa.codigo }}</td>
-          <td>{{ pessoa.nome }}</td>
-          <td>{{ pessoa.documento }}</td>
-          <td>
-            <span class="badge" [ngClass]="getStatusClass(pessoa.status)">
+  <!-- Mobile Card View -->
+  <div *ngIf="!loading && !error && pessoas.length > 0" class="mobile-cards mobile-only">
+    <mat-card *ngFor="let pessoa of pessoas; trackBy: trackByPessoa" class="pessoa-card">
+      <mat-card-header>
+        <div mat-card-avatar class="pessoa-avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <mat-card-title>{{ pessoa.nome }}</mat-card-title>
+        <mat-card-subtitle>Código: {{ pessoa.codigo }}</mat-card-subtitle>
+        <div class="card-actions">
+          <button mat-icon-button [matMenuTriggerFor]="mobileMenu" color="primary">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #mobileMenu="matMenu">
+            <button mat-menu-item (click)="editarPessoaAvancado(pessoa.codigo)">
+              <mat-icon>edit</mat-icon>
+              <span>Editar Avançado</span>
+            </button>
+            <button mat-menu-item (click)="editarPessoa(pessoa.codigo)">
+              <mat-icon>edit_note</mat-icon>
+              <span>Editar Simples</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="deletarPessoa(pessoa.codigo)" class="delete-action">
+              <mat-icon>delete</mat-icon>
+              <span>Excluir</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="pessoa-info">
+          <div class="info-row">
+            <mat-icon class="info-icon">badge</mat-icon>
+            <span class="info-label">Documento:</span>
+            <span class="info-value">{{ pessoa.documento }}</span>
+          </div>
+          <div class="info-row">
+            <mat-icon class="info-icon">info</mat-icon>
+            <span class="info-label">Status:</span>
+            <mat-chip [class]="getStatusClass(pessoa.status)">
               {{ getStatusText(pessoa.status) }}
-            </span>
-          </td>
-          <td class="actions-column">
-            <button class="btn btn-sm btn-primary" 
-                    (click)="editarPessoaAvancado(pessoa.codigo)" 
-                    title="Edição Avançada">
-              📝 Editar
-            </button>
-            <button class="btn btn-sm btn-warning" 
-                    (click)="editarPessoa(pessoa.codigo)" 
-                    title="Edição Simples">
-              ✏️ Simples
-            </button>
-            <button class="btn btn-sm btn-danger" 
-                    (click)="deletarPessoa(pessoa.codigo)">
-              🗑️ Excluir
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="mobile-actions">
+        <button mat-button color="primary" (click)="editarPessoaAvancado(pessoa.codigo)">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-button color="accent" (click)="editarPessoa(pessoa.codigo)">
+          <mat-icon>edit_note</mat-icon>
+          Simples
+        </button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </div>
 
