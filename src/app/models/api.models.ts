@@ -18,8 +18,7 @@ export interface LoginResponse {
 }
 
 export interface Pessoa {
-  id?: number;
-  codigo: string;
+  codigo: number;
   nome: string;
   documento: string;
   status?: number;
@@ -28,15 +27,18 @@ export interface Pessoa {
 }
 
 export interface PessoaContato {
-  id?: number;
-  pessoaId?: number;
-  tipo?: number;
+  codigo: number;
+  codigopesssoa: number;
+  email?: string;
+  site?: string;
+  ddd?: string;
+  celular?: string;
   contato: string;
 }
 
 export interface PessoaEndereco {
-  id?: number;
-  pessoaId?: number;
+  codigo: number;
+  codigopessoa: number;
   cep?: string;
   logradouro?: string;
   numero?: string;
@@ -47,8 +49,8 @@ export interface PessoaEndereco {
 }
 
 export interface Cobranca {
-  id?: number;
-  pessoaId: number;
+  codigo: number;
+  codigopessoa: number;
   pessoa?: Pessoa;
   descricao: string;
   valor: number;

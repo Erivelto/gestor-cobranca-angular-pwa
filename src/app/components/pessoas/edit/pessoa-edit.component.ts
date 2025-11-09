@@ -13,7 +13,7 @@ import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.model
 export class PessoaEditComponent implements OnInit {
   pessoaId: string | null = null;
   pessoa: Pessoa = {
-    codigo: '',
+    codigo: 0,
     nome: '',
     documento: '',
     status: 1
@@ -23,11 +23,18 @@ export class PessoaEditComponent implements OnInit {
   enderecos: PessoaEndereco[] = [];
   
   novoContato: PessoaContato = {
-    tipo: 0,
+    codigo: 0,
+    codigopesssoa: 0,
+    email: '',
+    site: '',
+    ddd: '',
+    celular: '',
     contato: ''
   };
 
   novoEndereco: PessoaEndereco = {
+    codigo: 0,
+    codigopessoa: 0,
     cep: '',
     logradouro: '',
     numero: '',
@@ -113,7 +120,7 @@ export class PessoaEditComponent implements OnInit {
     }
 
     this.loading = true;
-    this.pessoaService.updatePessoa(this.pessoa.id!, this.pessoa).subscribe({
+    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
       next: () => {
         this.success = 'Cliente atualizado com sucesso!';
         this.loading = false;
@@ -134,7 +141,7 @@ export class PessoaEditComponent implements OnInit {
       return;
     }
 
-    this.novoContato.pessoaId = this.pessoa.id;
+    this.novoContato.codigopesssoa = this.pessoa.codigo;
     this.pessoaService.createContato(this.novoContato).subscribe({
       next: (contato) => {
         this.contatos.push(contato);
@@ -156,7 +163,7 @@ export class PessoaEditComponent implements OnInit {
   }
 
   saveContato(contato: PessoaContato): void {
-    this.pessoaService.updateContato(contato.id!, contato).subscribe({
+    this.pessoaService.updateContato(contato.codigo, contato).subscribe({
       next: () => {
         this.editingContato = null;
         this.success = 'Contato atualizado com sucesso!';
@@ -170,9 +177,9 @@ export class PessoaEditComponent implements OnInit {
     });
   }
 
-  deleteContato(id: number, index: number): void {
+  deleteContato(codigo: number, index: number): void {
     if (confirm('Deseja realmente excluir este contato?')) {
-      this.pessoaService.deleteContato(id).subscribe({
+      this.pessoaService.deleteContato(codigo).subscribe({
         next: () => {
           this.contatos.splice(index, 1);
           this.success = 'Contato excluído com sucesso!';
@@ -193,7 +200,7 @@ export class PessoaEditComponent implements OnInit {
       return;
     }
 
-    this.novoEndereco.pessoaId = this.pessoa.id;
+    this.novoEndereco.codigopessoa = this.pessoa.codigo;
     this.pessoaService.createEndereco(this.novoEndereco).subscribe({
       next: (endereco) => {
         this.enderecos.push(endereco);
@@ -215,7 +222,7 @@ export class PessoaEditComponent implements OnInit {
   }
 
   saveEndereco(endereco: PessoaEndereco): void {
-    this.pessoaService.updateEndereco(endereco.id!, endereco).subscribe({
+    this.pessoaService.updateEndereco(endereco.codigo, endereco).subscribe({
       next: () => {
         this.editingEndereco = null;
         this.success = 'Endereço atualizado com sucesso!';
@@ -229,9 +236,9 @@ export class PessoaEditComponent implements OnInit {
     });
   }
 
-  deleteEndereco(id: number, index: number): void {
+  deleteEndereco(codigo: number, index: number): void {
     if (confirm('Deseja realmente excluir este endereço?')) {
-      this.pessoaService.deleteEndereco(id).subscribe({
+      this.pessoaService.deleteEndereco(codigo).subscribe({
         next: () => {
           this.enderecos.splice(index, 1);
           this.success = 'Endereço excluído com sucesso!';
@@ -274,9 +281,8 @@ export class PessoaEditComponent implements OnInit {
   }
 
   getTipoContatoText(tipo?: number): string {
-    if (!tipo) return 'Não informado';
-    const tipos = ['', 'Celular', 'Telefone', 'E-mail', 'WhatsApp'];
-    return tipos[tipo] || 'Não informado';
+    // Método removido - não mais necessário com nova estrutura
+    return '';
   }
 
   // === VALIDAÇÕES ===
@@ -290,8 +296,8 @@ export class PessoaEditComponent implements OnInit {
   }
 
   validateContato(): boolean {
-    if (!this.novoContato.contato || this.novoContato.tipo === 0) {
-      this.error = 'Por favor, preencha o tipo e o contato';
+    if (!this.novoContato.contato && !this.novoContato.email && !this.novoContato.celular) {
+      this.error = 'Por favor, preencha pelo menos um campo de contato';
       this.clearMessages();
       return false;
     }
@@ -310,13 +316,20 @@ export class PessoaEditComponent implements OnInit {
   // === RESET E LIMPEZA ===
   resetNovoContato(): void {
     this.novoContato = {
-      tipo: 0,
+      codigo: 0,
+      codigopesssoa: 0,
+      email: '',
+      site: '',
+      ddd: '',
+      celular: '',
       contato: ''
     };
   }
 
   resetNovoEndereco(): void {
     this.novoEndereco = {
+      codigo: 0,
+      codigopessoa: 0,
       cep: '',
       logradouro: '',
       numero: '',

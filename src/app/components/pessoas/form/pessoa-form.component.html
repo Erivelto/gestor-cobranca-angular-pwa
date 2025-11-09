@@ -24,18 +24,6 @@
       <mat-card-title>Dados Básicos</mat-card-title>
       <mat-card-content>
         <div class="form-row">
-          <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Código *</mat-label>
-            <input
-              matInput
-              type="text"
-              name="codigo"
-              [(ngModel)]="pessoa.codigo"
-              placeholder="Ex: PES001"
-              required
-              [disabled]="loading"
-            />
-          </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Nome Completo *</mat-label>
@@ -65,18 +53,6 @@
             />
             <mat-hint>Digite apenas números</mat-hint>
           </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Status</mat-label>
-            <mat-select
-              name="status"
-              [(ngModel)]="pessoa.status"
-              [disabled]="loading"
-            >
-              <mat-option [value]="1">Ativo</mat-option>
-              <mat-option [value]="0">Inativo</mat-option>
-            </mat-select>
-          </mat-form-field>
         </div>
       </mat-card-content>
     </mat-card>
@@ -87,28 +63,64 @@
       <mat-card-content>
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Tipo de Contato</mat-label>
-            <mat-select
-              name="tipoContato"
-              [(ngModel)]="contato.tipo"
+            <mat-label>E-mail</mat-label>
+            <input
+              matInput
+              type="email"
+              name="email"
+              [(ngModel)]="contato.email"
+              placeholder="email@exemplo.com"
               [disabled]="loading"
-            >
-              <mat-option [value]="0">Selecione...</mat-option>
-              <mat-option [value]="1">Celular</mat-option>
-              <mat-option [value]="2">Telefone</mat-option>
-              <mat-option [value]="3">E-mail</mat-option>
-              <mat-option [value]="4">WhatsApp</mat-option>
-            </mat-select>
+            />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Contato</mat-label>
+            <mat-label>Site</mat-label>
+            <input
+              matInput
+              type="text"
+              name="site"
+              [(ngModel)]="contato.site"
+              placeholder="www.exemplo.com"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>DDD</mat-label>
+            <input
+              matInput
+              type="text"
+              name="ddd"
+              [(ngModel)]="contato.ddd"
+              placeholder="11"
+              maxlength="2"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Celular</mat-label>
+            <input
+              matInput
+              type="text"
+              name="celular"
+              [(ngModel)]="contato.celular"
+              placeholder="91234-5678"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Outro Contato</mat-label>
             <input
               matInput
               type="text"
               name="contato"
               [(ngModel)]="contato.contato"
-              placeholder="Digite o contato"
+              placeholder="Telefone fixo, WhatsApp, etc."
               [disabled]="loading"
             />
           </mat-form-field>

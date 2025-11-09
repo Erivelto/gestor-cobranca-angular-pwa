@@ -12,18 +12,25 @@ import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.model
 })
 export class PessoaFormComponent implements OnInit {
   pessoa: Pessoa = {
-    codigo: '',
+    codigo: 0,
     nome: '',
     documento: '',
     status: 1
   };
 
   contato: PessoaContato = {
-    tipo: 0,
+    codigo: 0,
+    codigopesssoa: 0,
+    email: '',
+    site: '',
+    ddd: '',
+    celular: '',
     contato: ''
   };
 
   endereco: PessoaEndereco = {
+    codigo: 0,
+    codigopessoa: 0,
     cep: '',
     logradouro: '',
     numero: '',
@@ -115,14 +122,14 @@ export class PessoaFormComponent implements OnInit {
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
         // Criar contato se preenchido
-        if (this.contato.contato) {
-          this.contato.pessoaId = pessoaCriada.id;
+        if (this.contato.contato || this.contato.email || this.contato.celular) {
+          this.contato.codigopesssoa = pessoaCriada.codigo;
           this.pessoaService.createContato(this.contato).subscribe();
         }
 
         // Criar endereço se preenchido
         if (this.endereco.cep) {
-          this.endereco.pessoaId = pessoaCriada.id;
+          this.endereco.codigopessoa = pessoaCriada.codigo;
           this.pessoaService.createEndereco(this.endereco).subscribe();
         }
 
@@ -142,7 +149,7 @@ export class PessoaFormComponent implements OnInit {
   }
 
   updatePessoa(): void {
-    this.pessoaService.updatePessoa(this.pessoa.id!, this.pessoa).subscribe({
+    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
       next: () => {
         this.success = 'Cliente atualizado com sucesso!';
         this.loading = false;
