@@ -1,0 +1,15 @@
+<div class="success-modal-content">
+  <mat-icon class="success-icon">check_circle</mat-icon>
+  <h2 mat-dialog-title>{{ data.title || 'Sucesso' }}</h2>
+  <div mat-dialog-content>
+    <p>{{ data.message }}</p>
+  </div>
+  <div mat-dialog-actions align="end">
+    <button mat-flat-button 
+            color="primary"
+            (click)="closeDialog()"
+            class="action-button">
+      {{ data.buttonText || 'Ok' }}
+    </button>
+  </div>
+</div>

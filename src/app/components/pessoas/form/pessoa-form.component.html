@@ -107,8 +107,8 @@
               matInput
               type="text"
               name="contato"
-              [(ngModel)]="contato.contato"
-              placeholder="Digite o contato"
+              [(ngModel)]="contato.celular"
+              placeholder="Digite o celular"
               [disabled]="loading"
             />
           </mat-form-field>
@@ -168,7 +168,7 @@
               matInput
               type="text"
               name="numero"
-              [(ngModel)]="endereco.numero"
+              [(ngModel)]="endereco.numrero"
               placeholder="Nº"
               [disabled]="loading"
             />
@@ -217,8 +217,8 @@
             <input
               matInput
               type="text"
-              name="estado"
-              [(ngModel)]="endereco.estado"
+              name="uf"
+              [(ngModel)]="endereco.uf"
               placeholder="UF"
               maxlength="2"
               [disabled]="loading"

@@ -19,18 +19,24 @@ export class PessoaFormComponent implements OnInit {
   };
 
   contato: PessoaContato = {
-    tipo: 0,
-    contato: ''
+    email: '',
+    site: '',
+    ddd: '',
+    celular: '',
+    excluido: false,
+    tipo: 'celular'
   };
 
   endereco: PessoaEndereco = {
-    cep: '',
+    tipo: 'R',
     logradouro: '',
-    numero: '',
+    numrero: '',
     complemento: '',
     bairro: '',
     cidade: '',
-    estado: ''
+    uf: '',
+    cep: '',
+    excluido: false
   };
 
   isEditMode: boolean = false;
@@ -83,7 +89,10 @@ export class PessoaFormComponent implements OnInit {
           this.endereco.logradouro = response.logradouro;
           this.endereco.bairro = response.bairro;
           this.endereco.cidade = response.localidade;
-          this.endereco.estado = response.uf;
+          this.endereco.logradouro = response.logradouro;
+          this.endereco.bairro = response.bairro;
+          this.endereco.cidade = response.localidade;
+          this.endereco.uf = response.uf;
         }
         this.loadingCep = false;
       },
@@ -115,14 +124,14 @@ export class PessoaFormComponent implements OnInit {
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
         // Criar contato se preenchido
-        if (this.contato.contato) {
-          this.contato.pessoaId = pessoaCriada.id;
+        if (this.contato.celular || this.contato.email) {
+          this.contato.codigoPessoa = parseInt(pessoaCriada.codigo);
           this.pessoaService.createContato(this.contato).subscribe();
         }
 
         // Criar endereço se preenchido
         if (this.endereco.cep) {
-          this.endereco.pessoaId = pessoaCriada.id;
+          this.endereco.codigoPessoa = parseInt(pessoaCriada.codigo);
           this.pessoaService.createEndereco(this.endereco).subscribe();
         }
 
