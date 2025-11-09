@@ -27,28 +27,17 @@
       <thead>
         <tr>
           <th>Código</th>
-          <th>Nome</th>
-          <th>Documento</th>
-          <th>Status</th>
+          <th>Nome</th>          
           <th class="actions-column">Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let pessoa of pessoas">
           <td>{{ pessoa.codigo }}</td>
-          <td>{{ pessoa.nome }}</td>
-          <td>{{ pessoa.documento }}</td>
-          <td>
-            <span class="badge" [ngClass]="getStatusClass(pessoa.status)">
-              {{ getStatusText(pessoa.status) }}
-            </span>
-          </td>
+          <td>{{ pessoa.nome }}</td>        
           <td class="actions-column">
             <button class="btn btn-sm btn-primary" (click)="editarPessoaAvancado(pessoa.codigo)" title="Edição Avançada">
               📝 Editar
-            </button>
-            <button class="btn btn-sm btn-warning" (click)="editarPessoa(pessoa.codigo)" title="Edição Simples">
-              ✏️ Simples
             </button>
             <button class="btn btn-sm btn-danger" (click)="deletarPessoa(pessoa.codigo)">
               🗑️ Excluir
