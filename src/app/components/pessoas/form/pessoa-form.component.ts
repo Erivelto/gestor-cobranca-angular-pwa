@@ -24,8 +24,7 @@ export class PessoaFormComponent implements OnInit {
     email: '',
     site: '',
     ddd: '',
-    celular: '',
-    contato: ''
+    celular: ''
   };
 
   endereco: PessoaEndereco = {
@@ -103,10 +102,17 @@ export class PessoaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('onSubmit chamado!');
+    console.log('Pessoa:', this.pessoa);
+    console.log('Contato:', this.contato);
+    console.log('Endereco:', this.endereco);
+
     if (!this.validateForm()) {
+      console.log('Validação falhou');
       return;
     }
 
+    console.log('Validação passou, iniciando gravação...');
     this.loading = true;
     this.error = '';
     this.success = '';
@@ -122,7 +128,7 @@ export class PessoaFormComponent implements OnInit {
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
         // Criar contato se preenchido
-        if (this.contato.contato || this.contato.email || this.contato.celular) {
+        if (this.contato.email || this.contato.celular) {
           this.contato.codigopesssoa = pessoaCriada.codigo;
           this.pessoaService.createContato(this.contato).subscribe();
         }
@@ -167,8 +173,8 @@ export class PessoaFormComponent implements OnInit {
   }
 
   validateForm(): boolean {
-    if (!this.pessoa.codigo || !this.pessoa.nome || !this.pessoa.documento) {
-      this.error = 'Por favor, preencha todos os campos obrigatórios';
+    if (!this.pessoa.nome || !this.pessoa.documento) {
+      this.error = 'Por favor, preencha todos os campos obrigatórios (Nome e Documento)';
       return false;
     }
     return true;

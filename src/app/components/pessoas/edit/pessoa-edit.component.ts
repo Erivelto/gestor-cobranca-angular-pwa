@@ -28,8 +28,7 @@ export class PessoaEditComponent implements OnInit {
     email: '',
     site: '',
     ddd: '',
-    celular: '',
-    contato: ''
+    celular: ''
   };
 
   novoEndereco: PessoaEndereco = {
@@ -296,8 +295,8 @@ export class PessoaEditComponent implements OnInit {
   }
 
   validateContato(): boolean {
-    if (!this.novoContato.contato && !this.novoContato.email && !this.novoContato.celular) {
-      this.error = 'Por favor, preencha pelo menos um campo de contato';
+    if (!this.novoContato.email && !this.novoContato.celular) {
+      this.error = 'Por favor, preencha pelo menos um campo de contato (email ou celular)';
       this.clearMessages();
       return false;
     }
@@ -321,8 +320,7 @@ export class PessoaEditComponent implements OnInit {
       email: '',
       site: '',
       ddd: '',
-      celular: '',
-      contato: ''
+      celular: ''
     };
   }
 

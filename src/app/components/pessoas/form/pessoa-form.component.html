@@ -24,7 +24,6 @@
       <mat-card-title>Dados Básicos</mat-card-title>
       <mat-card-content>
         <div class="form-row">
-
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Nome Completo *</mat-label>
             <input
@@ -38,7 +37,6 @@
             />
           </mat-form-field>
         </div>
-
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>CPF/CNPJ *</mat-label>
@@ -113,17 +111,7 @@
             />
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Outro Contato</mat-label>
-            <input
-              matInput
-              type="text"
-              name="contato"
-              [(ngModel)]="contato.contato"
-              placeholder="Telefone fixo, WhatsApp, etc."
-              [disabled]="loading"
-            />
-          </mat-form-field>
+
         </div>
       </mat-card-content>
     </mat-card>

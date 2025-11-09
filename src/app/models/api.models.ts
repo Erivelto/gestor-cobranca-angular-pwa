@@ -32,8 +32,7 @@ export interface PessoaContato {
   email?: string;
   site?: string;
   ddd?: string;
-  celular?: string;
-  contato: string;
+  celular?: string;  
 }
 
 export interface PessoaEndereco {
