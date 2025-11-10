@@ -27,24 +27,28 @@ export interface Pessoa {
 }
 
 export interface PessoaContato {
-  codigo: number;
-  codigopesssoa: number;
+  codigo?: number;
+  codigopesssoa?: number;
   email?: string;
   site?: string;
   ddd?: string;
-  celular?: string;  
+  celular?: string;
+  excluido?: boolean;
+  tipo?: string;
 }
 
 export interface PessoaEndereco {
-  codigo: number;
-  codigopessoa: number;
-  cep?: string;
+  codigo?: number;
+  codigopessoa?: number;
+  tipo?: string;
   logradouro?: string;
-  numero?: string;
+  numrero?: string; // Note: API usa "numrero" (com erro ortográfico)
   complemento?: string;
   bairro?: string;
   cidade?: string;
-  estado?: string;
+  uf?: string;
+  cep?: string;
+  excluido?: boolean;
 }
 
 export interface Cobranca {

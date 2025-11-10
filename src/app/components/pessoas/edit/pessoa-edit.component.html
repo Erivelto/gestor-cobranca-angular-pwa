@@ -1,104 +1,403 @@
-<div class="edit-page-container">
-  <!-- Header -->
-  <div class="page-header">
-    <button class="btn-back" (click)="voltar()">←</button>
-    <h1>🚧 TESTE - Editar Cliente: {{ pessoa.nome || 'Carregando...' }}</h1>
-  </div>
+<div class="page-container">
+  <mat-card class="page-header-card">
+    <mat-card-header>
+      <button mat-icon-button (click)="voltar()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-card-title>Editar Cliente Avançado</mat-card-title>
+      <mat-card-subtitle *ngIf="pessoa.nome">{{ pessoa.nome }}</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
 
-  <!-- Teste de Funcionamento -->
-  <div class="section-card">
-    <div class="section-header">
-      <h2>🧪 Teste de Funcionamento</h2>
-    </div>
-    <div style="padding: 20px;">
-      <p><strong>✅ Página de edição avançada carregada com sucesso!</strong></p>
-      <p><strong>ID da pessoa:</strong> {{ pessoaId || 'Não informado' }}</p>
-      <p><strong>Status do loading:</strong> {{ loading ? 'Carregando...' : 'Pronto' }}</p>
-      <p><strong>Nome da pessoa:</strong> {{ pessoa.nome || 'Ainda não carregado' }}</p>
-      
-      <div style="margin-top: 20px;">
-        <button class="btn-primary" (click)="voltar()">🔙 Voltar para Lista</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dados Básicos da Pessoa (Simplificado para teste) -->
-  <div class="section-card" *ngIf="pessoa.nome">
-    <div class="section-header">
-      <h2>📋 Dados Básicos</h2>
-    </div>
-
-    <div style="padding: 20px;">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="codigo">Código</label>
-          <input
-            type="text"
-            id="codigo"
-            [(ngModel)]="pessoa.codigo"
-            name="codigo"
-            [disabled]="loading"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="nome">Nome</label>
-          <input
-            type="text"
-            id="nome"
-            [(ngModel)]="pessoa.nome"
-            name="nome"
-            [disabled]="loading"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="documento">Documento</label>
-          <input
-            type="text"
-            id="documento"
-            [(ngModel)]="pessoa.documento"
-            name="documento"
-            [disabled]="loading"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select
-            id="status"
-            [(ngModel)]="pessoa.status"
-            name="status"
-            [disabled]="loading"
-          >
-            <option [ngValue]="1">✅ Ativo</option>
-            <option [ngValue]="0">❌ Inativo</option>
-          </select>
-        </div>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <button class="btn-primary" (click)="updatePessoa()" [disabled]="loading">
-          💾 Salvar Alterações
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Alertas -->
-  <div *ngIf="success" class="alert alert-success">
-    <i class="icon-check"></i>
-    {{ success }}
-  </div>
-
-  <div *ngIf="error" class="alert alert-error">
-    <i class="icon-error"></i>
-    {{ error }}
-  </div>
-
-  <!-- Loading Overlay -->
-  <div *ngIf="loading" class="loading-overlay">
-    <div class="spinner"></div>
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
     <p>Carregando dados da pessoa...</p>
   </div>
+
+  <!-- Dados Básicos -->
+  <mat-card class="form-section" *ngIf="!loading">
+    <mat-card-title>Dados Básicos</mat-card-title>
+    <mat-card-content>
+      <form class="form-container">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Código</mat-label>
+            <input
+              matInput
+              type="text"
+              name="codigo"
+              [(ngModel)]="pessoa.codigo"
+              placeholder="Ex: PES001"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Nome Completo</mat-label>
+            <input
+              matInput
+              type="text"
+              name="nome"
+              [(ngModel)]="pessoa.nome"
+              placeholder="Digite o nome completo"
+              [disabled]="loading"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>CPF/CNPJ</mat-label>
+            <input
+              matInput
+              type="text"
+              name="documento"
+              [(ngModel)]="pessoa.documento"
+              placeholder="000.000.000-00"
+              [disabled]="loading"
+            />
+            <mat-hint>Digite apenas números</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Status</mat-label>
+            <mat-select
+              name="status"
+              [(ngModel)]="pessoa.status"
+              [disabled]="loading"
+            >
+              <mat-option [value]="1">Ativo</mat-option>
+              <mat-option [value]="0">Inativo</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" (click)="updatePessoa()" [disabled]="loading">
+            <mat-icon>save</mat-icon>
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Contatos -->
+  <mat-card class="form-section" *ngIf="!loading">
+    <mat-card-title>
+      Contatos
+    </mat-card-title>
+    <mat-card-content>
+      <!-- Lista de Contatos -->
+      <div *ngIf="contatos.length > 0" class="items-list">
+        <mat-card *ngFor="let contato of contatos; let i = index" class="item-card">
+          <mat-card-content>
+            <div *ngIf="editingContato !== i" class="item-display">
+              <div class="item-info">
+                <span class="item-type">{{ getTipoContatoText(contato.tipo) }}</span>
+                <div class="contact-details">
+                  <span *ngIf="contato.ddd && contato.celular" class="item-value">
+                    ({{ contato.ddd }}) {{ contato.celular }}
+                  </span>
+                  <span *ngIf="contato.email" class="item-value">{{ contato.email }}</span>
+                  <span *ngIf="contato.site" class="item-value">{{ contato.site }}</span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button mat-icon-button color="primary" (click)="editContato(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteContato(contato.codigo!, i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="editingContato === i" class="item-edit">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Tipo</mat-label>
+                  <mat-select [(ngModel)]="contato.tipo" name="tipoContato{{i}}">
+                    <mat-option value="celular">Celular</mat-option>
+                    <mat-option value="telefone">Telefone</mat-option>
+                    <mat-option value="email">E-mail</mat-option>
+                    <mat-option value="whatsapp">WhatsApp</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>DDD</mat-label>
+                  <input matInput [(ngModel)]="contato.ddd" name="ddd{{i}}" maxlength="2" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Celular</mat-label>
+                  <input matInput [(ngModel)]="contato.celular" name="celular{{i}}" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>E-mail</mat-label>
+                  <input matInput [(ngModel)]="contato.email" name="email{{i}}" type="email" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-row single">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Site</mat-label>
+                  <input matInput [(ngModel)]="contato.site" name="site{{i}}" />
+                </mat-form-field>
+              </div>
+
+              <div class="edit-actions">
+                <button mat-button color="primary" (click)="saveContato(contato)">
+                  <mat-icon>save</mat-icon>
+                  Salvar
+                </button>
+                <button mat-button (click)="editingContato = null">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Adicionar Novo Contato -->
+      <div *ngIf="showAddContato" class="add-form">
+        <mat-card class="add-card">
+          <mat-card-title>Novo Contato</mat-card-title>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Tipo de Contato</mat-label>
+                <mat-select [(ngModel)]="novoContato.tipo" name="novoTipoContato">
+                  <mat-option value="celular">Celular</mat-option>
+                  <mat-option value="telefone">Telefone</mat-option>
+                  <mat-option value="email">E-mail</mat-option>
+                  <mat-option value="whatsapp">WhatsApp</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group small">
+                <mat-label>DDD</mat-label>
+                <input matInput [(ngModel)]="novoContato.ddd" name="ddd" placeholder="11" maxlength="2" 
+                       (input)="formatDDD($event)" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row single">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Número do Telefone</mat-label>
+                <input matInput [(ngModel)]="novoContato.celular" name="celular" 
+                       placeholder="99999-9999" maxlength="10"
+                       (input)="formatTelefone($event)" />
+                <mat-hint>Apenas números (sem espaços ou traços)</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row single" *ngIf="novoContato.tipo === 'email'">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>E-mail</mat-label>
+                <input matInput [(ngModel)]="novoContato.email" name="email" type="email" 
+                       placeholder="exemplo@email.com" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="addContato()">
+                <mat-icon>add</mat-icon>
+                Adicionar
+              </button>
+              <button mat-button (click)="showAddContato = false; resetNovoContato()">
+                <mat-icon>cancel</mat-icon>
+                Cancelar
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div *ngIf="contatos.length === 0 && !showAddContato" class="empty-state">
+        <mat-icon>phone</mat-icon>
+        <p>Nenhum contato cadastrado</p>
+        <button mat-button color="primary" (click)="showAddContato = true">
+          Adicionar primeiro contato
+        </button>
+      </div>
+
+      <!-- Botão para adicionar novo contato quando já há contatos -->
+      <div *ngIf="contatos.length > 0 && !showAddContato" class="add-new-button">
+        <button mat-raised-button color="primary" (click)="showAddContato = true">
+          <mat-icon>add</mat-icon>
+          Adicionar novo contato
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Endereços -->
+  <mat-card class="form-section" *ngIf="!loading">
+    <mat-card-title>
+      Endereços
+    </mat-card-title>
+    <mat-card-content>
+      <!-- Lista de Endereços -->
+      <div *ngIf="enderecos.length > 0" class="items-list">
+        <mat-card *ngFor="let endereco of enderecos; let i = index" class="item-card">
+          <mat-card-content>
+            <div *ngIf="editingEndereco !== i" class="item-display">
+              <div class="item-info address-info">
+                <div class="address-line">{{ endereco.logradouro }}, {{ endereco.numrero }}</div>
+                <div class="address-details">{{ endereco.bairro }} - {{ endereco.cidade }}/{{ endereco.uf }}</div>
+                <div class="address-cep">CEP: {{ endereco.cep }}</div>
+              </div>
+              <div class="item-actions">
+                <button mat-icon-button color="primary" (click)="editEndereco(i)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteEndereco(endereco.codigo!, i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="editingEndereco === i" class="item-edit">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>CEP</mat-label>
+                  <input matInput [(ngModel)]="endereco.cep" name="cep{{i}}" (blur)="buscarCep(endereco)" [disabled]="loadingCep" />
+                  <mat-hint *ngIf="loadingCep">Buscando CEP...</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Logradouro</mat-label>
+                  <input matInput [(ngModel)]="endereco.logradouro" name="logradouro{{i}}" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group small">
+                  <mat-label>Número</mat-label>
+                  <input matInput [(ngModel)]="endereco.numrero" name="numero{{i}}" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Complemento</mat-label>
+                  <input matInput [(ngModel)]="endereco.complemento" name="complemento{{i}}" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Bairro</mat-label>
+                  <input matInput [(ngModel)]="endereco.bairro" name="bairro{{i}}" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Cidade</mat-label>
+                  <input matInput [(ngModel)]="endereco.cidade" name="cidade{{i}}" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group small">
+                  <mat-label>Estado</mat-label>
+                  <input matInput [(ngModel)]="endereco.uf" name="estado{{i}}" maxlength="2" />
+                </mat-form-field>
+              </div>
+
+              <div class="edit-actions">
+                <button mat-button color="primary" (click)="saveEndereco(endereco)">
+                  <mat-icon>save</mat-icon>
+                  Salvar
+                </button>
+                <button mat-button (click)="editingEndereco = null">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Adicionar Novo Endereço -->
+      <div *ngIf="showAddEndereco" class="add-form">
+        <mat-card class="add-card">
+          <mat-card-title>Novo Endereço</mat-card-title>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>CEP</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.cep" name="novoCep" (blur)="buscarCep(novoEndereco)" [disabled]="loadingCep" />
+                <mat-hint *ngIf="loadingCep">Buscando CEP...</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Logradouro</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.logradouro" name="novoLogradouro" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group small">
+                <mat-label>Número</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.numrero" name="novoNumero" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Complemento</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.complemento" name="novoComplemento" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Bairro</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.bairro" name="novoBairro" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Cidade</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.cidade" name="novoCidade" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group small">
+                <mat-label>Estado</mat-label>
+                <input matInput [(ngModel)]="novoEndereco.uf" name="novoEstado" maxlength="2" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="addEndereco()">
+                <mat-icon>add</mat-icon>
+                Adicionar
+              </button>
+              <button mat-button (click)="showAddEndereco = false; resetNovoEndereco()">
+                <mat-icon>cancel</mat-icon>
+                Cancelar
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div *ngIf="enderecos.length === 0 && !showAddEndereco" class="empty-state">
+        <mat-icon>location_on</mat-icon>
+        <p>Nenhum endereço cadastrado</p>
+        <button mat-button color="primary" (click)="showAddEndereco = true">
+          Adicionar primeiro endereço
+        </button>
+      </div>
+
+      <!-- Botão para adicionar novo endereço quando já há endereços -->
+      <div *ngIf="enderecos.length > 0 && !showAddEndereco" class="add-new-button">
+        <button mat-raised-button color="primary" (click)="showAddEndereco = true">
+          <mat-icon>add</mat-icon>
+          Adicionar novo endereço
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

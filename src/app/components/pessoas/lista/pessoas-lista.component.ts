@@ -19,6 +19,25 @@ export class PessoasListaComponent implements OnInit {
     private router: Router
   ) {}
 
+  // Método de teste para debug da API
+  testarAPI(): void {
+    console.log('=== TESTE DIRETO DA API ===');
+    this.pessoaService.getPessoas().subscribe({
+      next: (response) => {
+        console.log('Resposta direta da API:', response);
+        console.log('Tipo da resposta:', typeof response);
+        console.log('É array?', Array.isArray(response));
+        if (Array.isArray(response) && response.length > 0) {
+          console.log('Primeiro item:', response[0]);
+          console.log('Propriedades do primeiro item:', Object.keys(response[0]));
+        }
+      },
+      error: (error) => {
+        console.error('Erro no teste da API:', error);
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadPessoas();
   }
@@ -28,7 +47,39 @@ export class PessoasListaComponent implements OnInit {
     this.error = '';
 
     this.pessoaService.getPessoas().subscribe({
-      next: (pessoas) => {
+      next: (response) => {
+        console.log('=== RESPOSTA COMPLETA DA API ===');
+        console.log('Response type:', typeof response);
+        console.log('Response:', response);
+        
+        // Verificar se é array ou objeto
+        let pessoas: Pessoa[] = [];
+        
+        if (Array.isArray(response)) {
+          pessoas = response;
+        } else if (response && typeof response === 'object' && 'data' in response) {
+          // Se a API retornar um wrapper com propriedade 'data'
+          pessoas = (response as any).data || [];
+        } else if (response && typeof response === 'object' && 'pessoas' in response) {
+          // Se a API retornar um wrapper com propriedade 'pessoas'
+          pessoas = (response as any).pessoas || [];
+        } else {
+          pessoas = [];
+        }
+        
+        console.log('=== PESSOAS PROCESSADAS ===');
+        console.log('Quantidade de pessoas:', pessoas.length);
+        pessoas.forEach((pessoa, index) => {
+          console.log(`Pessoa ${index}:`, {
+            objetoCompleto: pessoa,
+            codigo: pessoa.codigo,
+            nome: pessoa.nome,
+            tipoCodigo: typeof pessoa.codigo,
+            hasCodigo: !!pessoa.codigo,
+            propriedades: Object.keys(pessoa)
+          });
+        });
+        
         this.pessoas = pessoas;
         this.loading = false;
       },
@@ -44,17 +95,71 @@ export class PessoasListaComponent implements OnInit {
     this.router.navigate(['/pessoas/nova']);
   }
 
-  editarPessoa(id: number): void {
-    console.log('Navegando para edição simples, ID:', id);
-    this.router.navigate(['/pessoas/editar', id]);
+  editarPessoa(codigo: string | number | undefined): void {
+    console.log('=== MÉTODO EDITAR PESSOA SIMPLES CHAMADO ===');
+    console.log('Código recebido:', codigo);
+    console.log('Tipo do código:', typeof codigo);
+    console.log('Router disponível:', !!this.router);
+    
+    if (!codigo) {
+      console.error('Código não fornecido ou inválido');
+      alert('Erro: Código da pessoa não encontrado');
+      return;
+    }
+    
+    console.log('Navegando para:', ['/pessoas/editar', codigo]);
+    
+    try {
+      this.router.navigate(['/pessoas/editar', codigo]).then(
+        (success) => {
+          console.log('Navegação bem-sucedida:', success);
+        },
+        (error) => {
+          console.error('Erro na promise de navegação:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Erro na navegação:', error);
+    }
   }
 
-  editarPessoaAvancado(id: number): void {
-    console.log('Navegando para edição avançada, ID:', id);
-    this.router.navigate(['/pessoas/edit', id]);
+  editarPessoaAvancado(codigo: string | number | undefined): void {
+    console.log('=== MÉTODO EDITAR PESSOA AVANÇADO CHAMADO ===');
+    console.log('Código recebido:', codigo);
+    console.log('Tipo do código:', typeof codigo);
+    console.log('Router disponível:', !!this.router);
+    
+    if (!codigo) {
+      console.error('Código não fornecido ou inválido');
+      alert('Erro: Código da pessoa não encontrado');
+      return;
+    }
+    
+    console.log('Navegando para:', ['/pessoas/edit', codigo]);
+    
+    try {
+      this.router.navigate(['/pessoas/edit', codigo]).then(
+        (success) => {
+          console.log('Navegação bem-sucedida:', success);
+        },
+        (error) => {
+          console.error('Erro na promise de navegação:', error);
+        }
+      );
+    } catch (error) {
+      console.error('Erro na navegação:', error);
+    }
   }
 
-  deletarPessoa(id: number): void {
+  deletarPessoa(codigo: string | number | undefined): void {
+    if (!codigo) {
+      alert('Erro: Código da pessoa não encontrado');
+      return;
+    }
+    
+    // Converter para number se necessário
+    const id = typeof codigo === 'string' ? parseInt(codigo) : codigo;
+    
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
       this.pessoaService.deletePessoa(id).subscribe({
         next: () => {
