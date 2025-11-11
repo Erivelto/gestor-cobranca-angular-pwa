@@ -2,7 +2,7 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   min-height: calc(100vh - 64px);
 }
 
@@ -23,19 +23,19 @@
   margin: 0;
   font-size: 28px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #374151;
   line-height: 1.2;
 }
 
 .header-title .subtitle {
   margin: 4px 0 0 0;
   font-size: 16px;
-  color: #666;
+  color: #6b7280;
   font-weight: 400;
 }
 
 .back-button {
-  color: #666;
+  color: #6b7280;
 }
 
 .section-card {
@@ -113,14 +113,14 @@
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: #6b7280;
 }
 
 .empty-state mat-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
-  color: #ccc;
+  color: #9ca3af;
   margin-bottom: 16px;
 }
 

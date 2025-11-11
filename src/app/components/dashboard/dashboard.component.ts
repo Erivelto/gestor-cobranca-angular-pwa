@@ -52,6 +52,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean = true;
   statsCols: number = 4;
   actionsCols: number = 4;
+  rowHeight: string = '200px';
 
   statCards: StatCardData[] = [];
 
@@ -75,16 +76,42 @@ export class DashboardComponent implements OnInit {
   }
 
   private setCols(width: number) {
-    // Breakpoints: mobile < 576, tablet < 1024
-    if (width < 576) {
+    // Breakpoints otimizados para legibilidade em diferentes resoluções
+    if (width < 375) {
+      // Telas muito pequenas: 1 coluna para máxima legibilidade
       this.statsCols = 1;
       this.actionsCols = 1;
-    } else if (width < 1024) {
+      this.rowHeight = '140px'; // Cards mais baixos para economizar espaço
+    } else if (width < 390) {
+      // iPhone 6/7/8, iPhone X/XS/11 Pro (375px): 2 colunas otimizadas para legibilidade
       this.statsCols = 2;
       this.actionsCols = 2;
+      this.rowHeight = '170px'; // Altura maior para melhor legibilidade em 375px
+    } else if (width < 400) {
+      // iPhone 12 mini e similares (390px): 2 colunas otimizadas
+      this.statsCols = 2;
+      this.actionsCols = 2;
+      this.rowHeight = '160px'; // Altura otimizada para 390px
+    } else if (width < 480) {
+      // Mobile médio (incluindo 412px): 2 colunas com altura otimizada
+      this.statsCols = 2;
+      this.actionsCols = 2;
+      this.rowHeight = '170px'; // Altura maior para melhor legibilidade
+    } else if (width < 768) {
+      // Mobile: 2 colunas com cards compactos
+      this.statsCols = 2;
+      this.actionsCols = 2;
+      this.rowHeight = '160px'; // Cards compactos no mobile
+    } else if (width < 1024) {
+      // Tablet: 3 colunas
+      this.statsCols = 3;
+      this.actionsCols = 2;
+      this.rowHeight = '180px'; // Altura intermediária
     } else {
+      // Desktop: 4 colunas
       this.statsCols = 4;
       this.actionsCols = 4;
+      this.rowHeight = '200px'; // Altura padrão
     }
   }
 
