@@ -23,6 +23,7 @@ export interface Pessoa {
   nome: string;
   documento: string;
   status?: number;
+  destacado?: boolean;
   contatos?: PessoaContato[];
   enderecos?: PessoaEndereco[];
 }

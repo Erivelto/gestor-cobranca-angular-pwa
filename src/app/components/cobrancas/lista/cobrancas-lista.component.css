@@ -16,7 +16,7 @@
   margin: 0;
   font-size: 28px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #374151;
   line-height: 1.2;
 }
 
@@ -132,7 +132,7 @@
 
 .empty-state p {
   font-size: 18px;
-  color: #666;
+  color: #6b7280;
   margin-bottom: 20px;
 }
 
@@ -195,7 +195,7 @@
 .card-body h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: #374151;
   margin: 0 0 12px 0;
 }
 
@@ -212,12 +212,12 @@
 }
 
 .info-row .label {
-  color: #666;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .info-row .value {
-  color: #333;
+  color: #374151;
   font-weight: 600;
 }
 

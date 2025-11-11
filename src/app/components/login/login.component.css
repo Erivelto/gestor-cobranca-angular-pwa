@@ -4,11 +4,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #555555;
+  color: #374151;
 }
 
 /* Remover todas as sombras do login */
@@ -53,12 +53,12 @@
 .app-title {
   font-size: 28px;
   font-weight: 500;
-  color: #333;
+  color: #374151;
   margin: 0 0 8px 0;
 }
 
 .app-subtitle {
-  color: #666;
+  color: #6b7280;
   font-size: 16px;
   margin: 0;
 }
@@ -127,7 +127,7 @@
   justify-content: center;
   gap: 8px;
   margin-top: 24px;
-  color: #666;
+  color: #6b7280;
   font-size: 14px;
 }
 

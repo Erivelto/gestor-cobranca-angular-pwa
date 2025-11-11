@@ -6,7 +6,7 @@
   </div>
   
   <!-- Stats Cards com template integrado -->
-  <mat-grid-list [cols]="statsCols" rowHeight="200px" gutterSize="16px" class="stats-grid">
+  <mat-grid-list [cols]="statsCols" [rowHeight]="rowHeight" [gutterSize]="statsCols > 2 ? '16px' : '12px'" class="stats-grid">
     <mat-grid-tile *ngFor="let card of statCards">
       <mat-card class="enhanced-stat-card" [class]="'card-' + card.color" [class.loading]="loading">
         <!-- Card Header -->

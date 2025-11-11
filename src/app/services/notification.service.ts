@@ -9,6 +9,7 @@ export class NotificationService {
   private defaultConfig = {
     confirmButtonColor: '#1976d2',
     cancelButtonColor: '#757575',
+    backdrop: false, // Remove o overlay de fundo
     customClass: {
       popup: 'sweet-popup',
       title: 'sweet-title',

@@ -271,5 +271,30 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   trackByPessoa(index: number, pessoa: Pessoa): any {
     return pessoa.id || pessoa.codigo || index;
   }
+
+  // Método para alternar destaque
+  toggleDestaque(pessoa: any): void {
+    pessoa.destacado = !pessoa.destacado;
+    
+    // Reordenar array: pessoas destacadas primeiro
+    this.pessoas.sort((a: any, b: any) => {
+      if (a.destacado && !b.destacado) return -1;
+      if (!a.destacado && b.destacado) return 1;
+      return 0;
+    });
+
+    // Atualizar dataSource para a tabela desktop
+    this.dataSource.data = [...this.pessoas];
+    
+    // Feedback para o usuário
+    const acao = pessoa.destacado ? 'destacado' : 'removido do destaque';
+    this.notificationService.successToast(`Cliente ${acao} com sucesso!`);
+  }
+
+  // Método para formatar nomes: primeira letra maiúscula, resto minúscula
+  formatarNome(nome: string): string {
+    if (!nome) return '';
+    return nome.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  }
 }
 
