@@ -46,6 +46,7 @@
     "http-proxy-middleware": "^3.0.5",
     "jest-editor-support": "*",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.26.3",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "zone.js": "~0.15.0"

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
+import { NotificationService } from '../../../services/notification.service';
 import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.models';
 
 @Component({
@@ -52,6 +53,7 @@ export class PessoaFormComponent implements OnInit {
   constructor(
     private pessoaService: PessoaService,
     private viaCepService: ViaCepService,
+    private notificationService: NotificationService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -73,7 +75,7 @@ export class PessoaFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar pessoa:', error);
-        this.error = 'Erro ao carregar cliente';
+        this.notificationService.error('Erro do Servidor', 'Erro ao carregar dados do cliente. Tente novamente.');
         this.loading = false;
       }
     });
@@ -88,7 +90,7 @@ export class PessoaFormComponent implements OnInit {
     this.viaCepService.buscarCep(this.endereco.cep).subscribe({
       next: (response) => {
         if (response.erro) {
-          alert('CEP não encontrado');
+          this.notificationService.warning('CEP não encontrado', 'Verifique o CEP informado e tente novamente.');
         } else {
           this.endereco.logradouro = response.logradouro;
           this.endereco.bairro = response.bairro;
@@ -102,7 +104,7 @@ export class PessoaFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao buscar CEP:', error);
-        alert('Erro ao buscar CEP');
+        this.notificationService.error('Erro do Servidor', 'Erro ao buscar CEP. Verifique sua conexão e tente novamente.');
         this.loadingCep = false;
       }
     });
@@ -146,16 +148,16 @@ export class PessoaFormComponent implements OnInit {
           this.pessoaService.createEndereco(this.endereco).subscribe();
         }
 
-        this.success = 'Cliente cadastrado com sucesso!';
+        this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
         this.loading = false;
-
+        
         setTimeout(() => {
           this.router.navigate(['/pessoas']);
         }, 1500);
       },
       error: (error) => {
         console.error('Erro ao criar pessoa:', error);
-        this.error = 'Erro ao cadastrar cliente. Tente novamente.';
+        this.notificationService.error('Erro do Servidor', 'Erro ao cadastrar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
     });
@@ -164,7 +166,7 @@ export class PessoaFormComponent implements OnInit {
   updatePessoa(): void {
     this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
       next: () => {
-        this.success = 'Cliente atualizado com sucesso!';
+        this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
         this.loading = false;
 
         setTimeout(() => {
@@ -173,7 +175,7 @@ export class PessoaFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao atualizar pessoa:', error);
-        this.error = 'Erro ao atualizar cliente. Tente novamente.';
+        this.notificationService.error('Erro do Servidor', 'Erro ao atualizar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
     });

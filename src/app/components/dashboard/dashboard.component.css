@@ -2,6 +2,79 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #f5f5f5;
+  /* Performance optimizations for mobile */
+  contain: layout style;
+  will-change: transform;
+}
+
+/* Remover todas as sombras do dashboard */
+.dashboard-container * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #555555;
+}
+
+.refresh-btn {
+  background-color: #2196F3 !important;
+  color: #E3F2FD !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: none;
+}
+
+.refresh-btn:hover:not([disabled]) {
+  background-color: #1976D2 !important;
+  color: #BBDEFB !important;
+  transform: rotate(180deg);
+}
+
+.refresh-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refresh-btn mat-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Remove o touch target do Material Design */
+.refresh-btn .mat-mdc-button-touch-target,
+.refresh-btn ::ng-deep .mat-mdc-button-touch-target {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Garante que o botão não tenha elementos extras */
+.refresh-btn {
+  overflow: hidden;
+}
+
+.refresh-btn * {
+  position: relative;
+}
+
+.refresh-btn span:not(.mat-icon):empty {
+  display: none !important;
 }
 
 /* Tamanhos padrão (podem ser ajustados por breakpoint) */
@@ -51,11 +124,19 @@
   align-items: center;
   gap: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Performance optimizations */
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+/* Disable hover effects on mobile for better performance */
+@media (hover: hover) and (pointer: fine) {
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .stat-inner {
@@ -79,13 +160,51 @@
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 4px 0;
-  color: #fff;
+  color: #fff !important;
 }
 
 .stat-content p {
   font-size: 13px;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.9) !important;
   margin: 0;
+}
+
+/* Garantir que os cards de estatística tenham fonte branca */
+.dashboard-container .stat-card,
+.dashboard-container .stat-card *,
+.dashboard-container .enhanced-stat-card,
+.dashboard-container .enhanced-stat-card *,
+.dashboard-container .stat-content,
+.dashboard-container .stat-content * {
+  color: #ffffff !important;
+}
+
+.dashboard-container .stat-card h3,
+.dashboard-container .enhanced-stat-card h3,
+.dashboard-container .enhanced-stat-card h2 {
+  color: #ffffff !important;
+}
+
+.dashboard-container .stat-card p,
+.dashboard-container .enhanced-stat-card p {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+.dashboard-container .stat-icon {
+  color: rgba(255,255,255,0.95) !important;
+}
+
+/* Sobrescrever a cor cinza global nos cards do dashboard */
+.stat-card span:not(.mdc-button__label),
+.stat-card div,
+.stat-card h3,
+.stat-card p,
+.enhanced-stat-card span:not(.mdc-button__label),
+.enhanced-stat-card div,
+.enhanced-stat-card h3,
+.enhanced-stat-card h2,
+.enhanced-stat-card p {
+  color: #ffffff !important;
 }
 
 .stat-pessoas {
@@ -115,8 +234,25 @@
 .quick-actions h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
+  color: #333 !important;
   margin: 0 0 12px 0;
+}
+
+/* Garantir cores corretas para outros elementos do dashboard */
+.dashboard-container .page-header-card mat-card-title {
+  color: #333 !important;
+}
+
+.dashboard-container .page-header-card mat-card-subtitle {
+  color: #666 !important;
+}
+
+.dashboard-container .action-card {
+  color: inherit !important;
+}
+
+.dashboard-container .action-card * {
+  color: inherit !important;
 }
 
 .actions-grid-grid {
@@ -243,5 +379,371 @@
     --action-icon-container-size: 60px;
     --action-grid-icon-col: 72px;
   }
+}
+
+/* Loading States */
+.stat-card.loading {
+  opacity: 0.7;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.stat-card.loading .stat-content h3 {
+  font-size: 24px;
+  color: #ccc;
+  user-select: none;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Smooth transitions */
+.stat-card {
+  transition: opacity 0.3s ease;
+}
+
+.stat-content h3 {
+  transition: color 0.3s ease;
+}
+
+/* Enhanced Stat Cards Template */
+.enhanced-stat-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  
+  /* Mobile optimizations */
+  contain: layout style;
+  will-change: transform, box-shadow;
+}
+
+.enhanced-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.enhanced-stat-card.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Color Variants */
+.enhanced-stat-card.card-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.enhanced-stat-card.card-success {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+}
+
+.enhanced-stat-card.card-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+.enhanced-stat-card.card-warn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+}
+
+/* Card Header */
+.enhanced-stat-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 0;
+  position: relative;
+}
+
+.enhanced-stat-card .icon-container {
+  position: relative;
+}
+
+.enhanced-stat-card .card-icon {
+  font-size: 32px;
+  height: 32px;
+  width: 32px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.enhanced-stat-card .trend-chip {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.enhanced-stat-card .trend-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.enhanced-stat-card .trend-indicator.positive {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.enhanced-stat-card .trend-indicator.negative {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.enhanced-stat-card .trend-indicator mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+/* Card Content */
+.enhanced-stat-card .card-content {
+  padding: 12px 24px 20px !important;
+}
+
+.enhanced-stat-card .main-value {
+  margin-bottom: 12px;
+}
+
+.enhanced-stat-card .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: countUp 0.6s ease-out;
+}
+
+.enhanced-stat-card .title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.enhanced-stat-card .subtitle {
+  font-size: 13px;
+  margin: 8px 0 16px 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* Progress Container */
+.enhanced-stat-card .progress-container {
+  margin: 16px 0 8px 0;
+}
+
+.enhanced-stat-card .progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.enhanced-stat-card .progress-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 3px;
+  transition: width 0.8s ease-out;
+}
+
+.enhanced-stat-card .progress-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 8px;
+  display: block;
+}
+
+/* Trend Info */
+.enhanced-stat-card .trend-info {
+  margin-top: 12px;
+}
+
+.enhanced-stat-card .trend-label {
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+}
+
+.enhanced-stat-card .trend-label mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.enhanced-stat-card .trend-label mat-icon.positive {
+  color: #4caf50;
+}
+
+.enhanced-stat-card .trend-label mat-icon.negative {
+  color: #f44336;
+}
+
+/* Card Actions */
+.enhanced-stat-card .card-actions {
+  padding: 0 24px 20px !important;
+  margin: 0;
+}
+
+.enhanced-stat-card .card-actions button {
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  padding: 8px 16px;
+  border-width: 2px;
+  backdrop-filter: blur(10px);
+  background-color: #F5F5F5 !important;
+  color: #616161 !important;
+  border-color: #E0E0E0 !important;
+}
+
+.enhanced-stat-card .card-actions button:hover {
+  background-color: #EEEEEE !important;
+  color: #424242 !important;
+  border-color: #BDBDBD !important;
+}
+
+.enhanced-stat-card .card-actions button mat-icon {
+  margin-right: 8px;
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+/* Loading Overlay */
+.enhanced-stat-card .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.enhanced-stat-card .loading-spinner {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  animation: spin 1s linear infinite;
+  color: #667eea;
+}
+
+@keyframes countUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Stats Grid */
+.stats-grid {
+  margin: 24px 0;
+}
+
+/* Mobile responsive para template avançado */
+@media (max-width: 768px) {
+  .enhanced-stat-card .card-header {
+    padding: 16px 20px 0;
+  }
+  
+  .enhanced-stat-card .card-content {
+    padding: 8px 20px 16px !important;
+  }
+  
+  .enhanced-stat-card .value {
+    font-size: 2rem;
+  }
+  
+  .enhanced-stat-card .title {
+    font-size: 13px;
+  }
+  
+  .enhanced-stat-card .subtitle {
+    font-size: 12px;
+  }
+  
+  .enhanced-stat-card .card-actions {
+    padding: 0 20px 16px !important;
+  }
+  
+  .enhanced-stat-card:hover {
+    transform: none;
+  }
+}
+
+/* Regra final com máxima especificidade para garantir cor branca nos cards */
+.dashboard-container mat-grid-list .enhanced-stat-card * {
+  color: #ffffff !important;
+}
+
+.dashboard-container mat-grid-list .enhanced-stat-card h2.value {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.dashboard-container mat-grid-list .enhanced-stat-card p.title,
+.dashboard-container mat-grid-list .enhanced-stat-card p.subtitle {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+/* Regra extra para capturar qualquer elemento text que possa estar sendo afetado */
+.dashboard-container .enhanced-stat-card .main-value h2,
+.dashboard-container .enhanced-stat-card .main-value p,
+.dashboard-container .enhanced-stat-card .card-content h2,
+.dashboard-container .enhanced-stat-card .card-content p {
+  color: #ffffff !important;
 }
 

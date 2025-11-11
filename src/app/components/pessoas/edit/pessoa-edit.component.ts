@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,9 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
+import { NotificationService } from '../../../services/notification.service';
 import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.models';
-import { EditErrorModalComponent } from './error-dialog/edit-error-modal.component';
-import { EditSuccessModalComponent } from './error-dialog/edit-success-modal.component';
 
 @Component({
   selector: 'app-pessoa-edit',
@@ -24,7 +22,6 @@ import { EditSuccessModalComponent } from './error-dialog/edit-success-modal.com
   imports: [
     CommonModule,
     FormsModule,
-    MatDialogModule,
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
@@ -89,7 +86,7 @@ export class PessoaEditComponent implements OnInit {
     private viaCepService: ViaCepService,
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -113,7 +110,7 @@ export class PessoaEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar pessoa:', error);
-        this.showErrorModal('Erro ao carregar os dados do cliente. Tente novamente.', 'Erro do Servidor');
+        this.notificationService.error('Erro do Servidor', 'Erro ao carregar os dados do cliente. Tente novamente.');
         this.loading = false;
       }
     });
@@ -133,7 +130,8 @@ export class PessoaEditComponent implements OnInit {
   loadEnderecos(pessoaId: number): void {
     this.pessoaService.getEnderecosByPessoaId(pessoaId).subscribe({
       next: (enderecos) => {
-        this.enderecos = enderecos;
+        // Filtrar endereços da pessoa específica (usando codigopessoa conforme api.models.ts)
+        this.enderecos = enderecos.filter(endereco => endereco.codigopessoa === pessoaId);
       },
       error: (error) => {
         console.error('Erro ao carregar endereços:', error);
@@ -154,13 +152,13 @@ export class PessoaEditComponent implements OnInit {
     this.loading = true;
     this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
       next: () => {
-        console.log('Sucesso na atualização, chamando modal...');
-        this.showSuccessModal('Cliente atualizado com sucesso!', 'Sucesso', 'Ótimo');
+        console.log('Sucesso na atualização, chamando notificação...');
+        this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erro ao atualizar pessoa:', error); 
-        this.showErrorModal('Erro ao atualizar o cliente. Verifique os dados e tente novamente.', 'Erro do Servidor');
+        console.error('Erro ao atualizar pessoa:', error);
+        this.notificationService.error('Erro do Servidor', 'Erro ao atualizar o cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
     });
@@ -178,12 +176,11 @@ export class PessoaEditComponent implements OnInit {
         this.contatos.push(contato);
         this.resetNovoContato();
         this.showAddContato = false;
-        this.showSuccessModal('Contato adicionado com sucesso!', 'Sucesso', 'Ótimo');
+        this.notificationService.success('Sucesso!', 'Contato adicionado com sucesso!');
       },
       error: (error) => {
         console.error('Erro ao adicionar contato:', error);
-        this.error = 'Erro ao adicionar contato';
-        this.clearMessages();
+        this.notificationService.error('Erro do Servidor', 'Erro ao adicionar contato. Tente novamente.');
       }
     });
   }
@@ -196,31 +193,30 @@ export class PessoaEditComponent implements OnInit {
     this.pessoaService.updateContato(contato.codigo!, contato).subscribe({
       next: () => {
         this.editingContato = null;
-        this.showSuccessModal('Contato atualizado com sucesso!', 'Sucesso', 'Ótimo');
+        this.notificationService.success('Sucesso!', 'Contato atualizado com sucesso!');
       },
       error: (error) => {
         console.error('Erro ao atualizar contato:', error);
-        this.error = 'Erro ao atualizar contato';
-        this.clearMessages();
+        this.notificationService.error('Erro do Servidor', 'Erro ao atualizar contato. Tente novamente.');
       }
     });
   }
 
-  deleteContato(codigo: number, index: number): void {
-    if (confirm('Deseja realmente excluir este contato?')) {
-      this.pessoaService.deleteContato(codigo).subscribe({
-        next: () => {
-          this.contatos.splice(index, 1);
-          this.success = 'Contato excluído com sucesso!';
-          this.clearMessages();
-        },
-        error: (error) => {
-          console.error('Erro ao excluir contato:', error);
-          this.error = 'Erro ao excluir contato';
-          this.clearMessages();
-        }
-      });
-    }
+  deleteContato(id: number, index: number): void {
+    this.notificationService.confirmDelete('Deseja realmente excluir este contato?').then((result) => {
+      if (result.isConfirmed) {
+        this.pessoaService.deleteContato(id).subscribe({
+          next: () => {
+            this.contatos.splice(index, 1);
+            this.notificationService.success('Excluído!', 'Contato excluído com sucesso!');
+          },
+          error: (error) => {
+            console.error('Erro ao excluir contato:', error);
+            this.notificationService.error('Erro do Servidor', 'Erro ao excluir contato. Tente novamente.');
+          }
+        });
+      }
+    });
   }
 
   // === MÉTODOS DE ENDEREÇO ===
@@ -235,12 +231,11 @@ export class PessoaEditComponent implements OnInit {
         this.enderecos.push(endereco);
         this.resetNovoEndereco();
         this.showAddEndereco = false;
-        this.showSuccessModal('Endereço adicionado com sucesso!', 'Sucesso', 'Ótimo');
+        this.notificationService.success('Sucesso!', 'Endereço adicionado com sucesso!');
       },
       error: (error) => {
         console.error('Erro ao adicionar endereço:', error);
-        this.error = 'Erro ao adicionar endereço';
-        this.clearMessages();
+        this.notificationService.error('Erro do Servidor', 'Erro ao adicionar endereço. Tente novamente.');
       }
     });
   }
@@ -253,31 +248,30 @@ export class PessoaEditComponent implements OnInit {
     this.pessoaService.updateEndereco(endereco.codigo!, endereco).subscribe({
       next: () => {
         this.editingEndereco = null;
-        this.showSuccessModal('Endereço atualizado com sucesso!', 'Sucesso', 'Ótimo');
+        this.notificationService.success('Sucesso!', 'Endereço atualizado com sucesso!');
       },
       error: (error) => {
         console.error('Erro ao atualizar endereço:', error);
-        this.error = 'Erro ao atualizar endereço';
-        this.clearMessages();
+        this.notificationService.error('Erro do Servidor', 'Erro ao atualizar endereço. Tente novamente.');
       }
     });
   }
 
-  deleteEndereco(codigo: number, index: number): void {
-    if (confirm('Deseja realmente excluir este endereço?')) {
-      this.pessoaService.deleteEndereco(codigo).subscribe({
-        next: () => {
-          this.enderecos.splice(index, 1);
-          this.success = 'Endereço excluído com sucesso!';
-          this.clearMessages();
-        },
-        error: (error) => {
-          console.error('Erro ao excluir endereço:', error);
-          this.error = 'Erro ao excluir endereço';
-          this.clearMessages();
-        }
-      });
-    }
+  deleteEndereco(id: number, index: number): void {
+    this.notificationService.confirmDelete('Deseja realmente excluir este endereço?').then((result) => {
+      if (result.isConfirmed) {
+        this.pessoaService.deleteEndereco(id).subscribe({
+          next: () => {
+            this.enderecos.splice(index, 1);
+            this.notificationService.success('Excluído!', 'Endereço excluído com sucesso!');
+          },
+          error: (error) => {
+            console.error('Erro ao excluir endereço:', error);
+            this.notificationService.error('Erro do Servidor', 'Erro ao excluir endereço. Tente novamente.');
+          }
+        });
+      }
+    });
   }
 
   // === MÉTODOS AUXILIARES ===
@@ -300,9 +294,8 @@ export class PessoaEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao buscar CEP:', error);
-        this.error = 'Erro ao buscar CEP';
+        this.notificationService.error('Erro do Servidor', 'Erro ao buscar CEP. Verifique o CEP e tente novamente.');
         this.loadingCep = false;
-        this.clearMessages();
       }
     });
   }
@@ -339,7 +332,7 @@ export class PessoaEditComponent implements OnInit {
   // === VALIDAÇÕES ===
   validatePessoa(): boolean {
     if (!this.pessoa.codigo || !this.pessoa.nome || !this.pessoa.documento) {
-      this.showErrorModal('Por favor, preencha todos os campos obrigatórios: Código, Nome e Documento.', 'Dados Inválidos', 'Corrigir');
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha todos os campos obrigatórios: Código, Nome e Documento.');
       return false;
     }
     return true;
@@ -348,20 +341,20 @@ export class PessoaEditComponent implements OnInit {
   validateContato(): boolean {
     // Validar DDD (obrigatório para telefone/celular)
     if (!this.novoContato.ddd || this.novoContato.ddd.length !== 2) {
-      this.showErrorModal('Por favor, preencha o DDD com 2 dígitos (exemplo: 11).', 'Dados Inválidos', 'Corrigir');
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha o DDD com 2 dígitos (exemplo: 11).');
       return false;
     }
 
     // Validar celular (obrigatório)
     if (!this.novoContato.celular || this.novoContato.celular.length < 8) {
-      this.showErrorModal('Por favor, preencha o número do telefone com pelo menos 8 dígitos.', 'Dados Inválidos', 'Corrigir');
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha o número do telefone com pelo menos 8 dígitos.');
       return false;
     }
 
     // Validar email se o tipo for email
     if (this.novoContato.tipo === 'email') {
       if (!this.novoContato.email || !this.novoContato.email.includes('@')) {
-        this.showErrorModal('Por favor, preencha um email válido (exemplo: nome@email.com).', 'Dados Inválidos', 'Corrigir');
+        this.notificationService.error('Dados Inválidos', 'Por favor, preencha um email válido (exemplo: nome@email.com).');
         return false;
       }
     }
@@ -371,12 +364,12 @@ export class PessoaEditComponent implements OnInit {
 
   validateEndereco(): boolean {
     if (!this.novoEndereco.cep || !this.novoEndereco.logradouro) {
-      this.showErrorModal('Por favor, preencha pelo menos o CEP e o logradouro do endereço.', 'Dados Inválidos', 'Corrigir');
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha pelo menos o CEP e o logradouro do endereço.');
       return false;
     }
     
     if (!this.novoEndereco.numrero) {
-      this.showErrorModal('Por favor, preencha o número do endereço.', 'Dados Inválidos', 'Corrigir');
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha o número do endereço.');
       return false;
     }
     
@@ -413,37 +406,7 @@ export class PessoaEditComponent implements OnInit {
     };
   }
 
-  private showErrorModal(message: string, title?: string, buttonText?: string): void {
-    console.log('showErrorModal chamado');
-    try {
-      const dialogRef = this.dialog.open(EditErrorModalComponent, {
-        width: '90%',
-        maxWidth: '360px',
-        data: { message, title, buttonText },
-        panelClass: 'error-modal-panel'
-      });
-      console.log('Modal de erro aberto:', dialogRef);
-    } catch (error) {
-      console.error('Erro ao abrir modal de erro:', error);
-      alert('ERRO: ' + message);
-    }
-  }
 
-  private showSuccessModal(message: string, title?: string, buttonText?: string): void {
-    console.log('showSuccessModal chamado com:', message, title, buttonText);
-    try {
-      const dialogRef = this.dialog.open(EditSuccessModalComponent, {
-        width: '90%',
-        maxWidth: '360px',
-        data: { message, title, buttonText },
-        panelClass: 'success-modal-panel'
-      });
-      console.log('Modal aberto:', dialogRef);
-    } catch (error) {
-      console.error('Erro ao abrir modal:', error);
-      alert('FALLBACK: ' + message);
-    }
-  }
 
   clearMessages(): void {
     setTimeout(() => {

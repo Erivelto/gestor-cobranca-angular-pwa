@@ -1,0 +1,12 @@
+<div [class]="containerClasses">
+  <div [class]="spinnerClasses">
+    <div class="spinner__circle"></div>
+    <div class="spinner__circle"></div>
+    <div class="spinner__circle"></div>
+    <div class="spinner__circle"></div>
+  </div>
+  
+  <div class="spinner-message" *ngIf="showMessage">
+    <p class="spinner-message__text">{{ message }}</p>
+  </div>
+</div>

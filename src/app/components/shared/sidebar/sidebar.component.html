@@ -1,0 +1,98 @@
+<mat-sidenav-container class="sidebar-container">
+  <!-- Sidebar Principal -->
+  <mat-sidenav mode="side" opened class="sidebar">
+    <!-- Header do Sidebar -->
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">account_balance_wallet</mat-icon>
+        <h2 class="app-title">Gestor Cobrança</h2>
+      </div>
+      <div class="user-info" *ngIf="currentUser">
+        <mat-icon class="user-avatar">account_circle</mat-icon>
+        <div class="user-details">
+          <span class="user-name">{{ (currentUser | async)?.username || 'Usuário' }}</span>
+          <span class="user-role">Administrador</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Navegação Principal -->
+    <div class="navigation-section">
+      <h3 class="section-title">PRINCIPAL</h3>
+      <mat-nav-list>
+        <mat-list-item 
+          *ngFor="let item of navigationItems" 
+          (click)="navigateTo(item.route)"
+          class="nav-item"
+          [matTooltip]="item.tooltip || ''"
+          matTooltipPosition="right">
+          
+          <mat-icon 
+            matListItemIcon 
+            [matBadge]="item.badge" 
+            [matBadgeColor]="item.badgeColor"
+            [matBadgeHidden]="!item.badge"
+            matBadgeSize="small">
+            {{ item.icon }}
+          </mat-icon>
+          
+          <span matListItemTitle>{{ item.label }}</span>
+          
+          <mat-icon matListItemIcon class="nav-arrow">chevron_right</mat-icon>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Seção do Usuário -->
+    <div class="user-section">
+      <h3 class="section-title">USUÁRIO</h3>
+      <mat-nav-list>
+        <mat-list-item 
+          *ngFor="let item of userMenuItems" 
+          (click)="navigateTo(item.route)"
+          class="nav-item"
+          [matTooltip]="item.tooltip || ''"
+          matTooltipPosition="right">
+          
+          <mat-icon 
+            matListItemIcon 
+            [matBadge]="item.badge" 
+            [matBadgeColor]="item.badgeColor"
+            [matBadgeHidden]="!item.badge"
+            matBadgeSize="small">
+            {{ item.icon }}
+          </mat-icon>
+          
+          <span matListItemTitle>{{ item.label }}</span>
+          
+          <mat-icon matListItemIcon class="nav-arrow">chevron_right</mat-icon>
+        </mat-list-item>
+      </mat-nav-list>
+    </div>
+
+    <!-- Botão de Logout -->
+    <div class="sidebar-footer">
+      <button 
+        mat-stroked-button 
+        color="warn" 
+        class="logout-btn"
+        (click)="logout()"
+        matTooltip="Sair do sistema"
+        matTooltipPosition="right">
+        <mat-icon>logout</mat-icon>
+        Sair
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <!-- Conteúdo Principal -->
+  <mat-sidenav-content class="main-content">
+    <div class="content-wrapper">
+      <ng-content></ng-content>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

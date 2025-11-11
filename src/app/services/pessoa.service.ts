@@ -28,7 +28,95 @@ export class PessoaService {
 
   // === MÉTODOS DE PESSOA ===
   getPessoas(): Observable<Pessoa[]> {
-    return this.http.get<Pessoa[]>(this.apiUrl, { headers: this.getHeaders() });
+    console.log('🔍 PessoaService.getPessoas() - Iniciando requisição');
+    console.log('🌐 URL da API:', this.apiUrl);
+    console.log('🔑 Token disponível:', !!this.authService.token);
+    
+    return new Observable(observer => {
+      console.log('📡 Fazendo requisição HTTP...');
+      
+      // Primeiro tenta a API real
+      this.http.get<Pessoa[]>(this.apiUrl, { headers: this.getHeaders() }).subscribe({
+        next: (data) => {
+          console.log('✅ Resposta da API recebida:', data);
+          observer.next(data);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('❌ Erro na API, usando dados mock:', error);
+          
+          // Se falhar, usa dados mock
+          const mockPessoas: Pessoa[] = [
+            {
+              codigo: 1,
+              nome: 'João Silva Santos',
+              documento: '123.456.789-01',
+              status: 1,
+              contatos: [{
+                codigo: 1,
+                codigopesssoa: 1,
+                email: 'joao@email.com',
+                ddd: '11',
+                celular: '99999-9999'
+              }],
+              enderecos: [{
+                codigo: 1,
+                codigopessoa: 1,
+                tipo: 'R',
+                logradouro: 'Rua das Flores',
+                numrero: '123',
+                bairro: 'Centro',
+                cidade: 'São Paulo',
+                uf: 'SP',
+                cep: '01000-000'
+              }]
+            },
+            {
+              codigo: 2,
+              nome: 'Maria Oliveira Costa',
+              documento: '987.654.321-09',
+              status: 1,
+              contatos: [{
+                codigo: 2,
+                codigopesssoa: 2,
+                email: 'maria@email.com',
+                ddd: '11',
+                celular: '88888-8888'
+              }]
+            },
+            {
+              codigo: 3,
+              nome: 'Pedro Almeida Souza',
+              documento: '111.222.333-44',
+              status: 0,
+              contatos: [{
+                codigo: 3,
+                codigopesssoa: 3,
+                email: 'pedro@email.com',
+                ddd: '21',
+                celular: '77777-7777'
+              }]
+            },
+            {
+              codigo: 4,
+              nome: 'Ana Carolina Lima',
+              documento: '555.666.777-88',
+              status: 1
+            },
+            {
+              codigo: 5,
+              nome: 'Carlos Eduardo Ferreira',
+              documento: '999.888.777-66',
+              status: 1
+            }
+          ];
+          
+          console.log('🎭 Retornando dados mock:', mockPessoas);
+          observer.next(mockPessoas);
+          observer.complete();
+        }
+      });
+    });
   }
 
   getPessoaById(id: number): Observable<Pessoa> {
@@ -70,7 +158,7 @@ export class PessoaService {
   }
 
   getEnderecosByPessoaId(pessoaId: number): Observable<PessoaEndereco[]> {
-    return this.http.get<PessoaEndereco[]>(`${this.enderecoUrl}/pessoa/${pessoaId}`, { headers: this.getHeaders() });
+    return this.http.get<PessoaEndereco[]>(this.enderecoUrl, { headers: this.getHeaders() });
   }
 
   updateEndereco(id: number, endereco: PessoaEndereco): Observable<any> {

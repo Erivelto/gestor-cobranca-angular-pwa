@@ -1,0 +1,355 @@
+/* Base Card Styles */
+.stat-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  cursor: pointer;
+  
+  /* Mobile optimizations */
+  contain: layout style;
+  will-change: transform, box-shadow;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Color Variants */
+.stat-card--primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-card--accent {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
+.stat-card--warn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+}
+
+.stat-card--success {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+}
+
+.stat-card--info {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 0;
+  position: relative;
+}
+
+.icon-container {
+  position: relative;
+}
+
+.card-icon {
+  font-size: 32px;
+  height: 32px;
+  width: 32px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.trend-chip {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.trend-chip mat-chip {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trend-chip mat-chip.positive {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.trend-chip mat-chip.negative {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.trend-chip mat-chip mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+/* Card Content */
+.card-content {
+  padding: 12px 24px 20px !important;
+}
+
+.main-value {
+  margin-bottom: 12px;
+}
+
+.value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: 13px;
+  margin: 8px 0 16px 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* Progress Container */
+.progress-container {
+  margin: 16px 0 8px 0;
+}
+
+.progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.progress-bar--primary ::ng-deep .mat-progress-bar-fill::after {
+  background: #fff;
+}
+
+.progress-bar--accent ::ng-deep .mat-progress-bar-fill::after {
+  background: #fff;
+}
+
+.progress-bar--warn ::ng-deep .mat-progress-bar-fill::after {
+  background: #fff;
+}
+
+.progress-bar--success ::ng-deep .mat-progress-bar-fill::after {
+  background: #fff;
+}
+
+.progress-bar--info ::ng-deep .mat-progress-bar-fill::after {
+  background: #fff;
+}
+
+.progress-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 8px;
+  display: block;
+}
+
+/* Trend Info */
+.trend-info {
+  margin-top: 12px;
+}
+
+.trend-label {
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+}
+
+.trend-label mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.trend-label mat-icon.positive {
+  color: #4caf50;
+}
+
+.trend-label mat-icon.negative {
+  color: #f44336;
+}
+
+/* Card Actions */
+.card-actions {
+  padding: 0 24px 20px !important;
+  margin: 0;
+}
+
+.card-actions button {
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  padding: 8px 16px;
+  border-width: 2px;
+  backdrop-filter: blur(10px);
+}
+
+.card-actions button mat-icon {
+  margin-right: 8px;
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 10;
+}
+
+.loading-overlay mat-progress-bar {
+  height: 4px;
+}
+
+/* White card variants (for light backgrounds) */
+.stat-card:not(.stat-card--primary):not(.stat-card--accent):not(.stat-card--warn):not(.stat-card--success):not(.stat-card--info) {
+  color: #333;
+}
+
+.stat-card:not(.stat-card--primary):not(.stat-card--accent):not(.stat-card--warn):not(.stat-card--success):not(.stat-card--info) .card-icon {
+  color: #667eea;
+}
+
+.stat-card:not(.stat-card--primary):not(.stat-card--accent):not(.stat-card--warn):not(.stat-card--success):not(.stat-card--info) .progress-bar {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.stat-card:not(.stat-card--primary):not(.stat-card--accent):not(.stat-card--warn):not(.stat-card--success):not(.stat-card--info) .progress-bar ::ng-deep .mat-progress-bar-fill::after {
+  background: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card-header {
+    padding: 16px 20px 0;
+  }
+  
+  .card-content {
+    padding: 8px 20px 16px !important;
+  }
+  
+  .value {
+    font-size: 2rem;
+  }
+  
+  .title {
+    font-size: 13px;
+  }
+  
+  .subtitle {
+    font-size: 12px;
+  }
+  
+  .card-actions {
+    padding: 0 20px 16px !important;
+  }
+  
+  .stat-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-header {
+    padding: 12px 16px 0;
+  }
+  
+  .card-content {
+    padding: 6px 16px 12px !important;
+  }
+  
+  .value {
+    font-size: 1.8rem;
+  }
+  
+  .card-actions {
+    padding: 0 16px 12px !important;
+  }
+  
+  .card-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animation for number changes */
+@keyframes countUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.value {
+  animation: countUp 0.6s ease-out;
+}
+
+/* Accessibility improvements */
+.stat-card:focus-visible {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .stat-card {
+    border: 2px solid;
+  }
+  
+  .trend-chip mat-chip {
+    border-width: 2px;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .stat-card:not(.stat-card--primary):not(.stat-card--accent):not(.stat-card--warn):not(.stat-card--success):not(.stat-card--info) {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    color: #fff;
+  }
+}

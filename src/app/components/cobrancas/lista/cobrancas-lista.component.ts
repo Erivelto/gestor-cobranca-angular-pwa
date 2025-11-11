@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CobrancaService } from '../../../services/cobranca.service';
+import { NotificationService } from '../../../services/notification.service';
 import { Cobranca } from '../../../models/api.models';
 
 @Component({
@@ -16,6 +17,7 @@ export class CobrancasListaComponent implements OnInit {
 
   constructor(
     private cobrancaService: CobrancaService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -34,7 +36,7 @@ export class CobrancasListaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar cobranças:', error);
-        this.error = 'Erro ao carregar cobranças. Tente novamente.';
+        this.notificationService.error('Erro do Servidor', 'Erro ao carregar cobranças. Verifique sua conexão e tente novamente.');
         this.loading = false;
       }
     });
@@ -49,17 +51,20 @@ export class CobrancasListaComponent implements OnInit {
   }
 
   deletarCobranca(id: number): void {
-    if (confirm('Tem certeza que deseja excluir esta cobrança?')) {
-      this.cobrancaService.deleteCobranca(id).subscribe({
-        next: () => {
-          this.loadCobrancas();
-        },
-        error: (error) => {
-          console.error('Erro ao excluir cobrança:', error);
-          alert('Erro ao excluir cobrança. Tente novamente.');
-        }
-      });
-    }
+    this.notificationService.confirmDelete('Tem certeza que deseja excluir esta cobrança?').then((result) => {
+      if (result.isConfirmed) {
+        this.cobrancaService.deleteCobranca(id).subscribe({
+          next: () => {
+            this.notificationService.success('Excluído!', 'Cobrança excluída com sucesso!');
+            this.loadCobrancas();
+          },
+          error: (error) => {
+            console.error('Erro ao excluir cobrança:', error);
+            this.notificationService.error('Erro do Servidor', 'Erro ao excluir cobrança. Tente novamente.');
+          }
+        });
+      }
+    });
   }
 
   getStatusText(status?: number): string {

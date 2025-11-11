@@ -18,7 +18,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -37,14 +38,12 @@ import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.compo
 import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
 import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
-import { ErrorDialogComponent } from './components/login/error-dialog/error-dialog.component';
+
 
 @NgModule({
   declarations: [
     App,
     LoginComponent,
-    DashboardComponent,
-    PessoasListaComponent,
     PessoaFormComponent,
     CobrancasListaComponent,
     TopBarComponent
@@ -69,7 +68,7 @@ import { ErrorDialogComponent } from './components/login/error-dialog/error-dial
     MatDividerModule,
     MatMenuModule,
     MatSelectModule,
-    MatDialogModule
+    MatTooltipModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

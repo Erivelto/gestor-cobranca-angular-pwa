@@ -1,12 +1,14 @@
 <div class="page-container">
-  <mat-card class="page-header-card">
-    <mat-card-header>
-      <button mat-icon-button (click)="voltar()" class="back-button">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <mat-card-title>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</mat-card-title>
-    </mat-card-header>
-  </mat-card>
+  <div class="dashboard-header">
+    <h1>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</h1>
+    <button 
+      mat-icon-button 
+      (click)="voltar()" 
+      matTooltip="Voltar"
+      class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
 
   <div *ngIf="success" class="alert alert-success">
     <mat-icon>check_circle</mat-icon>

@@ -1,0 +1,59 @@
+<mat-card [class]="cardClass" [class.loading]="loading">
+  <!-- Card Header -->
+  <div class="card-header">
+    <div class="icon-container">
+      <mat-icon class="card-icon">{{ data.icon }}</mat-icon>
+    </div>
+    <div class="trend-chip" *ngIf="data.trend">
+      <mat-chip 
+        [class.positive]="data.trend.isPositive" 
+        [class.negative]="!data.trend.isPositive">
+        <mat-icon>{{ data.trend.isPositive ? 'trending_up' : 'trending_down' }}</mat-icon>
+        {{ data.trend.value }}%
+      </mat-chip>
+    </div>
+  </div>
+
+  <!-- Card Content -->
+  <mat-card-content class="card-content">
+    <div class="main-value">
+      <h2 class="value">{{ data.value }}</h2>
+      <p class="title">{{ data.title }}</p>
+    </div>
+    
+    <p class="subtitle" *ngIf="data.subtitle">{{ data.subtitle }}</p>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container" *ngIf="data.progress !== undefined">
+      <mat-progress-bar 
+        [class]="progressClass"
+        mode="determinate" 
+        [value]="data.progress">
+      </mat-progress-bar>
+      <span class="progress-label">{{ data.progress }}% completo</span>
+    </div>
+
+    <!-- Trend Information -->
+    <div class="trend-info" *ngIf="data.trend">
+      <span class="trend-label">
+        {{ data.trend.label }}
+        <mat-icon [class.positive]="data.trend.isPositive" [class.negative]="!data.trend.isPositive">
+          {{ data.trend.isPositive ? 'arrow_upward' : 'arrow_downward' }}
+        </mat-icon>
+      </span>
+    </div>
+  </mat-card-content>
+
+  <!-- Card Actions -->
+  <mat-card-actions class="card-actions" *ngIf="data.actionLabel">
+    <button mat-stroked-button [color]="data.color === 'warn' ? 'warn' : 'primary'">
+      <mat-icon *ngIf="data.actionIcon">{{ data.actionIcon }}</mat-icon>
+      {{ data.actionLabel }}
+    </button>
+  </mat-card-actions>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+</mat-card>

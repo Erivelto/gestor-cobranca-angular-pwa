@@ -1,55 +1,50 @@
 <div class="dashboard-container">
   
-  <div *ngIf="loading" class="loading-container">
-    <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
-    <p>Carregando dados...</p>
+  <!-- Header com botão de refresh -->
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
   </div>
-
-  <div *ngIf="!loading" class="stats-grid">
-    <div class="stats-grid-grid">
-      <mat-card class="stat-card stat-pessoas">
-        <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>groups</mat-icon>
-          <div class="stat-content">
-            <h3>{{ totalPessoas }}</h3>
-            <p>Clientes</p>
+  
+  <!-- Stats Cards com template integrado -->
+  <mat-grid-list [cols]="statsCols" rowHeight="200px" gutterSize="16px" class="stats-grid">
+    <mat-grid-tile *ngFor="let card of statCards">
+      <mat-card class="enhanced-stat-card" [class]="'card-' + card.color" [class.loading]="loading">
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="icon-container">
+            <mat-icon class="card-icon">{{ card.icon }}</mat-icon>
           </div>
         </div>
-      </mat-card>
 
-      <mat-card class="stat-card stat-cobrancas">
-        <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
-          <div class="stat-content">
-            <h3>{{ totalCobrancas | currency:'BRL' }}</h3>
-            <p>Devedor</p>
+        <!-- Card Content -->
+        <mat-card-content class="card-content">
+          <div class="main-value">
+            <h2 class="value">{{ card.value }}</h2>
+            <p class="title">{{ card.title }}</p>
           </div>
+          
+          <p class="subtitle" *ngIf="card.subtitle">{{ card.subtitle }}</p>
+          
+          <!-- Trend Information -->
+          <div class="trend-info" *ngIf="card.trend">
+            <span class="trend-label">
+              {{ card.trend.label }}
+              <mat-icon [class.positive]="card.trend.isPositive" [class.negative]="!card.trend.isPositive">
+                {{ card.trend.isPositive ? 'arrow_upward' : 'arrow_downward' }}
+              </mat-icon>
+            </span>
+          </div>
+        </mat-card-content>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" *ngIf="loading">
+          <mat-icon class="loading-spinner">refresh</mat-icon>
         </div>
       </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
 
-      <mat-card class="stat-card stat-pendentes">
-        <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
-          <div class="stat-content">
-            <h3>{{ cobrancasPendentes | currency:'BRL' }}</h3>
-            <p>À Vencer</p>
-          </div>
-        </div>
-      </mat-card>
-
-      <mat-card class="stat-card stat-valor">
-        <div class="stat-inner">
-          <mat-icon class="stat-icon" aria-hidden>attach_money</mat-icon>
-          <div class="stat-content">
-            <h3>{{ valorTotal | currency:'BRL' }}</h3>
-            <p>Em dia</p>
-          </div>
-        </div>
-      </mat-card>
-    </div>
-  </div>
-
-  <div *ngIf="!loading" class="quick-actions">
+  <div class="quick-actions">
     <h2>Ações Rápidas</h2>
     <div class="actions-grid-grid">
       <mat-card class="action-card" (click)="navegarPara('/pessoas/nova')">

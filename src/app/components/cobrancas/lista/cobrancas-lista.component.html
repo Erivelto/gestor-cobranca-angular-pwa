@@ -1,8 +1,13 @@
 <div class="page-container">
-  <div class="page-header">
+  <div class="dashboard-header">
     <h1>Cobranças</h1>
-    <button class="btn btn-primary" (click)="novaCobranca()">
-      <span class="icon">+</span> Nova Cobrança
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="novaCobranca()"
+      class="add-button">
+      <mat-icon>add</mat-icon>
+      <span class="button-text">Nova Cobrança</span>
     </button>
   </div>
 
