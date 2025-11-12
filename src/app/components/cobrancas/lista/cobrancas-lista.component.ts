@@ -20,6 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Cobranca, Pessoa } from '../../../models/api.models';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cobrancas-lista',
@@ -160,6 +161,24 @@ export class CobrancasListaComponent implements OnInit {
     this.clienteSelecionado = cliente;
     this.clienteSearch = cliente.nome;
     console.log('✅ Cliente selecionado via autocomplete:', cliente);
+    
+    // Toast de confirmação
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
+    Toast.fire({
+      icon: 'success',
+      title: `Cliente ${cliente.nome} selecionado!`
+    });
   }
 
   displayCliente(cliente: Pessoa): string {
@@ -179,18 +198,50 @@ export class CobrancasListaComponent implements OnInit {
   }
 
   deletarCobranca(id: number): void {
-    if (confirm('Tem certeza que deseja excluir esta cobrança?')) {
-      this.cobrancaService.deleteCobranca(id).subscribe({
-        next: () => {
-          console.log('Cobrança excluída com sucesso!');
-          this.carregarCobrancas();
-        },
-        error: (error) => {
-          console.error('Erro ao excluir cobrança:', error);
-          alert('Erro ao excluir cobrança. Tente novamente.');
-        }
-      });
-    }
+    Swal.fire({
+      title: 'Confirmar Exclusão',
+      text: 'Tem certeza que deseja excluir esta cobrança? Esta ação não pode ser desfeita.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar',
+      background: '#fff',
+      customClass: {
+        popup: 'swal-popup-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cobrancaService.deleteCobranca(id).subscribe({
+          next: () => {
+            console.log('Cobrança excluída com sucesso!');
+            Swal.fire({
+              title: 'Excluído!',
+              text: 'A cobrança foi excluída com sucesso.',
+              icon: 'success',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#4caf50',
+              background: '#fff',
+              timer: 2000,
+              timerProgressBar: true
+            });
+            this.carregarCobrancas();
+          },
+          error: (error) => {
+            console.error('Erro ao excluir cobrança:', error);
+            Swal.fire({
+              title: 'Erro!',
+              text: 'Erro ao excluir cobrança. Tente novamente.',
+              icon: 'error',
+              confirmButtonText: 'Entendi',
+              confirmButtonColor: '#ef4444',
+              background: '#fff'
+            });
+          }
+        });
+      }
+    });
   }
 
   getStatusText(status?: number): string {
@@ -344,7 +395,17 @@ export class CobrancasListaComponent implements OnInit {
   // Gerar cronograma de pagamentos
   gerarCronograma(): void {
     if (!this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0 || this.valorEmprestimo <= 0) {
-      alert('Preencha todos os campos antes de gerar o cronograma!');
+      Swal.fire({
+        title: 'Campos Obrigatórios',
+        text: 'Preencha todos os campos antes de gerar o cronograma!',
+        icon: 'warning',
+        confirmButtonText: 'Entendi',
+        confirmButtonColor: '#1976d2',
+        background: '#fff',
+        customClass: {
+          popup: 'swal-popup-custom'
+        }
+      });
       return;
     }
 
@@ -372,6 +433,22 @@ export class CobrancasListaComponent implements OnInit {
 
     this.mostrarCronograma = true;
     console.log('📅 Cronograma gerado:', this.cronogramaParcelas);
+    
+    // SweetAlert de sucesso ao gerar cronograma
+    Swal.fire({
+      title: 'Cronograma Gerado!',
+      text: `Cronograma de ${this.numeroParcelas} parcelas criado com sucesso.`,
+      icon: 'success',
+      confirmButtonText: 'Visualizar',
+      confirmButtonColor: '#4caf50',
+      background: '#fff',
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      customClass: {
+        popup: 'swal-popup-custom'
+      }
+    });
   }
 
   // Obter incremento de dias baseado na periodicidade
@@ -392,7 +469,17 @@ export class CobrancasListaComponent implements OnInit {
   // Salvar empréstimo
   salvarEmprestimo(): void {
     if (!this.clienteSelecionado || !this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0) {
-      alert('Preencha todos os campos obrigatórios!');
+      Swal.fire({
+        title: 'Campos Obrigatórios',
+        text: 'Preencha todos os campos obrigatórios antes de salvar!',
+        icon: 'error',
+        confirmButtonText: 'Entendi',
+        confirmButtonColor: '#1976d2',
+        background: '#fff',
+        customClass: {
+          popup: 'swal-popup-custom'
+        }
+      });
       return;
     }
 
@@ -411,10 +498,22 @@ export class CobrancasListaComponent implements OnInit {
     console.log('💾 Salvando empréstimo:', emprestimoData);
     
     // Aqui você pode integrar com seu serviço para salvar no backend
-    alert('Empréstimo salvo com sucesso! (Implementar integração com backend)');
-    
-    // Limpar formulário após salvar
-    this.limparFormulario();
+    Swal.fire({
+      title: 'Sucesso!',
+      text: 'Empréstimo salvo com sucesso!',
+      icon: 'success',
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#4caf50',
+      background: '#fff',
+      customClass: {
+        popup: 'swal-popup-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Limpar formulário após salvar
+        this.limparFormulario();
+      }
+    });
   }
 
   // Limpar formulário

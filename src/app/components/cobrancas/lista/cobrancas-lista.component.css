@@ -1694,3 +1694,88 @@
   align-items: center;
 }
 
+/* Estilos customizados para SweetAlert2 */
+.swal-popup-custom {
+  font-family: 'Roboto', sans-serif !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Override global do SweetAlert2 para consistência visual */
+.swal2-popup {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.swal2-title {
+  font-size: 1.8rem !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+}
+
+.swal2-content {
+  font-size: 1rem !important;
+  color: #6b7280 !important;
+  line-height: 1.5 !important;
+}
+
+.swal2-confirm {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal2-cancel {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.swal2-confirm:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-cancel:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Estilos para toast notifications */
+.swal2-toast {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 8px !important;
+}
+
+.swal2-toast .swal2-title {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  margin: 0 !important;
+}
+
+/* Timer progress bar customization */
+.swal2-timer-progress-bar {
+  background: rgba(76, 175, 80, 0.8) !important;
+}
+
+/* Icon customization */
+.swal2-icon.swal2-success {
+  border-color: #4caf50 !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-line {
+  background-color: #4caf50 !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: #ef4444 !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
