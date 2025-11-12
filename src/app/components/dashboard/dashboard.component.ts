@@ -185,7 +185,7 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Pessoas cadastradas no sistema'
       },
       {
-        title: 'Valor em Dia',
+        title: 'Em Dia',
         value: `R$ ${this.valorEmDia.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
         icon: 'check_circle',
         color: 'success',
@@ -193,7 +193,7 @@ export class DashboardComponent implements OnInit {
         progress: Math.round((this.valorEmDia / this.valorTotal) * 100)
       },
       {
-        title: 'Valor à Vencer',
+        title: 'Vence Hoje',
         value: `R$ ${this.valorAVencer.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
         icon: 'schedule',
         color: 'info',
@@ -201,7 +201,7 @@ export class DashboardComponent implements OnInit {
         progress: Math.round((this.valorAVencer / this.valorTotal) * 100)
       },
       {
-        title: 'Valor Devedor',
+        title: 'Devedor',
         value: `R$ ${this.valorDevedor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
         icon: 'warning',
         color: 'warn',
