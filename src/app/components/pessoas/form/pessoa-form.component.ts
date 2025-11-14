@@ -27,7 +27,7 @@ export class PessoaFormComponent implements OnInit {
     ddd: '',
     celular: '',
     excluido: false,
-    tipo: 'celular'
+    tipo: ' '  // API espera espaço quando vazio
   };
 
   endereco: PessoaEndereco = {
@@ -63,6 +63,45 @@ export class PessoaFormComponent implements OnInit {
     if (id) {
       this.isEditMode = true;
       this.loadPessoa(parseInt(id));
+    }
+  }
+
+  /**
+   * Obtém o userId do token JWT armazenado no localStorage
+   */
+  private getUserIdFromToken(): number | null {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('❌ Token não encontrado no localStorage');
+        return null;
+      }
+
+      // Decodificar o payload do JWT
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonPayload);
+
+      // Extrair o userId do claim nameidentifier
+      const userId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      
+      if (userId) {
+        const userIdNum = typeof userId === 'number' ? userId : parseInt(userId, 10);
+        console.log('✅ userId extraído do token:', userIdNum);
+        return userIdNum;
+      }
+
+      console.error('❌ userId não encontrado no token JWT');
+      return null;
+    } catch (error) {
+      console.error('❌ Erro ao decodificar token JWT:', error);
+      return null;
     }
   }
 
@@ -134,29 +173,87 @@ export class PessoaFormComponent implements OnInit {
   }
 
   createPessoa(): void {
+    console.log('🆕 Iniciando criação de pessoa...');
+    
+    // Obter o userId do token JWT
+    const userId = this.getUserIdFromToken();
+    if (!userId) {
+      this.notificationService.error('Erro de Autenticação', 'Não foi possível identificar o usuário logado. Faça login novamente.');
+      this.loading = false;
+      return;
+    }
+    
+    // Definir o idUsuario na pessoa antes de enviar
+    this.pessoa.idUsuario = userId;
+    console.log('🆔 userId definido:', userId);
+    console.log('📋 Dados da pessoa:', this.pessoa);
+    
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
+        console.log('✅ Pessoa criada com sucesso:', pessoaCriada);
+        
+        const promises: Promise<any>[] = [];
+
         // Criar contato se preenchido
         if (this.contato.celular || this.contato.email) {
+          console.log('📞 Criando contato...');
           this.contato.codigopesssoa = pessoaCriada.codigo;
-          this.pessoaService.createContato(this.contato).subscribe();
+          console.log('📋 Dados do contato:', this.contato);
+          
+          const contatoPromise = new Promise((resolve, reject) => {
+            this.pessoaService.createContato(this.contato).subscribe({
+              next: (contatoCriado) => {
+                console.log('✅ Contato criado:', contatoCriado);
+                resolve(contatoCriado);
+              },
+              error: (error) => {
+                console.error('❌ Erro ao criar contato:', error);
+                this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o contato.');
+                reject(error);
+              }
+            });
+          });
+          promises.push(contatoPromise);
         }
 
         // Criar endereço se preenchido
-        if (this.endereco.cep) {
+        if (this.endereco.cep || this.endereco.logradouro) {
+          console.log('📍 Criando endereço...');
           this.endereco.codigopessoa = pessoaCriada.codigo;
-          this.pessoaService.createEndereco(this.endereco).subscribe();
+          console.log('📋 Dados do endereço:', this.endereco);
+          
+          const enderecoPromise = new Promise((resolve, reject) => {
+            this.pessoaService.createEndereco(this.endereco).subscribe({
+              next: (enderecoCriado) => {
+                console.log('✅ Endereço criado:', enderecoCriado);
+                resolve(enderecoCriado);
+              },
+              error: (error) => {
+                console.error('❌ Erro ao criar endereço:', error);
+                this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o endereço.');
+                reject(error);
+              }
+            });
+          });
+          promises.push(enderecoPromise);
         }
 
-        this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
-        this.loading = false;
-        
-        setTimeout(() => {
-          this.router.navigate(['/pessoas']);
-        }, 1500);
+        // Aguardar todas as operações
+        Promise.allSettled(promises).then(() => {
+          console.log('✅ Todas as operações concluídas');
+          this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
+          this.loading = false;
+          
+          setTimeout(() => {
+            this.router.navigate(['/pessoas']);
+          }, 1500);
+        });
       },
       error: (error) => {
-        console.error('Erro ao criar pessoa:', error);
+        console.error('❌ Erro ao criar pessoa:', error);
+        console.error('Status:', error.status);
+        console.error('Mensagem:', error.message);
+        console.error('Erro completo:', error);
         this.notificationService.error('Erro do Servidor', 'Erro ao cadastrar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }

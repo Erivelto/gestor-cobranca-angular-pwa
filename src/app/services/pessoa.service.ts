@@ -10,8 +10,8 @@ import { environment } from '../../environments/environment';
 })
 export class PessoaService {
   private apiUrl = `${environment.apiUrl}/Pessoa`;
-  private contatoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaContato';
-  private enderecoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaEndereco';
+  private contatoUrl = `${environment.apiUrl}/PessoaContato`;
+  private enderecoUrl = `${environment.apiUrl}/PessoaEndereco`;
 
   constructor(
     private http: HttpClient,
@@ -29,94 +29,13 @@ export class PessoaService {
   // === MÉTODOS DE PESSOA ===
   getPessoas(): Observable<Pessoa[]> {
     console.log('🔍 PessoaService.getPessoas() - Iniciando requisição');
-    console.log('🌐 URL da API:', this.apiUrl);
+    const usuarioId = this.authService.currentUserValue?.id ?? 1;
+    const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
+    console.log('👤 UsuarioId:', usuarioId);
+    console.log('🌐 URL da API (lista pessoas):', listaEndpoint);
     console.log('🔑 Token disponível:', !!this.authService.token);
     
-    return new Observable(observer => {
-      console.log('📡 Fazendo requisição HTTP...');
-      
-      // Primeiro tenta a API real
-      this.http.get<Pessoa[]>(this.apiUrl, { headers: this.getHeaders() }).subscribe({
-        next: (data) => {
-          console.log('✅ Resposta da API recebida:', data);
-          observer.next(data);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('❌ Erro na API, usando dados mock:', error);
-          
-          // Se falhar, usa dados mock
-          const mockPessoas: Pessoa[] = [
-            {
-              codigo: 1,
-              nome: 'João Silva Santos',
-              documento: '123.456.789-01',
-              status: 1,
-              contatos: [{
-                codigo: 1,
-                codigopesssoa: 1,
-                email: 'joao@email.com',
-                ddd: '11',
-                celular: '99999-9999'
-              }],
-              enderecos: [{
-                codigo: 1,
-                codigopessoa: 1,
-                tipo: 'R',
-                logradouro: 'Rua das Flores',
-                numrero: '123',
-                bairro: 'Centro',
-                cidade: 'São Paulo',
-                uf: 'SP',
-                cep: '01000-000'
-              }]
-            },
-            {
-              codigo: 2,
-              nome: 'Maria Oliveira Costa',
-              documento: '987.654.321-09',
-              status: 1,
-              contatos: [{
-                codigo: 2,
-                codigopesssoa: 2,
-                email: 'maria@email.com',
-                ddd: '11',
-                celular: '88888-8888'
-              }]
-            },
-            {
-              codigo: 3,
-              nome: 'Pedro Almeida Souza',
-              documento: '111.222.333-44',
-              status: 0,
-              contatos: [{
-                codigo: 3,
-                codigopesssoa: 3,
-                email: 'pedro@email.com',
-                ddd: '21',
-                celular: '77777-7777'
-              }]
-            },
-            {
-              codigo: 4,
-              nome: 'Ana Carolina Lima',
-              documento: '555.666.777-88',
-              status: 1
-            },
-            {
-              codigo: 5,
-              nome: 'Carlos Eduardo Ferreira',
-              documento: '999.888.777-66',
-              status: 1
-            }
-          ];
-          
-          console.log('🎭 Retornando dados mock:', mockPessoas);
-          observer.next(mockPessoas);
-          observer.complete();
-        }
-      });
-    });
+    return this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() });
   }
 
   getPessoaById(id: number): Observable<Pessoa> {
@@ -124,7 +43,39 @@ export class PessoaService {
   }
 
   createPessoa(pessoa: Pessoa): Observable<Pessoa> {
-    return this.http.post<Pessoa>(this.apiUrl, pessoa, { headers: this.getHeaders() });
+    console.log('📝 PessoaService.createPessoa() - Iniciando');
+    console.log('👤 currentUserValue:', this.authService.currentUserValue);
+    console.log('🔑 Token disponível:', !!this.authService.token);
+    
+    // Tentar obter o userId de múltiplas fontes
+    const userIdFromAuth = this.authService.currentUserValue?.id;
+    const userIdFromStorage = localStorage.getItem('userId');
+    const userIdParsed = userIdFromStorage ? parseInt(userIdFromStorage, 10) : null;
+    
+    console.log('🆔 userId do AuthService:', userIdFromAuth);
+    console.log('💾 userId do localStorage (raw):', userIdFromStorage);
+    console.log('💾 userId do localStorage (parsed):', userIdParsed);
+    
+    // Usar o primeiro valor válido encontrado
+    let userId: number | undefined;
+    if (userIdFromAuth && userIdFromAuth > 0) {
+      userId = userIdFromAuth;
+    } else if (userIdParsed && userIdParsed > 0) {
+      userId = userIdParsed;
+    } else {
+      console.warn('⚠️ AVISO: userId não encontrado! Usando undefined.');
+      userId = undefined;
+    }
+    
+    console.log('✅ userId final que será enviado:', userId);
+    
+    const payload: Pessoa = {
+      ...pessoa,
+      idUsuario: userId
+    };
+    
+    console.log('📦 Payload completo:', payload);
+    return this.http.post<Pessoa>(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 
   updatePessoa(id: number, pessoa: Pessoa): Observable<any> {
@@ -137,7 +88,22 @@ export class PessoaService {
 
   // === MÉTODOS DE CONTATO ===
   createContato(contato: PessoaContato): Observable<PessoaContato> {
-    return this.http.post<PessoaContato>(this.contatoUrl, contato, { headers: this.getHeaders() });
+    // A API espera o formato com 'codigoPessoa', 'excluido' e 'tipo' (espaco quando vazio)
+    const payload: any = {
+      codigo: contato.codigo ?? 0,
+      codigoPessoa: (contato as any).codigoPessoa ?? contato.codigopesssoa ?? (contato as any).codigopessoa ?? 0,
+      email: contato.email ?? '',
+      site: contato.site ?? '',
+      ddd: contato.ddd ?? '',
+      celular: contato.celular ?? '',
+      excluido: false,
+      // A API requisitou tipo = " " (um espaço) quando não informado
+      tipo: (contato.tipo !== undefined && contato.tipo !== null)
+        ? (String(contato.tipo).trim() === '' ? ' ' : String(contato.tipo))
+        : ' '
+    };
+
+    return this.http.post<PessoaContato>(this.contatoUrl, payload, { headers: this.getHeaders() });
   }
 
   getContatosByPessoaId(pessoaId: number): Observable<PessoaContato[]> {
@@ -154,11 +120,27 @@ export class PessoaService {
 
   // === MÉTODOS DE ENDEREÇO ===
   createEndereco(endereco: PessoaEndereco): Observable<PessoaEndereco> {
-    return this.http.post<PessoaEndereco>(this.enderecoUrl, endereco, { headers: this.getHeaders() });
+    // Normalizar payload para a API
+    const payload: any = {
+      codigo: endereco.codigo ?? 0,
+      codigoPessoa: endereco.codigopessoa ?? 0,
+      tipo: endereco.tipo ?? 'R',
+      logradouro: endereco.logradouro ?? '',
+      numrero: endereco.numrero ?? '',  // API usa "numrero" (com erro ortográfico)
+      complemento: endereco.complemento ?? '',
+      bairro: endereco.bairro ?? '',
+      cidade: endereco.cidade ?? '',
+      uf: endereco.uf ?? '',
+      cep: endereco.cep ?? '',
+      excluido: false
+    };
+    
+    console.log('📍 Payload de endereço normalizado:', payload);
+    return this.http.post<PessoaEndereco>(this.enderecoUrl, payload, { headers: this.getHeaders() });
   }
 
   getEnderecosByPessoaId(pessoaId: number): Observable<PessoaEndereco[]> {
-    return this.http.get<PessoaEndereco[]>(this.enderecoUrl, { headers: this.getHeaders() });
+    return this.http.get<PessoaEndereco[]>(`${this.enderecoUrl}/pessoa/${pessoaId}`, { headers: this.getHeaders() });
   }
 
   updateEndereco(id: number, endereco: PessoaEndereco): Observable<any> {

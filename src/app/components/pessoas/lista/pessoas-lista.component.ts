@@ -52,7 +52,7 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   loading: boolean = true;
   error: string = '';
   searchTerm: string = '';
-  displayedColumns: string[] = ['codigo', 'nome', 'documento', 'status', 'acoes'];
+  displayedColumns: string[] = ['codigo', 'nome', 'acoes'];
 
   constructor(
     private pessoaService: PessoaService,

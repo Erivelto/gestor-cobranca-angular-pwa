@@ -3,12 +3,13 @@
   <!-- Header com botão de refresh -->
   <div class="dashboard-header">
     <h1>Dashboard</h1>
+    <p class="user-greeting" *ngIf="usuarioLogado">Bem-vindo, <strong>{{ usuarioLogado }}</strong>!</p>
   </div>
   
   <!-- Stats Cards com template integrado -->
   <mat-grid-list [cols]="statsCols" [rowHeight]="rowHeight" [gutterSize]="statsCols > 2 ? '16px' : '12px'" class="stats-grid">
     <mat-grid-tile *ngFor="let card of statCards">
-      <mat-card class="enhanced-stat-card" [class]="'card-' + card.color" [class.loading]="loading">
+      <mat-card class="enhanced-stat-card" [class]="'card-' + card.color">
         <!-- Card Header -->
         <div class="card-header">
           <div class="icon-container">
@@ -36,10 +37,7 @@
           </div>
         </mat-card-content>
 
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" *ngIf="loading">
-          <mat-icon class="loading-spinner">refresh</mat-icon>
-        </div>
+        
       </mat-card>
     </mat-grid-tile>
   </mat-grid-list>

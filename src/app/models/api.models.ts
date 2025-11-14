@@ -2,9 +2,13 @@
 
 export interface Usuario {
   id?: number;
-  username: string;
+  // Alguns backends retornam 'username', outros 'user'; manter ambos opcionais
+  username?: string;
+  user?: string;
   senha?: string;
-  tipo?: number;
+  // Tipo pode ser número (ex.: 1) ou string (ex.: 'A')
+  tipo?: number | string;
+  dataCadastro?: string;
 }
 
 export interface LoginRequest {
@@ -13,8 +17,14 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  success?: boolean;
+  message?: string;
   token: string;
-  usuario: Usuario;
+  // Suporte a variações de payload
+  usuario?: Usuario;
+  user?: Usuario;
+  refreshToken?: string;
+  expiresAt?: string;
 }
 
 export interface Pessoa {
@@ -23,6 +33,8 @@ export interface Pessoa {
   documento: string;
   status?: number;
   destacado?: boolean;
+  // Relacionamento com o usuário dono do registro (usado no create)
+  idUsuario?: number;
   contatos?: PessoaContato[];
   enderecos?: PessoaEndereco[];
 }

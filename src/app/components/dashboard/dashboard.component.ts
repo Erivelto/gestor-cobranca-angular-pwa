@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PessoaService } from '../../services/pessoa.service';
 import { CobrancaService } from '../../services/cobranca.service';
+import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { SpinnerService } from '../../services/spinner.service';
 import { Pessoa, Cobranca } from '../../models/api.models';
@@ -53,12 +54,14 @@ export class DashboardComponent implements OnInit {
   statsCols: number = 4;
   actionsCols: number = 4;
   rowHeight: string = '200px';
+  usuarioLogado: string = '';
 
   statCards: StatCardData[] = [];
 
   constructor(
     private pessoaService: PessoaService,
     private cobrancaService: CobrancaService,
+    private authService: AuthService,
     private notificationService: NotificationService,
     private spinnerService: SpinnerService,
     private router: Router,
@@ -67,6 +70,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.setCols(window.innerWidth);
+    // Obter nome do usuário logado
+    const currentUser = this.authService.currentUserValue;
+    this.usuarioLogado = currentUser?.username || currentUser?.user || 'Usuário';
+    console.log('👤 Usuário logado:', this.usuarioLogado);
+    // Inicializar cards com valores padrão antes de carregar
+    this.setupStatCards();
     this.loadDashboardData();
   }
 
@@ -123,58 +132,6 @@ export class DashboardComponent implements OnInit {
     await this.loadDashboardData(true);
   }
 
-  async loadDashboardData(isRefresh: boolean = false): Promise<void> {
-    try {
-      const spinnerConfig = isRefresh 
-        ? { message: 'Atualizando...', overlay: false, fullScreen: false }
-        : { message: 'Carregando dados do dashboard...', overlay: true };
-
-      const result = await this.spinnerService.withSpinner(
-        () => forkJoin([
-          this.pessoaService.getPessoas(),
-          this.cobrancaService.getCobrancas()
-        ]).toPromise(),
-        spinnerConfig
-      );
-
-      if (result) {
-        const [pessoas, cobrancas] = result;
-
-        // Processar dados das pessoas
-        this.totalPessoas = pessoas.length;
-
-        // Processar dados das cobranças
-        this.totalCobrancas = cobrancas.length;
-        
-        // Separar por status (assumindo: 0=Em dia, 1=À vencer, 2=Devedor)
-        const cobrancasEmDia = cobrancas.filter((c: Cobranca) => c.status === 0);
-        const cobrancasAVencer = cobrancas.filter((c: Cobranca) => c.status === 1);
-        const cobrancasDevedor = cobrancas.filter((c: Cobranca) => c.status === 2);
-        
-        // Calcular valores por status
-        this.valorEmDia = cobrancasEmDia.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorAVencer = cobrancasAVencer.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorDevedor = cobrancasDevedor.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorTotal = cobrancas.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-
-        // Configurar cards de estatísticas
-        this.setupStatCards();
-      }
-      
-      this.loading = false;
-      this.cdr.markForCheck();
-
-    } catch (error) {
-      console.error('Erro ao carregar dados do dashboard:', error);
-      this.notificationService.error(
-        'Erro de Carregamento', 
-        'Não foi possível carregar os dados do dashboard. Tente recarregar a página.'
-      );
-      this.loading = false;
-      this.cdr.markForCheck();
-    }
-  }
-
   private setupStatCards(): void {
     this.statCards = [
       {
@@ -209,6 +166,70 @@ export class DashboardComponent implements OnInit {
         progress: Math.round((this.valorDevedor / this.valorTotal) * 100)
       }
     ];
+  }
+
+  async loadDashboardData(isRefresh: boolean = false): Promise<void> {
+    try {
+      this.loading = true;
+      this.cdr.markForCheck();
+      
+      console.log('📊 Dashboard - Carregando dados...');
+      
+      const spinnerConfig = isRefresh 
+        ? { message: 'Atualizando...', overlay: false, fullScreen: false }
+        : { message: 'Carregando dados do dashboard...', overlay: true };
+
+      const result = await this.spinnerService.withSpinner(
+        () => forkJoin([
+          this.pessoaService.getPessoas(),
+          this.cobrancaService.getCobrancas()
+        ]).toPromise(),
+        spinnerConfig
+      );
+
+      if (result) {
+        const [pessoas, cobrancas] = result;
+        
+        console.log('✅ Dashboard - Pessoas recebidas:', pessoas?.length || 0);
+        console.log('✅ Dashboard - Cobranças recebidas:', cobrancas?.length || 0);
+
+        // Processar dados das pessoas
+        this.totalPessoas = pessoas?.length || 0;
+
+        // Processar dados das cobranças
+        this.totalCobrancas = cobrancas?.length || 0;
+        
+        // Separar por status (assumindo: 0=Em dia, 1=À vencer, 2=Devedor)
+        const cobrancasEmDia = cobrancas?.filter((c: Cobranca) => c.status === 0) || [];
+        const cobrancasAVencer = cobrancas?.filter((c: Cobranca) => c.status === 1) || [];
+        const cobrancasDevedor = cobrancas?.filter((c: Cobranca) => c.status === 2) || [];
+        
+        // Calcular valores por status
+        this.valorEmDia = cobrancasEmDia.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
+        this.valorAVencer = cobrancasAVencer.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
+        this.valorDevedor = cobrancasDevedor.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
+        this.valorTotal = cobrancas?.reduce((sum: number, c: Cobranca) => sum + c.valor, 0) || 0;
+
+        // Configurar cards de estatísticas
+        this.setupStatCards();
+        
+        console.log('✅ Dashboard - Cards atualizados:', this.statCards.length);
+      }
+      
+      this.loading = false;
+      this.cdr.markForCheck();
+
+    } catch (error) {
+      console.error('❌ Dashboard - Erro ao carregar dados:', error);
+      
+      // Manter cards com valores zerados em caso de erro
+      this.setupStatCards();
+      
+      this.notificationService.error(
+        'Erro de Carregamento', 
+        'Não foi possível carregar os dados do dashboard. Verifique sua conexão.'
+      );
+    }
   }
 }
 
