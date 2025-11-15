@@ -29,14 +29,17 @@ export class PessoaService {
   // === MÉTODOS DE PESSOA ===
   getPessoas(): Observable<Pessoa[]> {
     console.log('🔍 PessoaService.getPessoas() - Iniciando requisição');
-    console.log('🌐 URL da API:', this.apiUrl);
+    const usuarioId = this.authService.currentUserValue?.id ?? 1;
+    const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
+    console.log('👤 UsuarioId:', usuarioId);
+    console.log('🌐 URL da API (lista pessoas):', listaEndpoint);
     console.log('🔑 Token disponível:', !!this.authService.token);
     
     return new Observable(observer => {
       console.log('📡 Fazendo requisição HTTP...');
       
       // Primeiro tenta a API real
-      this.http.get<Pessoa[]>(this.apiUrl, { headers: this.getHeaders() }).subscribe({
+      this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() }).subscribe({
         next: (data) => {
           console.log('✅ Resposta da API recebida:', data);
           observer.next(data);

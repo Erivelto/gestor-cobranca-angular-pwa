@@ -7,5 +7,13 @@
     <span class="logo-text">Gestor Cobrança</span>
   </div>
   <span class="spacer"></span>
+  
+  <!-- Usuário logado e botão sair -->
+  <div class="user-section">
+    <span class="user-name">{{ usuarioLogado }}</span>
+    <button mat-icon-button (click)="logout()" matTooltip="Sair" aria-label="Sair">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </div>
 </mat-toolbar>
 

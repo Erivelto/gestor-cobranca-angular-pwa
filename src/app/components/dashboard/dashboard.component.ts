@@ -178,11 +178,11 @@ export class DashboardComponent implements OnInit {
   private setupStatCards(): void {
     this.statCards = [
       {
-        title: 'Total de Pessoas',
+        title: 'Total de Clientes',
         value: this.totalPessoas,
         icon: 'people',
         color: 'primary',
-        subtitle: 'Pessoas cadastradas no sistema'
+        subtitle: 'Clientes cadastrados no sistema'
       },
       {
         title: 'Em Dia',

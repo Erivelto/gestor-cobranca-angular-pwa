@@ -4,6 +4,8 @@ import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
 import { NotificationService } from '../../../services/notification.service';
 import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.models';
+import { AuthService } from '../../../services/auth.service'; // ADICIONE
+
 
 @Component({
   selector: 'app-pessoa-form',
@@ -16,7 +18,7 @@ export class PessoaFormComponent implements OnInit {
     codigo: 0,
     nome: '',
     documento: '',
-    status: 1
+    status: 1   
   };
 
   contato: PessoaContato = {
@@ -27,7 +29,7 @@ export class PessoaFormComponent implements OnInit {
     ddd: '',
     celular: '',
     excluido: false,
-    tipo: 'celular'
+    tipo: ' '  // API espera espaço quando vazio
   };
 
   endereco: PessoaEndereco = {
@@ -55,7 +57,8 @@ export class PessoaFormComponent implements OnInit {
     private viaCepService: ViaCepService,
     private notificationService: NotificationService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -134,29 +137,83 @@ export class PessoaFormComponent implements OnInit {
   }
 
   createPessoa(): void {
+    console.log('🆕 Iniciando criação de pessoa...');
+    console.log('📋 Dados da pessoa:', this.pessoa);  
+      // Resolve o id do usuário da sessão (AuthService) ou do localStorage
+  const uidFromAuth = this.authService.currentUserValue?.id;
+  const uidFromStorage = Number(localStorage.getItem('userId') ?? NaN);
+  const resolvedUserId = uidFromAuth && uidFromAuth > 0
+    ? uidFromAuth
+    : (Number.isFinite(uidFromStorage) && uidFromStorage > 0 ? uidFromStorage : undefined);
+
+  this.pessoa.usuarioId = resolvedUserId;
+  console.log('🆔 idUsuario resolvido:', this.pessoa.usuarioId); 
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
+        console.log('✅ Pessoa criada com sucesso:', pessoaCriada);
+        
+        const promises: Promise<any>[] = [];
+
         // Criar contato se preenchido
         if (this.contato.celular || this.contato.email) {
+          console.log('📞 Criando contato...');
           this.contato.codigopesssoa = pessoaCriada.codigo;
-          this.pessoaService.createContato(this.contato).subscribe();
+          console.log('📋 Dados do contato:', this.contato);
+          
+          const contatoPromise = new Promise((resolve, reject) => {
+            this.pessoaService.createContato(this.contato).subscribe({
+              next: (contatoCriado) => {
+                console.log('✅ Contato criado:', contatoCriado);
+                resolve(contatoCriado);
+              },
+              error: (error) => {
+                console.error('❌ Erro ao criar contato:', error);
+                this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o contato.');
+                reject(error);
+              }
+            });
+          });
+          promises.push(contatoPromise);
         }
 
         // Criar endereço se preenchido
-        if (this.endereco.cep) {
+        if (this.endereco.cep || this.endereco.logradouro) {
+          console.log('📍 Criando endereço...');
           this.endereco.codigopessoa = pessoaCriada.codigo;
-          this.pessoaService.createEndereco(this.endereco).subscribe();
+          console.log('📋 Dados do endereço:', this.endereco);
+          
+          const enderecoPromise = new Promise((resolve, reject) => {
+            this.pessoaService.createEndereco(this.endereco).subscribe({
+              next: (enderecoCriado) => {
+                console.log('✅ Endereço criado:', enderecoCriado);
+                resolve(enderecoCriado);
+              },
+              error: (error) => {
+                console.error('❌ Erro ao criar endereço:', error);
+                this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o endereço.');
+                reject(error);
+              }
+            });
+          });
+          promises.push(enderecoPromise);
         }
 
-        this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
-        this.loading = false;
-        
-        setTimeout(() => {
-          this.router.navigate(['/pessoas']);
-        }, 1500);
+        // Aguardar todas as operações
+        Promise.allSettled(promises).then(() => {
+          console.log('✅ Todas as operações concluídas');
+          this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
+          this.loading = false;
+          
+          setTimeout(() => {
+            this.router.navigate(['/pessoas']);
+          }, 1500);
+        });
       },
       error: (error) => {
-        console.error('Erro ao criar pessoa:', error);
+        console.error('❌ Erro ao criar pessoa:', error);
+        console.error('Status:', error.status);
+        console.error('Mensagem:', error.message);
+        console.error('Erro completo:', error);
         this.notificationService.error('Erro do Servidor', 'Erro ao cadastrar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
