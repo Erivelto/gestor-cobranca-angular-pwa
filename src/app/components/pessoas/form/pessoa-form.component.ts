@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
 import { NotificationService } from '../../../services/notification.service';
-import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.models';
-import { AuthService } from '../../../services/auth.service'; // ADICIONE
+import { Pessoa, PessoaContato, PessoaEndereco, PessoaFile, ArquivoImagem } from '../../../models/api.models';
+import { AuthService } from '../../../services/auth.service';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class PessoaFormComponent implements OnInit {
 
   contato: PessoaContato = {
     codigo: 0,
-    codigopesssoa: 0,
+    codigoPessoa: 0,
     email: '',
     site: '',
     ddd: '',
@@ -34,7 +35,7 @@ export class PessoaFormComponent implements OnInit {
 
   endereco: PessoaEndereco = {
     codigo: 0,
-    codigopessoa: 0,
+    codigoPessoa: 0,
     tipo: 'R',
     logradouro: '',
     numrero: '',
@@ -51,6 +52,9 @@ export class PessoaFormComponent implements OnInit {
   loadingCep: boolean = false;
   success: string = '';
   error: string = '';
+  selectedFile: File | null = null;
+  selectedFileName: string = '';
+  pessoaFile: PessoaFile = {};
 
   constructor(
     private pessoaService: PessoaService,
@@ -58,7 +62,8 @@ export class PessoaFormComponent implements OnInit {
     private notificationService: NotificationService,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -157,9 +162,9 @@ export class PessoaFormComponent implements OnInit {
         // Criar contato se preenchido
         if (this.contato.celular || this.contato.email) {
           console.log('📞 Criando contato...');
-          this.contato.codigopesssoa = pessoaCriada.codigo;
+          this.contato.codigoPessoa = pessoaCriada.codigo;
           console.log('📋 Dados do contato:', this.contato);
-          
+          const jsonString = JSON.stringify(this.contato);
           const contatoPromise = new Promise((resolve, reject) => {
             this.pessoaService.createContato(this.contato).subscribe({
               next: (contatoCriado) => {
@@ -179,9 +184,9 @@ export class PessoaFormComponent implements OnInit {
         // Criar endereço se preenchido
         if (this.endereco.cep || this.endereco.logradouro) {
           console.log('📍 Criando endereço...');
-          this.endereco.codigopessoa = pessoaCriada.codigo;
+          this.endereco.codigoPessoa = pessoaCriada.codigo;
           console.log('📋 Dados do endereço:', this.endereco);
-          
+          const jsonString = JSON.stringify(this.endereco);
           const enderecoPromise = new Promise((resolve, reject) => {
             this.pessoaService.createEndereco(this.endereco).subscribe({
               next: (enderecoCriado) => {
@@ -197,7 +202,11 @@ export class PessoaFormComponent implements OnInit {
           });
           promises.push(enderecoPromise);
         }
-
+        // Upload de arquivo se selecionado
+       // if (this.selectedFile) {
+         // console.log('📎 Enviando arquivo...');
+          //this.uploadFile(pessoaCriada.codigo);
+       // }
         // Aguardar todas as operações
         Promise.allSettled(promises).then(() => {
           console.log('✅ Todas as operações concluídas');
@@ -244,6 +253,89 @@ export class PessoaFormComponent implements OnInit {
       return false;
     }
     return true;
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+    }
+  }
+
+  async uploadFile(codigoPessoa: number): Promise<void> {
+    if (!this.selectedFile) {
+      return;
+    }
+
+    try {
+      // Gerar número aleatório (pasta)
+      const numeroAleatorio = Math.floor(Math.random() * (1000000 - 100000) + 100000);
+      
+      // Converter arquivo para base64
+      const base64 = await this.convertFileToBase64(this.selectedFile);
+      
+      // Gerar GUID para o arquivo
+      const arquivoGuid = this.generateGuid();
+      
+      // Preparar objeto ArquivoImagem
+      const arquivoImagem: ArquivoImagem = {
+        codigo: arquivoGuid,
+        image: base64,
+        pasta: numeroAleatorio.toString()
+      };
+
+      // Enviar para o serviço de armazenamento
+      this.http.post('http://armazemantodearquivocontfy.azurewebsites.net/ArmazenamentoDeObjeto', arquivoImagem)
+        .subscribe({
+          next: () => {
+            // Salvar referência do arquivo
+            this.pessoaFile.Arquivo = arquivoGuid;
+            this.pessoaFile.Pasta = numeroAleatorio;
+            this.pessoaFile.DataCriacao = new Date();
+            this.pessoaFile.CodigoPessoa = codigoPessoa;
+            
+            // Persistir PessoaFile na API
+            this.pessoaService.createPessoaUpload(this.pessoaFile).subscribe({
+              next: (resp) => {
+                console.log('PessoaFile gravado com sucesso:', resp);
+                this.notificationService.success('Sucesso', 'Arquivo anexado e registrado!');
+              },
+              error: (err) => {
+                console.error('Erro ao gravar PessoaFile:', err);
+                this.notificationService.warning('Aviso', 'Arquivo armazenado, mas falhou ao registrar no sistema.');
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Erro ao enviar arquivo:', error);
+            this.notificationService.error('Erro', 'Falha ao anexar arquivo.');
+          }
+        });
+    } catch (error) {
+      console.error('Erro ao processar arquivo:', error);
+      this.notificationService.error('Erro', 'Falha ao processar arquivo.');
+    }
+  }
+
+  private convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  private generateGuid(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   voltar(): void {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Pessoa, PessoaContato, PessoaEndereco } from '../models/api.models';
+import { Pessoa, PessoaContato, PessoaEndereco, PessoaFile } from '../models/api.models';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
@@ -12,6 +12,7 @@ export class PessoaService {
   private apiUrl = `${environment.apiUrl}/Pessoa`;
   private contatoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaContato';
   private enderecoUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaEndereco';
+  private uploadUrl = 'https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaUpload';
 
   constructor(
     private http: HttpClient,
@@ -57,14 +58,14 @@ export class PessoaService {
               status: 1,
               contatos: [{
                 codigo: 1,
-                codigopesssoa: 1,
+                codigoPessoa: 1,
                 email: 'joao@email.com',
                 ddd: '11',
                 celular: '99999-9999'
               }],
               enderecos: [{
                 codigo: 1,
-                codigopessoa: 1,
+                codigoPessoa: 1,
                 tipo: 'R',
                 logradouro: 'Rua das Flores',
                 numrero: '123',
@@ -81,7 +82,7 @@ export class PessoaService {
               status: 1,
               contatos: [{
                 codigo: 2,
-                codigopesssoa: 2,
+                codigoPessoa: 2,
                 email: 'maria@email.com',
                 ddd: '11',
                 celular: '88888-8888'
@@ -94,7 +95,7 @@ export class PessoaService {
               status: 0,
               contatos: [{
                 codigo: 3,
-                codigopesssoa: 3,
+                codigoPessoa: 3,
                 email: 'pedro@email.com',
                 ddd: '21',
                 celular: '77777-7777'
@@ -170,6 +171,11 @@ export class PessoaService {
 
   deleteEndereco(id: number): Observable<any> {
     return this.http.delete(`${this.enderecoUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // === MÉTODOS DE UPLOAD (PessoaFile) ===
+  createPessoaUpload(pessoaFile: PessoaFile): Observable<any> {
+    return this.http.post<any>(this.uploadUrl, pessoaFile, { headers: this.getHeaders() });
   }
 }
 

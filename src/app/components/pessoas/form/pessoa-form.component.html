@@ -230,6 +230,37 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Upload de Arquivo -->
+    <mat-card class="form-section" *ngIf="!isEditMode">
+      <mat-card-title>Anexar Documento ou Imagem</mat-card-title>
+      <mat-card-content>
+        <div class="form-row">
+          <div class="file-upload-container">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept=".pdf,.jpg,.jpeg,.png"
+              style="display: none"
+              [disabled]="loading"
+            />
+            <button
+              type="button"
+              mat-raised-button
+              color="accent"
+              (click)="fileInput.click()"
+              [disabled]="loading"
+            >
+              <mat-icon>attach_file</mat-icon>
+              Selecionar Arquivo
+            </button>
+            <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+          </div>
+        </div>
+        <mat-hint>Formatos aceitos: PDF, JPG, JPEG, PNG</mat-hint>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Botões -->
     <mat-card class="form-actions">
       <mat-card-content>
