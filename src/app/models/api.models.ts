@@ -23,13 +23,14 @@ export interface Pessoa {
   documento: string;
   status?: number;
   destacado?: boolean;
+  usuarioId?: number;
   contatos?: PessoaContato[];
   enderecos?: PessoaEndereco[];
 }
 
 export interface PessoaContato {
   codigo?: number;
-  codigopesssoa?: number;
+  codigoPessoa?: number;
   email?: string;
   site?: string;
   ddd?: string;
@@ -40,7 +41,7 @@ export interface PessoaContato {
 
 export interface PessoaEndereco {
   codigo?: number;
-  codigopessoa?: number;
+  codigoPessoa?: number;
   tipo?: string;
   logradouro?: string;
   numrero?: string; // Note: API usa "numrero" (com erro ortográfico)
@@ -71,5 +72,18 @@ export interface ViaCepResponse {
   localidade: string;
   uf: string;
   erro?: boolean;
+}
+
+export interface PessoaFile {
+  Arquivo?: string;
+  Pasta?: number;
+  DataCriacao?: Date;
+  CodigoPessoa?: number;
+}
+
+export interface ArquivoImagem {
+  codigo: string;
+  image: string;
+  pasta: string;
 }
 

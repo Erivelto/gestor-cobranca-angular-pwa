@@ -31,10 +31,34 @@
 
 .spacer { flex: 1 1 auto; }
 
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.user-section button {
+  color: #374151;
+}
+
+.user-section button:hover {
+  background-color: rgba(55, 65, 81, 0.05);
+}
+
 .top-links button mat-icon { margin-right: 4px; }
 
 @media (max-width: 768px) {
   .top-links {
+    display: none;
+  }
+  
+  .user-name {
     display: none;
   }
 }

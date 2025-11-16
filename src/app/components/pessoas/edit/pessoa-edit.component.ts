@@ -45,7 +45,7 @@ export class PessoaEditComponent implements OnInit {
   
   novoContato: PessoaContato = {
     codigo: 0,
-    codigopesssoa: 0,
+    codigoPessoa: 0,
     email: '',
     site: '',
     ddd: '',
@@ -56,7 +56,7 @@ export class PessoaEditComponent implements OnInit {
 
   novoEndereco: PessoaEndereco = {
     codigo: 0,
-    codigopessoa: 0,
+    codigoPessoa: 0,
     tipo: 'R',
     logradouro: '',
     numrero: '',
@@ -131,7 +131,7 @@ export class PessoaEditComponent implements OnInit {
     this.pessoaService.getEnderecosByPessoaId(pessoaId).subscribe({
       next: (enderecos) => {
         // Filtrar endereços da pessoa específica (usando codigopessoa conforme api.models.ts)
-        this.enderecos = enderecos.filter(endereco => endereco.codigopessoa === pessoaId);
+        this.enderecos = enderecos.filter(endereco => endereco.codigoPessoa === pessoaId);
       },
       error: (error) => {
         console.error('Erro ao carregar endereços:', error);
@@ -170,7 +170,7 @@ export class PessoaEditComponent implements OnInit {
       return;
     }
 
-    this.novoContato.codigopesssoa = this.pessoa.codigo;
+    this.novoContato.codigoPessoa = this.pessoa.codigo;
     this.pessoaService.createContato(this.novoContato).subscribe({
       next: (contato) => {
         this.contatos.push(contato);
@@ -225,7 +225,7 @@ export class PessoaEditComponent implements OnInit {
       return;
     }
 
-    this.novoEndereco.codigopessoa = this.pessoa.codigo;
+    this.novoEndereco.codigoPessoa = this.pessoa.codigo;
     this.pessoaService.createEndereco(this.novoEndereco).subscribe({
       next: (endereco) => {
         this.enderecos.push(endereco);
@@ -380,7 +380,7 @@ export class PessoaEditComponent implements OnInit {
   resetNovoContato(): void {
     this.novoContato = {
       codigo: 0,
-      codigopesssoa: 0,
+      codigoPessoa: 0,
       email: '',
       site: '',
       ddd: '',
@@ -393,7 +393,7 @@ export class PessoaEditComponent implements OnInit {
   resetNovoEndereco(): void {
     this.novoEndereco = {
       codigo: 0,
-      codigopessoa: 0,
+      codigoPessoa: 0,
       tipo: 'R',
       logradouro: '',
       numrero: '',

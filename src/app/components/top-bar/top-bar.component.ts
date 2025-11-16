@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,9 +8,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./top-bar.component.css'],
   standalone: false
 })
-export class TopBarComponent {
+export class TopBarComponent implements OnInit {
   @Output() menuToggle = new EventEmitter<void>();
+  usuarioLogado: string = 'Usuário';
+  
   constructor(private router: Router, private authService: AuthService) {}
+
+  ngOnInit(): void {
+    const user = this.authService.currentUserValue;
+    this.usuarioLogado = user?.username || 'Usuário';
+  }
 
   navegar(rota: string): void {
     this.router.navigate([rota]);
