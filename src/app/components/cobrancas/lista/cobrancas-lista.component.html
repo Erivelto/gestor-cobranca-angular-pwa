@@ -1,314 +1,114 @@
-<div class="cobrancas-lista-container">
-  <!-- Loading State -->
-  <mat-card *ngIf="loading" class="loading-card">
-    <mat-card-content class="loading-content">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Carregando cobranças...</p>
-    </mat-card-content>
-  </mat-card>
+﻿<div class="cobrancas-lista-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>Cobranças</h1>
+    <button mat-raised-button color="primary" class="add-new-btn" (click)="novaCobranca()">
+      <mat-icon>add</mat-icon>
+      Nova Cobrança
+    </button>
+  </div>
 
-  <!-- Error State -->
-  <mat-card *ngIf="error && !loading" class="error-card">
-    <mat-card-content class="error-content">
-      <mat-icon class="error-icon">error_outline</mat-icon>
-      <h2>Erro ao carregar cobranças</h2>
-      <p>{{ error }}</p>
-      <button mat-raised-button color="primary" (click)="carregarCobrancas()">
-        <mat-icon>refresh</mat-icon>
-        Tentar Novamente
-      </button>
-    </mat-card-content>
-  </mat-card>
+  <!-- Enhanced Table Container -->
+  <div class="enhanced-table-container">
+    <mat-card class="enhanced-table-card">
+      
+      <!-- Loading Overlay -->
+      <div *ngIf="loading" class="loading-overlay">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Carregando cobranças...</p>
+      </div>
 
-  <!-- Empty State -->
-  <mat-card *ngIf="!loading && !error && cobrancas.length === 0" class="empty-card">
-    <mat-card-content class="empty-content">
-      <mat-icon class="empty-icon">receipt_long</mat-icon>
-      <h2>Nenhuma cobrança cadastrada</h2>
-      <p>Não há cobranças disponíveis no momento</p>
-    </mat-card-content>
-  </mat-card>
+      <!-- Error State -->
+      <mat-card *ngIf="error && !loading" class="error-card">
+        <mat-card-content class="error-content">
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <p>{{ error }}</p>
+          <button mat-button (click)="carregarCobrancas()">
+            <mat-icon>refresh</mat-icon>
+            Tentar Novamente
+          </button>
+        </mat-card-content>
+      </mat-card>
 
-  <!-- Formulário de Nova Cobrança -->
-  <div *ngIf="!loading && !error" class="cobrancas-content">
+      <!-- Empty State -->
+      <mat-card *ngIf="!loading && !error && cobrancas.length === 0" class="empty-card">
+        <mat-card-content class="empty-content">
+          <mat-icon class="empty-icon">receipt_long</mat-icon>
+          <h2>Nenhuma cobrança encontrada</h2>
+          <p>Comece criando sua primeira cobrança</p>
+          <button mat-raised-button color="accent" (click)="novaCobranca()">
+            <mat-icon>add</mat-icon>
+            Cadastrar Primeira Cobrança
+          </button>
+        </mat-card-content>
+      </mat-card>
 
-    <!-- Card de Cadastro -->
-    <div class="cobrancas-list">
-      <mat-card class="cobranca-card">
-        <mat-card-header>
-          <mat-card-title>Cadastrar Novo Emprestimo</mat-card-title>
-        </mat-card-header>
-
+      <!-- Table Content -->
+      <div *ngIf="!loading && !error && cobrancas.length > 0">
         
-              <div class="info-text">
-                <div class="client-search">
-                  <mat-form-field appearance="outline" class="client-field">
-                    <mat-label>Buscar cliente</mat-label>
-                    <input matInput 
-                           [(ngModel)]="clienteSearch"
-                           [matAutocomplete]="clienteAutocomplete"
-                           (input)="buscarClientes()"
-                           placeholder="Digite o nome do cliente">
-                    <mat-icon matSuffix>search</mat-icon>
-                  </mat-form-field>
-                  
-                  <!-- Autocomplete do Material Design -->
-                  <mat-autocomplete #clienteAutocomplete="matAutocomplete" 
-                                    (optionSelected)="onClienteSelected($event)"
-                                    [displayWith]="displayCliente">
-                    <mat-option *ngFor="let cliente of clientesEncontrados" 
-                                [value]="cliente">
-                      <mat-icon>person</mat-icon>
-                      <div class="client-info">
-                        <span class="client-name">{{ cliente.nome }}</span>
-                        <small class="client-details">
-                          {{ cliente.documento }}
-                          <span *ngIf="cliente.contatos && cliente.contatos.length > 0">
-                            • {{ cliente.contatos[0].email || 'Sem email' }}
-                          </span>
-                        </small>
-                      </div>
-                    </mat-option>
-                    
-                    <!-- Opção para cadastrar novo cliente -->
-                    <mat-option *ngIf="clienteSearch && clientesEncontrados.length === 0" 
-                                (click)="novoCliente()" 
-                                class="new-client-option">
-                      <mat-icon color="primary">person_add</mat-icon>
-                      <span>Cadastrar "{{ clienteSearch }}"</span>
-                    </mat-option>
-                  </mat-autocomplete>
-                </div>
-              </div>
+        <!-- Table Header -->
+        <div class="table-header">
+          <mat-form-field class="search-field" appearance="outline">
+            <mat-label>Buscar cobranças...</mat-label>
+            <input matInput 
+                   [(ngModel)]="searchTerm" 
+                   (keyup)="applyFilter()"
+                   placeholder="Digite o nome do cliente...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Table Wrapper -->
+        <div class="table-wrapper">
+          <table mat-table [dataSource]="dataSource" class="enhanced-cobrancas-table">
             
-            <!-- Informações do cliente selecionado -->
-            <div class="selected-client" *ngIf="clienteSelecionado">
-              <div class="info-item">
-                <mat-icon class="info-icon success">check_circle</mat-icon>
-                <div class="info-text">
-                  <span class="info-label">Cliente Selecionado</span>
-                  <div class="selected-client-details">
-                    <strong>{{ clienteSelecionado.nome }}</strong>
-                    <small>{{ clienteSelecionado.documento }}</small>
-                    <small *ngIf="clienteSelecionado.contatos && clienteSelecionado.contatos.length > 0">
-                      {{ clienteSelecionado.contatos[0].email || 'Sem email' }}
-                    </small>
-                  </div>
-                </div>
-              </div>
+            <!-- Nome Column -->
+            <ng-container matColumnDef="nome">
+              <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+              <td mat-cell *matCellDef="let cobranca" class="nome-cell">
+                <mat-icon class="person-icon">person</mat-icon>
+                <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+              </td>
+            </ng-container>
 
-            </div>
-
-            <!-- Campos de valor do empréstimo e juros -->
-            <div class="emprestimo-valores" *ngIf="clienteSelecionado">
-              <div class="valores-row">
-                <!-- Campo Valor do Empréstimo -->
-                <div class="campo-valor">
-                  <mat-icon class="info-icon">attach_money</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Valor do Empréstimo</span>
-                    <mat-form-field appearance="outline" class="valor-field">
-                      <mat-label>Valor em R$</mat-label>
-                      <input matInput 
-                             type="text" 
-                             [value]="valorEmprestimoFormatado"
-                             (input)="onValorEmprestimoInput($event)"
-                             (focus)="onValorEmprestimoFocus($event)"
-                             (blur)="onValorEmprestimoBlur($event)"
-                             placeholder="0,00"
-                             maxlength="15">
-                      <span matTextPrefix>R$ </span>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <!-- Campo Taxa de Juros -->
-                <div class="campo-juros">
-                  <mat-icon class="info-icon">percent</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Taxa de Juros</span>
-                    <mat-form-field appearance="outline" class="juros-field">
-                      <mat-label>Taxa aplicada</mat-label>
-                      <input matInput 
-                             type="text" 
-                             [value]="taxaJurosFormatada"
-                             (input)="onTaxaJurosInput($event)"
-                             (focus)="onTaxaJurosFocus($event)"
-                             (blur)="onTaxaJurosBlur($event)"
-                             placeholder="0,00"
-                             maxlength="6">
-                      <span matTextSuffix>%</span>
-                    </mat-form-field>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Segunda linha: Data de início e periodicidade -->
-              <div class="valores-row">
-                <!-- Campo Data de Início -->
-                <div class="campo-data">
-                  <mat-icon class="info-icon">calendar_today</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Data de Início</span>
-                    <mat-form-field appearance="outline" class="data-field">
-                      <mat-label>Selecione a data</mat-label>
-                      <input matInput 
-                             [matDatepicker]="picker"
-                             [(ngModel)]="dataInicio"
-                             placeholder="dd/mm/aaaa"
-                             readonly>
-                      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                      <mat-datepicker #picker></mat-datepicker>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <!-- Campo Periodicidade -->
-                <div class="campo-periodicidade">
-                  <mat-icon class="info-icon">schedule</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Periodicidade</span>
-                    <mat-form-field appearance="outline" class="periodicidade-field">
-                      <mat-label>Frequência de pagamento</mat-label>
-                      <mat-select [(ngModel)]="periodicidade" (selectionChange)="calcularParcelas()">
-                        <mat-option value="semanal">Semanal</mat-option>
-                        <mat-option value="quinzenal">Quinzenal</mat-option>
-                        <mat-option value="mensal">Mensal</mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Terceira linha: Número de parcelas e controles -->
-              <div class="valores-row" *ngIf="periodicidade">
-                <!-- Campo Número de Parcelas -->
-                <div class="campo-parcelas">
-                  <mat-icon class="info-icon">confirmation_number</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Número de Parcelas</span>
-                    <mat-form-field appearance="outline" class="parcelas-field">
-                      <mat-label>Quantas parcelas</mat-label>
-                      <input matInput 
-                             type="number" 
-                             [(ngModel)]="numeroParcelas"
-                             (input)="calcularParcelas()"
-                             placeholder="1"
-                             min="1"
-                             max="60">
-                      <span matTextSuffix>x</span>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <!-- Campo Valor da Parcela (calculado) -->
-                <div class="campo-valor-parcela">
-                  <mat-icon class="info-icon">receipt</mat-icon>
-                  <div class="campo-content">
-                    <span class="info-label">Valor da Parcela</span>
-                    <mat-form-field appearance="outline" class="valor-parcela-field">
-                      <mat-label>Valor calculado</mat-label>
-                      <input matInput 
-                             type="text" 
-                             [value]="valorParcelaFormatado"
-                             readonly>
-                      <span matTextPrefix>R$ </span>
-                    </mat-form-field>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Botões de ação -->
-              <div class="acoes-emprestimo" *ngIf="numeroParcelas > 0 && valorEmprestimo > 0">
-                <button mat-raised-button 
-                        color="primary" 
-                        (click)="gerarCronograma()"
-                        class="btn-cronograma">
-                  <mat-icon>event_note</mat-icon>
-                  Gerar Cronograma
+            <!-- Actions Column -->
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+              <td mat-cell *matCellDef="let cobranca" class="actions-column">
+                <button mat-icon-button 
+                        class="actions-btn"
+                        (click)="editarCobranca(cobranca)"
+                        matTooltip="Ver detalhes">
+                  <mat-icon>edit</mat-icon>
                 </button>
-                
-                <button mat-raised-button 
-                        color="accent" 
-                        (click)="salvarEmprestimo()"
-                        class="btn-salvar">
-                  <mat-icon>save</mat-icon>
-                  Salvar Empréstimo
-                </button>
-              </div>
+              </td>
+            </ng-container>
 
-              <!-- Cronograma de Parcelas em Tabela -->
-              <div class="cronograma-parcelas" *ngIf="mostrarCronograma && cronogramaParcelas.length > 0">
-                <div class="cronograma-header">
-                  <h3>
-                    <mat-icon>event_note</mat-icon>
-                    Cronograma de Pagamentos
-                  </h3>
-                  <button mat-icon-button (click)="fecharCronograma()" class="btn-fechar">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
+            <!-- Header and Row Definitions -->
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                class="data-row row-hover"
+                (click)="onRowClick(row)"></tr>
+          </table>
 
-                <!-- Tabela do Cronograma -->
-                <div class="cronograma-tabela">
-                  <table mat-table [dataSource]="cronogramaParcelas" class="cronograma-table">
-                    
-                    <!-- Coluna Parcela -->
-                    <ng-container matColumnDef="parcela">
-                      <th mat-header-cell *matHeaderCellDef class="header-parcela">
-                        <mat-icon>confirmation_number</mat-icon>
-                        Parcela
-                      </th>
-                      <td mat-cell *matCellDef="let parcela; let i = index" class="cell-parcela">
-                        {{ i + 1 }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Coluna Data de Vencimento -->
-                    <ng-container matColumnDef="dataVencimento">
-                      <th mat-header-cell *matHeaderCellDef class="header-data">
-                        <mat-icon>calendar_today</mat-icon>
-                        Vencimento
-                      </th>
-                      <td mat-cell *matCellDef="let parcela" class="cell-data">
-                        {{ parcela.dataVencimento | date:'dd/MM/yyyy' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Coluna Valor a Pagar -->
-                    <ng-container matColumnDef="valorPagar">
-                      <th mat-header-cell *matHeaderCellDef class="header-valor-pagar">
-                        <mat-icon>payment</mat-icon>
-                        Valor a Pagar
-                      </th>
-                      <td mat-cell *matCellDef="let parcela" class="cell-valor-pagar">
-                        R$ {{ parcela.valorTotal | number:'1.2-2' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Definir header e linhas -->
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="header-row"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="data-row"></tr>
-                  </table>
-                </div>
-
-                <!-- Resumo do Cronograma -->
-                <div class="cronograma-resumo">
-                  <div class="resumo-item">
-                    <span class="label">Total do Empréstimo:</span>
-                    <span class="valor">R$ {{ valorEmprestimo | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="resumo-item">
-                    <span class="label">Total com Juros:</span>
-                    <span class="valor destaque">R$ {{ totalComJuros | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="resumo-item">
-                    <span class="label">Número de Parcelas:</span>
-                    <span class="valor">{{ numeroParcelas }}x</span>
-                  </div>
-                </div>
-              </div>
+          <!-- Sem dados filtrados -->
+          <div *ngIf="dataSource.filteredData.length === 0 && searchTerm && !loading" 
+               class="no-data">
+            <div class="no-data-container">
+              <mat-icon class="no-data-icon">search_off</mat-icon>
+              <p class="no-data-message">Nenhuma cobrança encontrada para "{{ searchTerm }}"</p>
             </div>
+          </div>
+        </div>
 
-        
-
+        <!-- Paginator -->
+        <mat-paginator #paginator
+                       class="table-paginator"
+                       [pageSizeOptions]="[5, 10, 25, 100]"
+                       [pageSize]="10"
+                       showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card>
+  </div>
+</div>

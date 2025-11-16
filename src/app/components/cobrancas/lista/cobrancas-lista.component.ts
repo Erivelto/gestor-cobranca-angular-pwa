@@ -1,25 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatOptionModule } from '@angular/material/core';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { CobrancaService } from '../../../services/cobranca.service';
-import { PessoaService } from '../../../services/pessoa.service';
-import { Cobranca, Pessoa } from '../../../models/api.models';
+import { Cobranca } from '../../../models/api.models';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -30,214 +27,164 @@ import Swal from 'sweetalert2';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTableModule,
     MatMenuModule,
+    MatChipsModule,
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatAutocompleteModule,
-    MatOptionModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSelectModule,
-    MatTableModule
+    MatPaginatorModule,
+    MatSortModule,
+    MatTooltipModule
   ]
 })
-export class CobrancasListaComponent implements OnInit {
+export class CobrancasListaComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   cobrancas: Cobranca[] = [];
+  dataSource = new MatTableDataSource<Cobranca>([]);
   loading: boolean = true;
   error: string = '';
-  
-  // Propriedades para busca de cliente
-  clienteSearch: string = '';
-  clientesEncontrados: Pessoa[] = [];
-  clienteSelecionado: Pessoa | null = null;
-  todasPessoas: Pessoa[] = [];
-  
-  // Propriedades para valores do empréstimo
-  valorEmprestimo: number = 0;
-  valorEmprestimoFormatado: string = '';
-  taxaJuros: number = 0;
-  taxaJurosFormatada: string = '';
-  dataInicio: Date | null = null;
-  periodicidade: string = '';
-  
-  // Propriedades para controle de parcelas
-  numeroParcelas: number = 1;
-  valorParcela: number = 0;
-  mostrarCronograma: boolean = false;
-  cronogramaParcelas: any[] = [];
-  totalComJuros: number = 0;
-  
-  // Propriedades para tabela
-  displayedColumns: string[] = ['parcela', 'dataVencimento', 'valorPagar'];
+  searchTerm: string = '';
+  displayedColumns: string[] = ['nome', 'acoes'];
 
   constructor(
     private cobrancaService: CobrancaService,
-    private pessoaService: PessoaService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.carregarCobrancas();
-    this.carregarPessoas();
+    this.setupTable();
   }
 
-  carregarPessoas(): void {
-    this.pessoaService.getPessoas().subscribe({
-      next: (pessoas) => {
-        this.todasPessoas = pessoas;
-        console.log('✅ Pessoas carregadas:', pessoas);
-      },
-      error: (error) => {
-        console.error('❌ Erro ao carregar pessoas:', error);
-      }
-    });
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  private setupTable(): void {
+    // Configurar filtro customizado
+    this.dataSource.filterPredicate = (data: Cobranca, filter: string) => {
+      const searchString = filter.toLowerCase();
+      return (
+        data.pessoa?.nome?.toLowerCase().includes(searchString) ||
+        data.pessoa?.documento?.toLowerCase().includes(searchString) ||
+        data.valor?.toString().includes(searchString) ||
+        this.getStatusText(data.status).toLowerCase().includes(searchString)
+      );
+    };
   }
 
   carregarCobrancas(): void {
+    console.log('🚀 Iniciando carregarCobrancas()');
     this.loading = true;
     this.error = '';
 
-    this.cobrancaService.getCobrancas().subscribe({
-      next: (cobrancas) => {
-        this.cobrancas = cobrancas;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar cobranças:', error);
-        this.error = 'Erro ao carregar cobranças. Verifique sua conexão e tente novamente.';
-        this.loading = false;
-      }
-    });
-  }
-
-
-
-  trackByCobranca(index: number, cobranca: Cobranca): number {
-  return cobranca.codigo || index;
-  }
-
-  getStatusIcon(status?: number): string {
-    switch (status) {
-      case 0: return 'schedule';
-      case 1: return 'check_circle';
-      case 2: return 'error';
-      default: return 'help';
-    }
-  }
-
-  buscarClientes(): void {
-    if (this.clienteSearch.trim().length >= 2) {
-      console.log('🔍 Buscando clientes para:', this.clienteSearch);
+    // Dados mocados para teste
+    setTimeout(() => {
+      const cobrancasMocadas: Cobranca[] = [
+        {
+          codigo: 1,
+          codigopessoa: 1,
+          descricao: 'Empréstimo para capital de giro',
+          valor: 1500.00,
+          dataVencimento: '2024-12-31',
+          status: 1,
+          pessoa: {
+            codigo: 1,
+            nome: 'João Silva',
+            documento: '123.456.789-00'
+          }
+        },
+        {
+          codigo: 2,
+          codigopessoa: 2,
+          descricao: 'Primeira parcela em atraso',
+          valor: 2500.00,
+          dataVencimento: '2024-11-30',
+          status: 3,
+          pessoa: {
+            codigo: 2,
+            nome: 'Maria Santos',
+            documento: '987.654.321-00'
+          }
+        },
+        {
+          codigo: 3,
+          codigopessoa: 3,
+          descricao: 'Empréstimo quitado',
+          valor: 5000.00,
+          dataVencimento: '2024-10-15',
+          status: 2,
+          dataPagamento: '2024-10-10',
+          pessoa: {
+            codigo: 3,
+            nome: 'Pedro Costa',
+            documento: '456.789.123-00'
+          }
+        }
+      ];
       
-      // Filtra nas pessoas carregadas
-      this.clientesEncontrados = this.todasPessoas.filter(pessoa => 
-        pessoa.nome.toLowerCase().includes(this.clienteSearch.toLowerCase()) ||
-        pessoa.documento.toLowerCase().includes(this.clienteSearch.toLowerCase()) ||
-        (pessoa.contatos && pessoa.contatos.some(contato => 
-          contato.email?.toLowerCase().includes(this.clienteSearch.toLowerCase())
-        ))
-      ).filter(pessoa => pessoa.status === 1); // Apenas pessoas ativas
+      console.log('🎯 Cobranças mocadas:', cobrancasMocadas);
       
-      console.log('✅ Clientes encontrados:', this.clientesEncontrados);
-    } else {
-      this.clientesEncontrados = [];
-    }
-  }
-
-  selecionarCliente(cliente: Pessoa): void {
-    this.clienteSelecionado = cliente;
-    this.clienteSearch = cliente.nome;
-    this.clientesEncontrados = [];
-    console.log('✅ Cliente selecionado:', cliente);
-  }
-
-  onClienteSelected(event: any): void {
-    const cliente: Pessoa = event.option.value;
-    this.clienteSelecionado = cliente;
-    this.clienteSearch = cliente.nome;
-    console.log('✅ Cliente selecionado via autocomplete:', cliente);
-    
-    // Toast de confirmação
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
-      }
-    });
-
-    Toast.fire({
-      icon: 'success',
-      title: `Cliente ${cliente.nome} selecionado!`
-    });
-  }
-
-  displayCliente(cliente: Pessoa): string {
-    return cliente ? cliente.nome : '';
-  }
-
-  novoCliente(): void {
-    this.router.navigate(['/pessoas/nova']);
+      this.cobrancas = cobrancasMocadas;
+      this.dataSource.data = cobrancasMocadas;
+      this.loading = false;
+      console.log('🏁 Loading definido como false');
+    }, 1000);
   }
 
   novaCobranca(): void {
     this.router.navigate(['/cobrancas/nova']);
   }
 
-  editarCobranca(id: number): void {
-    this.router.navigate(['/cobrancas/editar', id]);
+  editarCobranca(cobranca: Cobranca): void {
+    console.log('=== MÉTODO EDITAR COBRANÇA CHAMADO ===');
+    console.log('Cobrança recebida:', cobranca);
+    
+    if (!cobranca || !cobranca.codigo) {
+      console.error('Cobrança não fornecida ou inválida');
+      this.showErrorToast('Dados da cobrança não encontrados. Recarregue a página e tente novamente.');
+      return;
+    }
+    
+    console.log('Navegando para detalhes da cobrança:', cobranca.codigo);
+    this.router.navigate(['/cobrancas/detalhes', cobranca.codigo]);
   }
 
-  deletarCobranca(id: number): void {
+  excluirCobranca(cobranca: Cobranca): void {
+    if (!cobranca || !cobranca.codigo) {
+      this.showErrorToast('Dados da cobrança não encontrados');
+      return;
+    }
+    
     Swal.fire({
-      title: 'Confirmar Exclusão',
-      text: 'Tem certeza que deseja excluir esta cobrança? Esta ação não pode ser desfeita.',
+      title: 'Excluir Cobrança',
+      text: 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sim, excluir!',
-      cancelButtonText: 'Cancelar',
-      background: '#fff',
-      customClass: {
-        popup: 'swal-popup-custom'
-      }
-    }).then((result) => {
+      cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
       if (result.isConfirmed) {
-        this.cobrancaService.deleteCobranca(id).subscribe({
+        this.cobrancaService.deleteCobranca(cobranca.codigo!).subscribe({
           next: () => {
-            console.log('Cobrança excluída com sucesso!');
-            Swal.fire({
-              title: 'Excluído!',
-              text: 'A cobrança foi excluída com sucesso.',
-              icon: 'success',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#4caf50',
-              background: '#fff',
-              timer: 2000,
-              timerProgressBar: true
-            });
+            this.showSuccessToast('Cobrança excluída com sucesso!');
             this.carregarCobrancas();
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Erro ao excluir cobrança:', error);
-            Swal.fire({
-              title: 'Erro!',
-              text: 'Erro ao excluir cobrança. Tente novamente.',
-              icon: 'error',
-              confirmButtonText: 'Entendi',
-              confirmButtonColor: '#ef4444',
-              background: '#fff'
-            });
+            this.showErrorToast('Não foi possível excluir a cobrança. Tente novamente.');
           }
         });
       }
@@ -246,291 +193,86 @@ export class CobrancasListaComponent implements OnInit {
 
   getStatusText(status?: number): string {
     switch (status) {
-      case 0: return 'Pendente';
-      case 1: return 'Pago';
-      case 2: return 'Vencido';
-      default: return 'Desconhecido';
+      case 1: return 'Pendente';
+      case 2: return 'Pago';
+      case 3: return 'Vencido';
+      case 4: return 'Cancelado';
+      default: return 'Indefinido';
     }
   }
 
   getStatusClass(status?: number): string {
     switch (status) {
-      case 0: return 'badge-warning';
-      case 1: return 'badge-success';
-      case 2: return 'badge-danger';
+      case 1: return 'badge-warning';
+      case 2: return 'badge-success';
+      case 3: return 'badge-danger';
+      case 4: return 'badge-secondary';
       default: return 'badge-secondary';
     }
   }
 
-  // Getter para valor da parcela formatado
-  get valorParcelaFormatado(): string {
-    return this.valorParcela.toFixed(2).replace('.', ',');
-  }
-
-  // Função para formatar valor como moeda
-  formatarValorMoeda(valor: number): string {
-    return new Intl.NumberFormat('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(valor);
-  }
-
-  // Função para aplicar mascara no campo de valor
-  onValorEmprestimoInput(event: any): void {
-    let valor = event.target.value;
-    
-    // Remove tudo que não é número
-    valor = valor.replace(/\D/g, '');
-    
-    // Se vazio, zera
-    if (!valor) {
-      this.valorEmprestimo = 0;
-      this.valorEmprestimoFormatado = '';
-      return;
-    }
-    
-    // Converte para número com centavos
-    const valorNumerico = parseFloat(valor) / 100;
-    this.valorEmprestimo = valorNumerico;
-    
-    // Formata para exibição
-    this.valorEmprestimoFormatado = this.formatarValorMoeda(valorNumerico);
-    
-    // Atualiza o campo
-    event.target.value = this.valorEmprestimoFormatado;
-    
-    // Recalcula parcelas se necessário
-    if (this.numeroParcelas > 0) {
-      this.calcularParcelas();
+  getStatusIcon(status?: number): string {
+    switch (status) {
+      case 1: return 'schedule';
+      case 2: return 'check_circle';
+      case 3: return 'error';
+      case 4: return 'cancel';
+      default: return 'help';
     }
   }
 
-  // Função para tratar o foco no campo
-  onValorEmprestimoFocus(event: any): void {
-    if (this.valorEmprestimo === 0) {
-      event.target.value = '';
+  getStatusColor(status?: number): string {
+    switch (status) {
+      case 1: return 'accent';
+      case 2: return 'primary';
+      case 3: return 'warn';
+      case 4: return '';
+      default: return '';
     }
   }
 
-  // Função para tratar quando sai do campo
-  onValorEmprestimoBlur(event: any): void {
-    if (!event.target.value || event.target.value === '') {
-      this.valorEmprestimo = 0;
-      this.valorEmprestimoFormatado = '';
-    } else {
-      event.target.value = this.valorEmprestimoFormatado;
+  // Métodos para a tabela
+  applyFilter(): void {
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase();
+    
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
   }
 
-  // Função para aplicar mascara no campo de taxa de juros
-  onTaxaJurosInput(event: any): void {
-    let valor = event.target.value;
-    
-    // Remove tudo que não é número
-    valor = valor.replace(/\D/g, '');
-    
-    // Se vazio, zera
-    if (!valor) {
-      this.taxaJuros = 0;
-      this.taxaJurosFormatada = '';
-      return;
-    }
-    
-    // Converte para número com casas decimais
-    const valorNumerico = parseFloat(valor) / 100;
-    
-    // Limita a 100%
-    if (valorNumerico > 100) {
-      this.taxaJuros = 100;
-      this.taxaJurosFormatada = '100,00';
-    } else {
-      this.taxaJuros = valorNumerico;
-      this.taxaJurosFormatada = valorNumerico.toFixed(2).replace('.', ',');
-    }
-    
-    // Atualiza o campo
-    event.target.value = this.taxaJurosFormatada;
-    
-    // Recalcula parcelas se necessário
-    if (this.numeroParcelas > 0 && this.valorEmprestimo > 0) {
-      this.calcularParcelas();
-    }
+  onRowClick(cobranca: Cobranca): void {
+    // Navegar para detalhes ou edição ao clicar na linha
+    this.editarCobranca(cobranca);
   }
 
-  // Função para tratar o foco no campo de juros
-  onTaxaJurosFocus(event: any): void {
-    if (this.taxaJuros === 0) {
-      event.target.value = '';
-    }
+  // Performance optimization: TrackBy function for ngFor
+  trackByCobranca(index: number, cobranca: Cobranca): any {
+    return cobranca.codigo || index;
   }
 
-  // Função para tratar quando sai do campo de juros
-  onTaxaJurosBlur(event: any): void {
-    if (!event.target.value || event.target.value === '') {
-      this.taxaJuros = 0;
-      this.taxaJurosFormatada = '';
-    } else {
-      event.target.value = this.taxaJurosFormatada;
-    }
-  }
-
-  // Calcular parcelas baseado no valor e juros
-  calcularParcelas(): void {
-    if (this.valorEmprestimo > 0 && this.numeroParcelas > 0) {
-      // Cálculo simples: valor principal + juros dividido pelo número de parcelas
-      const valorComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
-      this.valorParcela = valorComJuros / this.numeroParcelas;
-      this.totalComJuros = valorComJuros;
-      
-      console.log('💰 Calculando parcelas:', {
-        valorEmprestimo: this.valorEmprestimo,
-        taxaJuros: this.taxaJuros,
-        numeroParcelas: this.numeroParcelas,
-        valorParcela: this.valorParcela,
-        totalComJuros: this.totalComJuros
-      });
-    }
-  }
-
-  // Gerar cronograma de pagamentos
-  gerarCronograma(): void {
-    if (!this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0 || this.valorEmprestimo <= 0) {
-      Swal.fire({
-        title: 'Campos Obrigatórios',
-        text: 'Preencha todos os campos antes de gerar o cronograma!',
-        icon: 'warning',
-        confirmButtonText: 'Entendi',
-        confirmButtonColor: '#1976d2',
-        background: '#fff',
-        customClass: {
-          popup: 'swal-popup-custom'
-        }
-      });
-      return;
-    }
-
-    this.cronogramaParcelas = [];
-    const dataAtual = new Date(this.dataInicio);
-    
-    // Definir incremento baseado na periodicidade
-    const incrementoDias = this.getIncrementoDias();
-    
-    for (let i = 0; i < this.numeroParcelas; i++) {
-      const dataVencimento = new Date(dataAtual);
-      dataVencimento.setDate(dataAtual.getDate() + (i * incrementoDias));
-      
-      const jurosParaParcela = (this.valorEmprestimo * this.taxaJuros / 100) / this.numeroParcelas;
-      const valorPrincipal = this.valorEmprestimo / this.numeroParcelas;
-      
-      this.cronogramaParcelas.push({
-        numero: i + 1,
-        dataVencimento: dataVencimento,
-        valor: valorPrincipal,
-        juros: jurosParaParcela,
-        valorTotal: valorPrincipal + jurosParaParcela
-      });
-    }
-
-    this.mostrarCronograma = true;
-    console.log('📅 Cronograma gerado:', this.cronogramaParcelas);
-    
-    // SweetAlert de sucesso ao gerar cronograma
+  // Métodos auxiliares para notificações
+  private showSuccessToast(message: string): void {
     Swal.fire({
-      title: 'Cronograma Gerado!',
-      text: `Cronograma de ${this.numeroParcelas} parcelas criado com sucesso.`,
+      toast: true,
+      position: 'top-end',
       icon: 'success',
-      confirmButtonText: 'Visualizar',
-      confirmButtonColor: '#4caf50',
-      background: '#fff',
-      timer: 2000,
-      timerProgressBar: true,
+      title: message,
       showConfirmButton: false,
-      customClass: {
-        popup: 'swal-popup-custom'
-      }
+      timer: 3000,
+      timerProgressBar: true
     });
   }
 
-  // Obter incremento de dias baseado na periodicidade
-  private getIncrementoDias(): number {
-    switch (this.periodicidade) {
-      case 'semanal': return 7;
-      case 'quinzenal': return 15;
-      case 'mensal': return 30;
-      default: return 30;
-    }
-  }
-
-  // Fechar cronograma
-  fecharCronograma(): void {
-    this.mostrarCronograma = false;
-  }
-
-  // Salvar empréstimo
-  salvarEmprestimo(): void {
-    if (!this.clienteSelecionado || !this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0) {
-      Swal.fire({
-        title: 'Campos Obrigatórios',
-        text: 'Preencha todos os campos obrigatórios antes de salvar!',
-        icon: 'error',
-        confirmButtonText: 'Entendi',
-        confirmButtonColor: '#1976d2',
-        background: '#fff',
-        customClass: {
-          popup: 'swal-popup-custom'
-        }
-      });
-      return;
-    }
-
-    const emprestimoData = {
-      cliente: this.clienteSelecionado,
-      valorEmprestimo: this.valorEmprestimo,
-      taxaJuros: this.taxaJuros,
-      dataInicio: this.dataInicio,
-      periodicidade: this.periodicidade,
-      numeroParcelas: this.numeroParcelas,
-      valorParcela: this.valorParcela,
-      totalComJuros: this.totalComJuros,
-      cronograma: this.cronogramaParcelas
-    };
-
-    console.log('💾 Salvando empréstimo:', emprestimoData);
-    
-    // Aqui você pode integrar com seu serviço para salvar no backend
+  private showErrorToast(message: string): void {
     Swal.fire({
-      title: 'Sucesso!',
-      text: 'Empréstimo salvo com sucesso!',
-      icon: 'success',
-      confirmButtonText: 'Continuar',
-      confirmButtonColor: '#4caf50',
-      background: '#fff',
-      customClass: {
-        popup: 'swal-popup-custom'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Limpar formulário após salvar
-        this.limparFormulario();
-      }
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: message,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
     });
-  }
-
-  // Limpar formulário
-  private limparFormulario(): void {
-    this.clienteSelecionado = null;
-    this.clienteSearch = '';
-    this.valorEmprestimo = 0;
-    this.valorEmprestimoFormatado = '';
-    this.taxaJuros = 0;
-    this.taxaJurosFormatada = '';
-    this.dataInicio = null;
-    this.periodicidade = '';
-    this.numeroParcelas = 1;
-    this.valorParcela = 0;
-    this.mostrarCronograma = false;
-    this.cronogramaParcelas = [];
-    this.totalComJuros = 0;
   }
 }
 

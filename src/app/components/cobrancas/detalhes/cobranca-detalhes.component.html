@@ -1,0 +1,107 @@
+<div class="page-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Carregando detalhes da cobrança...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading" class="content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1>Detalhes da Cobrança #{{ cobrancaDetalhes.id }}</h1>
+      <button mat-icon-button (click)="voltarLista()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+
+    <!-- Cliente Info -->
+    <mat-card class="cliente-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>person</mat-icon>
+          Informações do Cliente
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cliente-info">
+          <p><strong>Nome:</strong> {{ cobrancaDetalhes.cliente.nome }}</p>
+          <p><strong>Documento:</strong> {{ cobrancaDetalhes.cliente.documento }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Valores Financeiros -->
+    <mat-card class="valores-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>attach_money</mat-icon>
+          Valores Financeiros
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="valores-grid">
+          <div class="valor-item">
+            <span class="label">Valor do Empréstimo:</span>
+            <span class="valor valor-principal">{{ cobrancaDetalhes.valorEmprestimo | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <div class="valor-item">
+            <span class="label">Taxa de Juros:</span>
+            <span class="valor">{{ cobrancaDetalhes.taxaJuros }}% ao mês</span>
+          </div>
+          
+          <div class="valor-item">
+            <span class="label">Valor dos Juros:</span>
+            <span class="valor valor-juros">{{ cobrancaDetalhes.valorJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          
+          <mat-divider></mat-divider>
+          
+          <div class="valor-item total-item">
+            <span class="label">Valor Total a Pagar:</span>
+            <span class="valor valor-total">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Datas e Status -->
+    <mat-card class="status-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>event</mat-icon>
+          Informações Temporais
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="status-info">
+          <div class="info-item">
+            <span class="label">Data do Empréstimo:</span>
+            <span class="info">{{ cobrancaDetalhes.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Data de Vencimento:</span>
+            <span class="info">{{ cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <mat-chip [color]="getStatusColor()" selected>
+              {{ getStatusText() }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="voltarLista()">
+        <mat-icon>list</mat-icon>
+        Voltar à Lista
+      </button>
+    </div>
+  </div>
+</div>

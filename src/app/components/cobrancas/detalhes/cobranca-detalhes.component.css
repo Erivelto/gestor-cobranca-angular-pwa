@@ -1,0 +1,224 @@
+.page-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  min-height: 100vh;
+  color: #374151;
+}
+
+.page-container * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 20px;
+}
+
+.loading-container p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.2;
+}
+
+.back-button {
+  color: #6b7280;
+}
+
+.back-button:hover {
+  color: #374151;
+}
+
+mat-card {
+  margin-bottom: 20px;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cliente-info p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.valores-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.valor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.valor-item.total-item {
+  margin-top: 10px;
+  padding-top: 15px;
+  font-weight: 500;
+}
+
+.label {
+  color: #666;
+  font-size: 14px;
+}
+
+.valor {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.valor-principal {
+  color: #2196f3;
+}
+
+.valor-juros {
+  color: #ff9800;
+}
+
+.valor-total {
+  color: #4caf50;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info {
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 15px;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.actions button {
+  min-width: 150px;
+  padding: 12px 24px;
+  font-weight: 500;
+}
+
+/* Button styles following the standard */
+.page-container .mat-raised-button[color="primary"] {
+  background-color: #2196F3 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.page-container .mat-raised-button[color="primary"]:hover {
+  background-color: #1976D2 !important;
+}
+
+.page-container .mat-button {
+  background-color: #F5F5F5 !important;
+  color: #616161 !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+
+.page-container .mat-button:hover {
+  background-color: #EEEEEE !important;
+  color: #424242 !important;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .detalhes-container {
+    padding: 15px;
+  }
+  
+  .header h2 {
+    font-size: 18px;
+  }
+  
+  .valor-item,
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .valor,
+  .info {
+    align-self: flex-end;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions button {
+    width: 100%;
+  }
+}
+
+/* Estados de cores para chips */
+mat-chip.mat-primary {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+mat-chip.mat-warn {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+mat-chip.mat-accent {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
