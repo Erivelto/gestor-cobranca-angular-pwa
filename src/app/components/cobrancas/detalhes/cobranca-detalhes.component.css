@@ -1,224 +1,495 @@
-.page-container {
-  padding: 20px;
-  max-width: 900px;
+/* Container principal seguindo Material Design */
+.cobranca-detalhes {
+  padding: 16px;
+  max-width: 800px;
   margin: 0 auto;
-  background-color: #ffffff;
-  min-height: 100vh;
-  color: #374151;
+  font-family: 'Roboto', sans-serif;
 }
 
-.page-container * {
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
+/* Loading state */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
-  gap: 20px;
+  padding: 64px 16px;
+  text-align: center;
 }
 
 .loading-container p {
-  color: #6b7280;
+  margin-top: 16px;
+  color: rgba(0, 0, 0, 0.6);
   font-size: 14px;
-  margin: 0;
 }
 
-.dashboard-header {
+/* Header seguindo Material Design */
+.header-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding: 0 4px;
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #374151;
-  line-height: 1.2;
-}
-
-.back-button {
-  color: #6b7280;
-}
-
-.back-button:hover {
-  color: #374151;
-}
-
-mat-card {
-  margin-bottom: 20px;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
-mat-card-title {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  color: #374151;
-  font-size: 20px;
-  font-weight: 600;
 }
 
-.cliente-info {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.back-btn {
+  margin-right: 8px;
 }
 
-.cliente-info p {
+.back-btn mat-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.page-title {
   margin: 0;
-  font-size: 14px;
+  font-size: 24px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 32px;
 }
 
-.valores-grid {
+/* Main card seguindo Material Design */
+.main-card {
+  margin-bottom: 24px;
+  border-radius: 4px;
+  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 
+              0px 1px 1px 0px rgba(0,0,0,0.14), 
+              0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+/* Seções dentro do card */
+.card-section {
+  padding: 16px;
+}
+
+.section-header {
+  display: flex;
+  /* align-items: center;
+  justify-content: space-between; */
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.section-header .title-with-date {
+  display: flex;
+  /* align-items: center; */
+  gap: 8px;
+}
+
+.section-icon {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 24px;
+}
+
+/* Título com data */
+.title-with-date {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 2px;
+  flex: 1;
 }
 
-.valor-item {
+.date-subtitle {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 400;
+  line-height: 16px;
+}
+
+/* Conteúdo das seções */
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Linhas de informação */
+.info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 24px;
+  padding: 4px 0;
+}
+
+/* Linha com input */
+.info-row.input-row {
+  align-items: center;
+  min-height: 56px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.info-row.input-row .info-label {
+  align-self: center;
+  line-height: 40px;
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.info-label {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 400;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.info-value {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: 400;
+  text-align: right;
+  margin-left: 16px;
+}
+
+/* Valores específicos com cores */
+.info-value.emprestimo {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.info-value.juros {
+  color: #f57c00;
+  font-weight: 500;
+}
+
+.info-value.pagamento {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* Container do pagamento */
+.pagamento-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* Input de valor */
+.valor-input {
+  width: 160px;
+}
+
+.valor-input .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.valor-input .mat-mdc-text-field-wrapper {
+  padding: 0 12px;
+  min-height: 40px;
+}
+
+.valor-input .mdc-text-field {
+  height: 40px;
+}
+
+.valor-input .mat-mdc-form-field-infix {
+  min-height: 40px;
   padding: 8px 0;
 }
 
-.valor-item.total-item {
-  margin-top: 10px;
-  padding-top: 15px;
-  font-weight: 500;
+/* Botão abater */
+.abater-btn {
+  height: 40px;
+  min-width: 80px;
+  flex-shrink: 0;
 }
 
-.label {
-  color: #666;
-  font-size: 14px;
+/* Status badge */
+.status-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+  align-self: center;
+  margin-left: auto;
 }
 
-.valor {
+.status-badge.em-dia {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+/* Linha total destacada */
+.total-row {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.total-label {
   font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.total-value {
   font-size: 16px;
-}
-
-.valor-principal {
-  color: #2196f3;
-}
-
-.valor-juros {
-  color: #ff9800;
-}
-
-.valor-total {
-  color: #4caf50;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.info {
   font-weight: 500;
+  color: #388e3c;
 }
 
-.actions {
+/* Divider com espaçamento */
+.divider-spacing {
+  margin: 12px 0;
+}
+
+/* Status chip */
+.status-chip {
+  margin-left: auto;
+}
+
+/* Container de ações */
+.actions-container {
   display: flex;
   justify-content: center;
-  margin-top: 30px;
-  gap: 15px;
-  padding: 24px;
-  background: #f8fafc;
-  border-radius: 8px;
+  padding: 16px 0;
 }
 
-.actions button {
-  min-width: 150px;
-  padding: 12px 24px;
+.actions-container button {
+  min-width: 140px;
+}
+
+/* Dividers do Material */
+mat-divider {
+  border-top-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Material Design button styles */
+button[mat-raised-button] {
+  border-radius: 4px;
+  text-transform: uppercase;
   font-weight: 500;
-}
-
-/* Button styles following the standard */
-.page-container .mat-raised-button[color="primary"] {
-  background-color: #2196F3 !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-}
-
-.page-container .mat-raised-button[color="primary"]:hover {
-  background-color: #1976D2 !important;
-}
-
-.page-container .mat-button {
-  background-color: #F5F5F5 !important;
-  color: #616161 !important;
-  border-radius: 6px !important;
-  font-weight: 500 !important;
-}
-
-.page-container .mat-button:hover {
-  background-color: #EEEEEE !important;
-  color: #424242 !important;
+  letter-spacing: 0.0892857em;
 }
 
 /* Responsividade */
 @media (max-width: 600px) {
-  .detalhes-container {
-    padding: 15px;
+  .cobranca-detalhes {
+    padding: 8px;
   }
   
-  .header h2 {
-    font-size: 18px;
+  .header-container {
+    margin-bottom: 16px;
   }
   
-  .valor-item,
-  .info-item {
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .card-section {
+    padding: 12px;
+  }
+  
+  .main-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Apenas em telas muito pequenas quebra para coluna */
+@media (max-width: 400px) {
+  .info-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 4px;
+    padding: 6px 0;
   }
   
-  .valor,
-  .info {
-    align-self: flex-end;
+  .info-row.input-row {
+    gap: 8px;
+    padding: 8px 0;
   }
   
-  .actions {
+  .info-value {
+    text-align: left;
+    margin-left: 0;
+  }
+  
+  .pagamento-container {
+    margin-left: 0;
     flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
   
-  .actions button {
+  .valor-input {
     width: 100%;
   }
+  
+  .abater-btn {
+    width: 100%;
+  }
+  
+  .status-badge {
+    margin-left: 0;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
 }
 
-/* Estados de cores para chips */
-mat-chip.mat-primary {
-  background-color: #4caf50 !important;
-  color: white !important;
+@media (max-width: 360px) {
+  .cobranca-detalhes {
+    padding: 4px;
+  }
+  
+  .section-content {
+    gap: 8px;
+  }
+  
+  .card-section {
+    padding: 8px;
+  }
 }
 
-mat-chip.mat-warn {
-  background-color: #f44336 !important;
-  color: white !important;
+/* Ajustes para chips do Material */
+mat-chip {
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 16px;
 }
 
-mat-chip.mat-accent {
-  background-color: #2196f3 !important;
-  color: white !important;
+/* Histórico de Pagamentos */
+.pagamentos-historico {
+  margin: 16px 0;
+}
+
+/* Expansion Panel */
+.historico-expansion {
+  border-radius: 8px;
+  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 
+              0px 1px 1px 0px rgba(0,0,0,0.14), 
+              0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+.historico-expansion .mat-expansion-panel-header {
+  padding: 16px;
+  height: auto;
+  min-height: 48px;
+}
+
+.historico-expansion .mat-expansion-panel-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 16px;
+}
+
+.historico-icon {
+  color: #1976d2;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.historico-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin: 0;
+  line-height: 20px;
+}
+
+.historico-expansion .mat-expansion-panel-header-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 400;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Tabela dentro do expansion panel */
+.historico-table {
+  width: 100%;
+  background: transparent;
+  margin-top: 8px;
+}
+
+/* Header cells Material Design */
+.data-header,
+.valor-header {
+  background-color: #f8f9fa;
+  font-weight: 500;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.87);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  height: 48px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.valor-header {
+  text-align: right;
+}
+
+/* Data cells Material Design */
+.data-cell,
+.valor-cell {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+  padding: 12px 16px;
+  height: 52px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.data-cell {
+  font-weight: 400;
+}
+
+.valor-cell {
+  text-align: right;
+  font-weight: 500;
+  color: #2e7d32;
+}
+
+/* Remove border da última linha */
+.historico-expansion mat-table mat-row:last-child .data-cell,
+.historico-expansion mat-table mat-row:last-child .valor-cell {
+  border-bottom: none;
+}
+
+/* Hover effect para linhas */
+.historico-expansion mat-table mat-row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Ajustes específicos do expansion panel */
+.historico-expansion .mat-expansion-panel-body {
+  padding: 0 16px 16px 16px;
+}
+
+.historico-expansion .mat-expansion-panel-content {
+  overflow: visible;
+}
+
+/* Responsividade para tabela */
+@media (max-width: 480px) {
+  .data-header,
+  .valor-header,
+  .data-cell,
+  .valor-cell {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .data-header,
+  .valor-header {
+    height: 40px;
+  }
+  
+  .data-cell,
+  .valor-cell {
+    height: 44px;
+  }
 }
 

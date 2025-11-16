@@ -1,4 +1,4 @@
-<div class="page-container">
+<div class="cobranca-detalhes">
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
@@ -6,98 +6,127 @@
   </div>
 
   <!-- Content -->
-  <div *ngIf="!loading" class="content">
+  <div *ngIf="!loading">
     <!-- Header -->
-    <div class="dashboard-header">
-      <h1>Detalhes da Cobrança #{{ cobrancaDetalhes.id }}</h1>
-      <button mat-icon-button (click)="voltarLista()" class="back-button">
+    <div class="header-container">
+      <button mat-icon-button (click)="voltarLista()" class="back-btn">
         <mat-icon>arrow_back</mat-icon>
       </button>
+      <h1 class="page-title">Cobrança</h1>
     </div>
 
-    <!-- Cliente Info -->
-    <mat-card class="cliente-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>person</mat-icon>
-          Informações do Cliente
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="cliente-info">
-          <p><strong>Nome:</strong> {{ cobrancaDetalhes.cliente.nome }}</p>
-          <p><strong>Documento:</strong> {{ cobrancaDetalhes.cliente.documento }}</p>
+    <!-- Main Card -->
+    <mat-card class="main-card">
+      <!-- Cliente Section -->
+      <div class="card-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">person</mat-icon>
+          <h2 class="section-title">Cliente</h2>
         </div>
-      </mat-card-content>
-    </mat-card>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="info-label">Nome</span>
+            <span class="info-value">{{ cobrancaDetalhes.cliente.nome }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Documento</span>
+            <span class="info-value">{{ cobrancaDetalhes.cliente.documento }}</span>
+          </div>
+        </div>
+      </div>
 
-    <!-- Valores Financeiros -->
-    <mat-card class="valores-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>attach_money</mat-icon>
-          Valores Financeiros
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="valores-grid">
-          <div class="valor-item">
-            <span class="label">Valor do Empréstimo:</span>
-            <span class="valor valor-principal">{{ cobrancaDetalhes.valorEmprestimo | currency:'BRL':'symbol':'1.2-2' }}</span>
-          </div>
-          
-          <div class="valor-item">
-            <span class="label">Taxa de Juros:</span>
-            <span class="valor">{{ cobrancaDetalhes.taxaJuros }}% ao mês</span>
-          </div>
-          
-          <div class="valor-item">
-            <span class="label">Valor dos Juros:</span>
-            <span class="valor valor-juros">{{ cobrancaDetalhes.valorJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
-          </div>
-          
-          <mat-divider></mat-divider>
-          
-          <div class="valor-item total-item">
-            <span class="label">Valor Total a Pagar:</span>
-            <span class="valor valor-total">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      <mat-divider></mat-divider>
 
-    <!-- Datas e Status -->
-    <mat-card class="status-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>event</mat-icon>
-          Informações Temporais
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="status-info">
-          <div class="info-item">
-            <span class="label">Data do Empréstimo:</span>
-            <span class="info">{{ cobrancaDetalhes.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+      <!-- Valores Section -->
+      <div class="card-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">attach_money</mat-icon>
+          <div class="title-with-date">
+            <h2 class="section-title">Empréstimo 1</h2>
+            <span class="date-subtitle">{{ cobrancaDetalhes.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <span class="status-badge em-dia">Em dia</span>
+        </div>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="info-label">Valor do Empréstimo</span>
+            <span class="info-value emprestimo">{{ cobrancaDetalhes.valorEmprestimo | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Valor dos Juros</span>
+            <span class="info-value juros">{{ cobrancaDetalhes.valorJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="info-row input-row">
+            <span class="info-label">Quanto vai pagar ?</span>
+            <div class="pagamento-container">
+              <mat-form-field appearance="outline" class="valor-input">
+                <mat-label>Valor</mat-label>
+                <input matInput 
+                       type="text" 
+                       [value]="valorPagamentoFormatado"
+                       (input)="onValorPagamentoInput($event)"
+                       (focus)="onValorPagamentoFocus($event)"
+                       (blur)="onValorPagamentoBlur($event)"
+                       placeholder="0,00"
+                       maxlength="15">
+                <span matTextPrefix>R$ </span>
+              </mat-form-field>
+              <button mat-raised-button color="primary" class="abater-btn" (click)="abaterPagamento()">
+                Abater
+              </button>
+            </div>
           </div>
           
-          <div class="info-item">
-            <span class="label">Data de Vencimento:</span>
-            <span class="info">{{ cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy' }}</span>
+          <!-- Histórico de Pagamentos -->
+          <div *ngIf="historicoPagamentos.length > 0" class="pagamentos-historico">
+            <mat-divider class="divider-spacing"></mat-divider>
+            
+            <mat-expansion-panel class="historico-expansion">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon class="historico-icon">history</mat-icon>
+                  <span class="historico-title">Histórico de Pagamentos</span>
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ historicoPagamentos.length }} pagamento(s) realizado(s)
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              
+              <mat-table [dataSource]="dataSource" class="mat-elevation-z0 historico-table">
+                <!-- Data Column -->
+                <ng-container matColumnDef="data">
+                  <mat-header-cell *matHeaderCellDef class="data-header">Data</mat-header-cell>
+                  <mat-cell *matCellDef="let pagamento" class="data-cell">
+                    {{ pagamento.data | date:'dd/MM/yyyy HH:mm' }}
+                  </mat-cell>
+                </ng-container>
+
+                <!-- Valor Column -->
+                <ng-container matColumnDef="valor">
+                  <mat-header-cell *matHeaderCellDef class="valor-header">Valor Pago</mat-header-cell>
+                  <mat-cell *matCellDef="let pagamento" class="valor-cell">
+                    {{ pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+              </mat-table>
+            </mat-expansion-panel>
           </div>
-          
-          <div class="info-item">
-            <span class="label">Status:</span>
-            <mat-chip [color]="getStatusColor()" selected>
-              {{ getStatusText() }}
-            </mat-chip>
+
+          <mat-divider class="divider-spacing"></mat-divider>
+          <div class="info-row total-row">
+            <span class="info-label total-label">Valor Total</span>
+            <span class="info-value total-value">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
           </div>
         </div>
-      </mat-card-content>
+      </div>
+
     </mat-card>
 
     <!-- Actions -->
-    <div class="actions">
+    <div class="actions-container">
       <button mat-raised-button color="primary" (click)="voltarLista()">
         <mat-icon>list</mat-icon>
         Voltar à Lista

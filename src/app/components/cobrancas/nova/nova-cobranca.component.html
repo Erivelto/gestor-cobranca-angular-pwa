@@ -1,10 +1,10 @@
 <div class="page-container">
   <!-- Header -->
   <div class="dashboard-header">
-    <h1>Nova Cobrança</h1>
     <button mat-icon-button class="back-button" routerLink="/cobrancas">
       <mat-icon>arrow_back</mat-icon>
     </button>
+    <h1>Nova Cobrança</h1>
   </div>
 
   <!-- Loading State -->
@@ -98,7 +98,7 @@
             <mat-icon>attach_money</mat-icon>
             Dados do Empréstimo
           </mat-card-title>
-          <mat-card-subtitle>Informe o valor e a taxa de juros do empréstimo</mat-card-subtitle>
+          <mat-card-subtitle>Informe o valor e os juros aplicados ao empréstimo</mat-card-subtitle>
         </mat-card-header>
         
         <mat-card-content>
@@ -117,7 +117,7 @@
                            (input)="onValorEmprestimoInput($event)"
                            (focus)="onValorEmprestimoFocus($event)"
                            (blur)="onValorEmprestimoBlur($event)"
-                           placeholder="0,00"
+                           placeholder=" 0,00"
                            maxlength="15">
                     <span matTextPrefix>R$ </span>
                   </mat-form-field>
@@ -125,14 +125,14 @@
               </div>
             </div>
 
-            <!-- Campo Taxa de Juros -->
+            <!-- Campo Juros Aplicado -->
             <div class="form-group">
               <div class="campo-juros">
                 <mat-icon class="info-icon">percent</mat-icon>
                 <div class="campo-content">
-                  <span class="info-label">Taxa de Juros</span>
+                  <span class="info-label">Juros Aplicado</span>
                   <mat-form-field appearance="outline" class="juros-field">
-                    <mat-label>Taxa aplicada</mat-label>
+                    <mat-label>Valor aplicado</mat-label>
                     <input matInput 
                            type="text" 
                            [value]="taxaJurosFormatada"

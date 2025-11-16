@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -27,6 +27,7 @@ import Swal from 'sweetalert2';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -220,7 +221,7 @@ export class NovaCobrancaComponent implements OnInit {
     }
   }
 
-  // Função para aplicar mascara no campo de taxa de juros
+  // Função para aplicar mascara no campo de juros aplicado
   onTaxaJurosInput(event: any): void {
     let valor = event.target.value;
     
