@@ -16,7 +16,8 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CobrancaService } from '../../../services/cobranca.service';
-import { Cobranca } from '../../../models/api.models';
+import { PessoaService } from '../../../services/pessoa.service';
+import { Cobranca, Pessoa } from '../../../models/api.models';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -44,30 +45,34 @@ import Swal from 'sweetalert2';
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort!: MatSort;
 
   cobrancas: Cobranca[] = [];
+  pessoas: Pessoa[] = [];
   dataSource = new MatTableDataSource<Cobranca>([]);
   loading: boolean = true;
   error: string = '';
   searchTerm: string = '';
-  displayedColumns: string[] = ['nome', 'acoes'];
+  displayedColumns: string[] = ['codigoPessoa', 'tipoCobranca', 'valor', 'juros', 'dataVencimento', 'dataPagamento', 'status', 'acoes'];
 
   constructor(
     private cobrancaService: CobrancaService,
+    private pessoaService: PessoaService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.carregarCobrancas();
+    this.carregarPessoas();
     this.setupTable();
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    // Conectar paginator e sort após a view estar inicializada
+    this.dataSource.paginator = this.paginator!;
     this.dataSource.sort = this.sort;
+    this.cdr.detectChanges();
   }
 
   private setupTable(): void {
@@ -75,71 +80,117 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
     this.dataSource.filterPredicate = (data: Cobranca, filter: string) => {
       const searchString = filter.toLowerCase();
       return (
-        data.pessoa?.nome?.toLowerCase().includes(searchString) ||
-        data.pessoa?.documento?.toLowerCase().includes(searchString) ||
+        data.codigoPessoa?.toString().includes(searchString) ||
+        data.tipoCobranca?.toLowerCase().includes(searchString) ||
         data.valor?.toString().includes(searchString) ||
+        data.juros?.toString().includes(searchString) ||
+        data.dataVencimento?.toLowerCase().includes(searchString) ||
+        (data.dataPagamento ? data.dataPagamento.toLowerCase().includes(searchString) : false) ||
         this.getStatusText(data.status).toLowerCase().includes(searchString)
       );
     };
   }
 
-  carregarCobrancas(): void {
-    console.log('🚀 Iniciando carregarCobrancas()');
+  carregarPessoas(): void {
+    console.log('🚀 Iniciando carregarPessoas()');
     this.loading = true;
     this.error = '';
 
-    // Dados mocados para teste
-    setTimeout(() => {
-      const cobrancasMocadas: Cobranca[] = [
-        {
-          codigo: 1,
-          codigopessoa: 1,
-          descricao: 'Empréstimo para capital de giro',
-          valor: 1500.00,
-          dataVencimento: '2024-12-31',
-          status: 1,
-          pessoa: {
-            codigo: 1,
-            nome: 'João Silva',
-            documento: '123.456.789-00'
-          }
-        },
-        {
-          codigo: 2,
-          codigopessoa: 2,
-          descricao: 'Primeira parcela em atraso',
-          valor: 2500.00,
-          dataVencimento: '2024-11-30',
-          status: 3,
-          pessoa: {
-            codigo: 2,
-            nome: 'Maria Santos',
-            documento: '987.654.321-00'
-          }
-        },
-        {
-          codigo: 3,
-          codigopessoa: 3,
-          descricao: 'Empréstimo quitado',
-          valor: 5000.00,
-          dataVencimento: '2024-10-15',
-          status: 2,
-          dataPagamento: '2024-10-10',
-          pessoa: {
-            codigo: 3,
-            nome: 'Pedro Costa',
-            documento: '456.789.123-00'
-          }
+    this.pessoaService.getPessoas().subscribe({
+      next: (pessoas) => {
+        console.log('✅ Pessoas carregadas da API:', pessoas);
+        this.pessoas = pessoas;
+        this.carregarCobrancas();
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar pessoas:', error);
+        this.error = 'Erro ao carregar dados das pessoas';
+        this.loading = false;
+      }
+    });
+  }
+
+  carregarCobrancas(): void {
+    console.log('🚀 Iniciando carregarCobrancas()');
+    
+    // Dados mocados de cobranças com referência às pessoas reais
+    const cobrancasMocadas: Cobranca[] = [];
+    // Criar mais cobranças para testar a paginação
+    this.pessoas.forEach((pessoa, index) => {
+      // Criar 2-3 cobranças por pessoa para ter dados suficientes para paginação
+      const numCobrancas = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < numCobrancas; i++) {
+        const cobrancaId = (index * 3) + i + 1;
+        const cobranca: Cobranca = {
+          codigo: cobrancaId,
+          codigoPessoa: pessoa.codigo,
+          tipoCobranca: 'Mensalidade',
+          valor: this.gerarValorAleatorio(),
+          juros: Math.floor(Math.random() * 10),
+          dataVencimento: this.gerarDataVencimento(cobrancaId),
+          dataPagamento: null,
+          status: this.gerarStatusAleatorio(cobrancaId),
+          excluido: false
+        };
+        // Adicionar data de pagamento se status for pago
+        if (cobranca.status === 2) {
+          cobranca.dataPagamento = this.gerarDataPagamento();
         }
-      ];
-      
-      console.log('🎯 Cobranças mocadas:', cobrancasMocadas);
-      
-      this.cobrancas = cobrancasMocadas;
-      this.dataSource.data = cobrancasMocadas;
-      this.loading = false;
-      console.log('🏁 Loading definido como false');
-    }, 1000);
+        cobrancasMocadas.push(cobranca);
+      }
+    });
+    console.log('🎯 Cobranças criadas com pessoas da API:', cobrancasMocadas);
+    this.cobrancas = cobrancasMocadas;
+    this.dataSource.data = cobrancasMocadas;
+    // Reconectar paginator após atualizar os dados
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+    }
+    this.cdr.detectChanges();
+    this.loading = false;
+    console.log('🏁 Loading definido como false, total de cobranças:', cobrancasMocadas.length);
+  }
+
+  private gerarDescricaoAleatoria(index: number): string {
+    const descricoes = [
+      'Empréstimo para capital de giro',
+      'Financiamento de equipamentos',
+      'Crédito pessoal para investimento',
+      'Empréstimo para expansão do negócio',
+      'Antecipação de recebíveis'
+    ];
+    return descricoes[index % descricoes.length];
+  }
+
+  private gerarValorAleatorio(): number {
+    const valores = [1500.00, 2500.00, 5000.00, 3200.00, 7800.00, 1200.00, 4500.00];
+    return valores[Math.floor(Math.random() * valores.length)];
+  }
+
+  private gerarDataVencimento(index: number): string {
+    const datas = [
+      '2024-12-31',
+      '2024-11-30',
+      '2024-10-15',
+      '2025-01-15',
+      '2024-12-15'
+    ];
+    return datas[index % datas.length];
+  }
+
+  private gerarStatusAleatorio(index: number): number {
+    const statuses = [1, 2, 3, 1, 1]; // 1=Pendente, 2=Pago, 3=Vencido
+    return statuses[index % statuses.length];
+  }
+
+  private gerarDataPagamento(): string {
+    const hoje = new Date();
+    const diasAtras = Math.floor(Math.random() * 30);
+    const dataPagamento = new Date(hoje.getTime() - (diasAtras * 24 * 60 * 60 * 1000));
+    return dataPagamento.toISOString().split('T')[0];
   }
 
   novaCobranca(): void {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Cobranca } from '../models/api.models';
+import { PessoaCobranca } from '../models/api.models';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
@@ -9,7 +10,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class CobrancaService {
-  private apiUrl = `${environment.apiUrl}/Cobranca`;
+  private apiUrl = `${environment.apiUrl}/PessoaCobranca`;
 
   constructor(
     private http: HttpClient,
@@ -28,45 +29,59 @@ export class CobrancaService {
     // Como o endpoint de Cobrança não existe na API, vamos retornar dados simulados
     const cobrancasSimuladas: Cobranca[] = [
       {
-  codigo: 1,
-  codigopessoa: 1,
-        descricao: 'Serviços de consultoria',
+        codigo: 1,
+        codigoPessoa: 1,
+        tipoCobranca: 'Serviços de consultoria',
         valor: 1500.00,
-        dataVencimento: '2025-11-15',
-        status: 1 // À Vencer
+        juros: 0,
+        dataVencimento: '2025-11-15T00:00:00.000Z',
+        dataPagamento: null,
+        status: 1,
+        excluido: false
       },
       {
-  codigo: 2,
-  codigopessoa: 2,
-        descricao: 'Desenvolvimento de sistema',
+        codigo: 2,
+        codigoPessoa: 2,
+        tipoCobranca: 'Desenvolvimento de sistema',
         valor: 3000.00,
-        dataVencimento: '2025-10-30',
-        status: 2 // Devedor
+        juros: 0,
+        dataVencimento: '2025-10-30T00:00:00.000Z',
+        dataPagamento: null,
+        status: 2,
+        excluido: false
       },
       {
-  codigo: 3,
-  codigopessoa: 1,
-        descricao: 'Manutenção mensal',
+        codigo: 3,
+        codigoPessoa: 1,
+        tipoCobranca: 'Manutenção mensal',
         valor: 800.00,
-        dataVencimento: '2025-11-01',
-        dataPagamento: '2025-11-01',
-        status: 0 // Em dia
+        juros: 0,
+        dataVencimento: '2025-11-01T00:00:00.000Z',
+        dataPagamento: '2025-11-01T00:00:00.000Z',
+        status: 0,
+        excluido: false
       },
       {
-  codigo: 4,
-  codigopessoa: 3,
-        descricao: 'Treinamento técnico',
+        codigo: 4,
+        codigoPessoa: 3,
+        tipoCobranca: 'Treinamento técnico',
         valor: 2200.00,
-        dataVencimento: '2025-11-20',
-        status: 1 // À Vencer
+        juros: 0,
+        dataVencimento: '2025-11-20T00:00:00.000Z',
+        dataPagamento: null,
+        status: 1,
+        excluido: false
       },
       {
-  codigo: 5,
-  codigopessoa: 2,
-        descricao: 'Licença de software',
+        codigo: 5,
+        codigoPessoa: 2,
+        tipoCobranca: 'Licença de software',
         valor: 500.00,
-        dataVencimento: '2025-10-15',
-        status: 2 // Devedor
+        juros: 0,
+        dataVencimento: '2025-10-15T00:00:00.000Z',
+        dataPagamento: null,
+        status: 2,
+        excluido: false
       }
     ];
     
@@ -82,8 +97,8 @@ export class CobrancaService {
     return this.http.get<Cobranca>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  createCobranca(cobranca: Cobranca): Observable<Cobranca> {
-    return this.http.post<Cobranca>(this.apiUrl, cobranca, { headers: this.getHeaders() });
+  createCobranca(cobranca: PessoaCobranca): Observable<any> {
+    return this.http.post<any>(this.apiUrl, cobranca, { headers: this.getHeaders() });
   }
 
   updateCobranca(id: number, cobranca: Cobranca): Observable<any> {

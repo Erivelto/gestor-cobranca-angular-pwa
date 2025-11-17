@@ -1,3 +1,13 @@
+.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
+  display: none !important;
+}
+.search-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+.search-field .mat-form-field {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
 /* Container principal */
 .cobrancas-lista-container {
   padding: 20px;
@@ -139,6 +149,7 @@
 /* Estilos específicos das colunas */
 .nome-cell {
   vertical-align: middle;
+  /* Removido display: flex para evitar quebra de linha */
 }
 
 .person-icon {
@@ -151,6 +162,42 @@
   font-weight: 500;
   color: #374151;
   vertical-align: middle;
+}
+
+.descricao-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.valor-cell {
+  font-weight: 600;
+  color: #059669;
+  text-align: right;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.vencimento-cell {
+  color: #6b7280;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.status-cell {
+  text-align: center;
+}
+
+.status-cell mat-chip {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-cell mat-chip mat-icon {
+  font-size: 14px;
+  margin-right: 4px;
 }
 
 /* Loading overlay */
@@ -329,7 +376,7 @@
   .search-field {
     min-width: auto;
     max-width: none;
-    margin-bottom: 12px;
+    /* margin-bottom: 12px; */
   }
   
   .add-new-btn {

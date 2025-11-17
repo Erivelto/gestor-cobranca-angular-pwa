@@ -44,8 +44,7 @@
       </mat-card>
 
       <!-- Table Content -->
-      <div *ngIf="!loading && !error && cobrancas.length > 0">
-        
+  <div *ngIf="!loading && !error && cobrancas.length > 0">
         <!-- Table Header -->
         <div class="table-header">
           <mat-form-field class="search-field" appearance="outline">
@@ -101,13 +100,7 @@
           </div>
         </div>
 
-        <!-- Paginator -->
-        <mat-paginator #paginator
-                       class="table-paginator"
-                       [pageSizeOptions]="[5, 10, 25, 100]"
-                       [pageSize]="10"
-                       showFirstLastButtons>
-        </mat-paginator>
+
       </div>
     </mat-card>
   </div>

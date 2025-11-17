@@ -1,3 +1,16 @@
+export interface PessoaCobranca {
+  codigo: number;
+  codigoPessoa: number;
+  tipoCobranca: string;
+  valor: number;
+  juros: number;
+  multa: number;
+  valorTotal: number;
+  dataInicio: string;
+  diaVencimento: number;
+  status: number;
+  excluido: boolean;
+}
 // Modelos de dados da API
 
 export interface Usuario {
@@ -55,13 +68,14 @@ export interface PessoaEndereco {
 
 export interface Cobranca {
   codigo: number;
-  codigopessoa: number;
-  pessoa?: Pessoa;
-  descricao: string;
+  codigoPessoa: number;
+  tipoCobranca: string;
   valor: number;
+  juros: number;
   dataVencimento: string;
-  dataPagamento?: string;
-  status?: number;
+  dataPagamento: string | null;
+  status: number;
+  excluido: boolean;
 }
 
 export interface ViaCepResponse {
