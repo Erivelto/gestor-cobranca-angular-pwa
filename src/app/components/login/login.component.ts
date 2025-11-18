@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -36,7 +37,8 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private spinnerService: SpinnerService
+    private spinnerService: SpinnerService,
+    private cdr: ChangeDetectorRef
   ) {
     // Redirecionar se já estiver autenticado
     if (this.authService.isAuthenticated()) {
@@ -64,13 +66,11 @@ export class LoginComponent {
           fullScreen: true 
         }
       );
-      
       console.log('Login bem-sucedido:', response);
       this.router.navigate(['/dashboard']);
-      
+      this.cdr.detectChanges();
     } catch (error: any) {
       console.error('Detalhes do erro:', error);
-      
       let errorMessage: string;
       if (error.status === 0) {
         errorMessage = 'Não foi possível conectar ao servidor. Por favor, verifique sua conexão com a internet e tente novamente.';
@@ -80,6 +80,7 @@ export class LoginComponent {
         errorMessage = 'Desculpe, ocorreu um problema inesperado. Por favor, tente novamente em alguns instantes.';
       }
       this.showErrorDialog(errorMessage);
+      this.cdr.detectChanges();
     }
   }
 }

@@ -97,8 +97,8 @@ export class CobrancaService {
     return this.http.get<Cobranca>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  createCobranca(cobranca: PessoaCobranca): Observable<any> {
-    return this.http.post<any>(this.apiUrl, cobranca, { headers: this.getHeaders() });
+  createCobranca(payload: PessoaCobranca): Observable<any> {
+    return this.http.post<any>(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 
   updateCobranca(id: number, cobranca: Cobranca): Observable<any> {

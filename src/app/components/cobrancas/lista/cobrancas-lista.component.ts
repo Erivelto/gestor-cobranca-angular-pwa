@@ -54,7 +54,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   loading: boolean = true;
   error: string = '';
   searchTerm: string = '';
-  displayedColumns: string[] = ['codigoPessoa', 'tipoCobranca', 'valor', 'juros', 'dataVencimento', 'dataPagamento', 'status', 'acoes'];
+  displayedColumns: string[] = ['nome', 'status', 'acoes'];
 
   constructor(
     private cobrancaService: CobrancaService,
@@ -76,18 +76,12 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   }
 
   private setupTable(): void {
-    // Configurar filtro customizado
+    // Filtro customizado: busca pelo nome da pessoa associada à cobrança
     this.dataSource.filterPredicate = (data: Cobranca, filter: string) => {
       const searchString = filter.toLowerCase();
-      return (
-        data.codigoPessoa?.toString().includes(searchString) ||
-        data.tipoCobranca?.toLowerCase().includes(searchString) ||
-        data.valor?.toString().includes(searchString) ||
-        data.juros?.toString().includes(searchString) ||
-        data.dataVencimento?.toLowerCase().includes(searchString) ||
-        (data.dataPagamento ? data.dataPagamento.toLowerCase().includes(searchString) : false) ||
-        this.getStatusText(data.status).toLowerCase().includes(searchString)
-      );
+      // Busca pelo nome da pessoa associada
+      const pessoaNome = this.pessoas.find(p => p.codigo === data.codigoPessoa)?.nome?.toLowerCase() || '';
+      return pessoaNome.includes(searchString);
     };
   }
 
@@ -121,7 +115,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       const numCobrancas = Math.floor(Math.random() * 3) + 1;
       for (let i = 0; i < numCobrancas; i++) {
         const cobrancaId = (index * 3) + i + 1;
-        const cobranca: Cobranca = {
+        const cobranca: Cobranca & { pessoa?: Pessoa } = {
           codigo: cobrancaId,
           codigoPessoa: pessoa.codigo,
           tipoCobranca: 'Mensalidade',
@@ -130,7 +124,8 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
           dataVencimento: this.gerarDataVencimento(cobrancaId),
           dataPagamento: null,
           status: this.gerarStatusAleatorio(cobrancaId),
-          excluido: false
+          excluido: false,
+          pessoa: pessoa
         };
         // Adicionar data de pagamento se status for pago
         if (cobranca.status === 2) {

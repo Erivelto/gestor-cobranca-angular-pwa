@@ -368,13 +368,13 @@ export class NovaCobrancaComponent implements OnInit {
         }
         // Declarar e inicializar novaCobranca conforme formato da API
         const dataInicioISO = this.dataInicio ? this.dataInicio.toISOString() : new Date().toISOString();
-        const novaCobranca: PessoaCobranca = {
+        const novaCobranca: any = {
             codigo: 0,
             codigoPessoa: this.clienteSelecionado?.codigo ?? 0,
-            tipoCobranca: 'Empréstimo',
+            tipoCobranca: 'semanal',
             valor: this.valorEmprestimo > 0 ? this.valorEmprestimo : 1,
             juros: this.taxaJuros >= 0 ? this.taxaJuros : 0,
-            multa: 0,
+            multa: 6,
             valorTotal: this.valorEmprestimo * (1 + (this.taxaJuros / 100)),
             dataInicio: dataInicioISO,
             diaVencimento: this.diaVencimento,
