@@ -25,12 +25,12 @@
         </div>
         <div class="section-content">
           <div class="info-row">
-            <span class="info-label">Nome</span>
-            <span class="info-value">{{ cobrancaDetalhes.cliente.nome }}</span>
+          <span class="info-label">Nome</span>
+          <span class="info-value">{{ pessoaDetalhes?.nome || '-' }}</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Documento</span>
-            <span class="info-value">{{ cobrancaDetalhes.cliente.documento }}</span>
+          <span class="info-label">Documento</span>
+          <span class="info-value">{{ pessoaDetalhes?.documento || '-' }}</span>
           </div>
         </div>
       </div>
@@ -43,18 +43,22 @@
           <mat-icon class="section-icon">attach_money</mat-icon>
           <div class="title-with-date">
             <h2 class="section-title">Empréstimo 1</h2>
-            <span class="date-subtitle">{{ cobrancaDetalhes.dataEmprestimo | date:'dd/MM/yyyy' }}</span>
+              <span class="date-subtitle">Vencimento: {{ cobrancaDetalhes?.dataVencimento ? (cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy') : '-' }}</span>
+              <span class="date-subtitle" style="margin-left:16px;">Inclusão: {{ cobrancaDetalhes?.dataInicio ? (cobrancaDetalhes.dataInicio | date:'dd/MM/yyyy') : '-' }}</span>
           </div>
-          <span class="status-badge em-dia">Em dia</span>
+            <span class="badge-status"
+                  [ngClass]="getStatusClass(cobrancaDetalhes.status)">
+              {{ getStatusText(cobrancaDetalhes.status) }}
+            </span>
         </div>
         <div class="section-content">
           <div class="info-row">
-            <span class="info-label">Valor do Empréstimo</span>
-            <span class="info-value emprestimo">{{ cobrancaDetalhes.valorEmprestimo | currency:'BRL':'symbol':'1.2-2' }}</span>
+            <span class="info-label">Valor</span>
+            <span class="info-value emprestimo">{{ cobrancaDetalhes?.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
           </div>
           <div class="info-row">
-            <span class="info-label">Valor dos Juros</span>
-            <span class="info-value juros">{{ cobrancaDetalhes.valorJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
+            <span class="info-label">Juros</span>
+            <span class="info-value juros">{{ cobrancaDetalhes?.juros }}</span>
           </div>
           <div class="info-row input-row">
             <span class="info-label">Quanto vai pagar ?</span>
@@ -97,7 +101,7 @@
                 <ng-container matColumnDef="data">
                   <mat-header-cell *matHeaderCellDef class="data-header">Data</mat-header-cell>
                   <mat-cell *matCellDef="let pagamento" class="data-cell">
-                    {{ pagamento.data | date:'dd/MM/yyyy HH:mm' }}
+                    {{ pagamento.data | date:'dd/MM/yyyy' }}
                   </mat-cell>
                 </ng-container>
 

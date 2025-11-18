@@ -140,3 +140,7 @@
     grid-template-columns: 1fr;
   }
 }
+
+ .mat-mdc-menu-content{
+  background-color: #fff !important;
+ }

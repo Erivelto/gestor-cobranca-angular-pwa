@@ -1,8 +1,11 @@
+import { CobrancaService } from '../../../services/cobranca.service';
+import { PessoaService } from '../../../services/pessoa.service';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from '../../shared/dialog-message.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,25 +38,13 @@ import { MatExpansionModule } from '@angular/material/expansion';
   ]
 })
 export class CobrancaDetalhesComponent implements OnInit {
+  // ...existing code...
+
+  pessoaDetalhes: any = null;
   loading: boolean = true;
   cobrancaId: number = 0;
   
-  // Dados mocados da cobrança
-  cobrancaDetalhes = {
-    id: 1,
-    cliente: {
-      nome: 'João Silva',
-      documento: '123.456.789-00'
-    },
-    valorEmprestimo: 5000.00,
-    taxaJuros: 2.5,
-    valorJuros: 125.00,
-    valorPagamento: 0,
-    valorTotal: 5125.00,
-    dataEmprestimo: new Date('2024-01-15'),
-    dataVencimento: new Date('2024-12-15'),
-    status: 'ativo'
-  };
+  cobrancaDetalhes: any = null;
 
   // Histórico de pagamentos
   historicoPagamentos: { valor: number, data: Date }[] = [];
@@ -63,9 +54,50 @@ export class CobrancaDetalhesComponent implements OnInit {
   // Campo formatado para exibição
   valorPagamentoFormatado: string = '0,00';
 
+  getStatusClass(status?: string | number): string {
+    // Permite status como string ou número para padronizar
+    if (typeof status === 'number') {
+      switch (status) {
+        case 1: return 'badge-warning';
+        case 2: return 'badge-success';
+        case 3: return 'badge-danger';
+        case 4: return 'badge-secondary';
+        default: return 'badge-secondary';
+      }
+    } else {
+      switch (status) {
+        case 'ativo': return 'badge-success';
+        case 'vencido': return 'badge-danger';
+        case 'quitado': return 'badge-warning';
+        default: return 'badge-secondary';
+      }
+    }
+  }
+
+  getStatusText(status?: string | number): string {
+    if (typeof status === 'number') {
+      switch (status) {
+        case 1: return 'Pendente';
+        case 2: return 'Pago';
+        case 3: return 'Vencido';
+        case 4: return 'Cancelado';
+        default: return 'Indefinido';
+      }
+    } else {
+      switch (status) {
+        case 'ativo': return 'Ativo';
+        case 'vencido': return 'Vencido';
+        case 'quitado': return 'Quitado';
+        default: return 'Indefinido';
+      }
+    }
+  }
   constructor(
-    private route: ActivatedRoute,
-    private router: Router
+  private route: ActivatedRoute,
+  private router: Router,
+  private cobrancaService: CobrancaService,
+  private pessoaService: PessoaService,
+  private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -84,47 +116,38 @@ export class CobrancaDetalhesComponent implements OnInit {
     });
   }
 
-  carregarDetalhes(): void {
-    this.loading = true;
-    
-    // Simular dados mocados baseado no ID
-    setTimeout(() => {
-      this.cobrancaDetalhes = this.gerarDadosMocados(this.cobrancaId);
+
+carregarDetalhes(): void {
+  this.loading = true;
+  this.cobrancaService.getCobrancaById(this.cobrancaId).subscribe({
+    next: (cobranca) => {
+      this.cobrancaDetalhes = cobranca;
+      console.log('[COBRANCA] Detalhes recebidos:', cobranca);
+      if (cobranca && cobranca.codigoPessoa) {
+        console.log('[COBRANCA] codigoPessoa:', cobranca.codigoPessoa);
+        this.pessoaService.getPessoaById(cobranca.codigoPessoa).subscribe({
+          next: (pessoa) => {
+            console.log('[PESSOA] Detalhes recebidos:', pessoa);
+            this.pessoaDetalhes = pessoa;
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('[PESSOA] Erro ao buscar detalhes da pessoa:', error);
+            this.loading = false;
+          }
+        });
+      } else {
+        console.warn('[COBRANCA] codigoPessoa não encontrado ou nulo:', cobranca);
+        this.loading = false;
+      }
+    },
+    error: (error) => {
+      console.error('[COBRANCA] Erro ao buscar detalhes da cobrança:', error);
       this.loading = false;
-    }, 1000);
-  }
+    }
+  });
+}
 
-  private gerarDadosMocados(id: number): any {
-    const clientes = [
-      { nome: 'João Silva', documento: '123.456.789-00' },
-      { nome: 'Maria Santos', documento: '987.654.321-00' },
-      { nome: 'Pedro Costa', documento: '456.789.123-00' }
-    ];
-    
-    const valores = [5000, 2500, 7500];
-    const taxas = [2.5, 3.0, 1.8];
-    
-    const clienteIndex = (id - 1) % clientes.length;
-    const valorEmprestimo = valores[clienteIndex];
-    const taxaJuros = taxas[clienteIndex];
-    const valorJuros = valorEmprestimo * (taxaJuros / 100);
-    const valorTotal = valorEmprestimo + valorJuros;
-    
-    const dadosMocados = {
-      id: id,
-      cliente: clientes[clienteIndex],
-      valorEmprestimo: valorEmprestimo,
-      taxaJuros: taxaJuros,
-      valorJuros: valorJuros,
-      valorPagamento: 0,
-      valorTotal: valorTotal,
-      dataEmprestimo: new Date('2024-01-15'),
-      dataVencimento: new Date('2024-12-15'),
-      status: id === 2 ? 'vencido' : 'ativo'
-    };
-
-    return dadosMocados;
-  }
 
   voltarLista(): void {
     this.router.navigate(['/cobrancas']);
@@ -139,14 +162,6 @@ export class CobrancaDetalhesComponent implements OnInit {
     }
   }
 
-  getStatusText(): string {
-    switch (this.cobrancaDetalhes.status) {
-      case 'ativo': return 'Ativo';
-      case 'vencido': return 'Vencido';
-      case 'quitado': return 'Quitado';
-      default: return 'Indefinido';
-    }
-  }
 
   // Métodos para máscara de moeda
   onValorPagamentoInput(event: any): void {
@@ -194,39 +209,35 @@ export class CobrancaDetalhesComponent implements OnInit {
 
   abaterPagamento(): void {
     if (this.cobrancaDetalhes.valorPagamento <= 0) {
-      Swal.fire({
-        title: 'Valor Inválido',
-        text: 'Informe um valor válido para o pagamento.',
-        icon: 'warning',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#1976d2'
+      this.dialog.open(DialogMessageComponent, {
+        data: {
+          title: 'Valor Inválido',
+          message: 'Informe um valor válido para o pagamento.'
+        }
       });
       return;
     }
 
     if (this.cobrancaDetalhes.valorPagamento > this.cobrancaDetalhes.valorTotal) {
-      Swal.fire({
-        title: 'Valor Excedente',
-        text: 'O valor do pagamento não pode ser maior que o valor total.',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#1976d2'
+      this.dialog.open(DialogMessageComponent, {
+        data: {
+          title: 'Valor Excedente',
+          message: 'O valor do pagamento não pode ser maior que o valor total.'
+        }
       });
       return;
     }
 
     // Confirmar o pagamento
-    Swal.fire({
-      title: 'Confirmar Pagamento',
-      text: `Deseja abater R$ ${this.formatarMoeda(this.cobrancaDetalhes.valorPagamento)} do empréstimo?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, Abater',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#4caf50',
-      cancelButtonColor: '#f44336'
-    }).then((result) => {
-      if (result.isConfirmed) {
+    const dialogRef = this.dialog.open(DialogMessageComponent, {
+      data: {
+        title: 'Confirmar Pagamento',
+        message: `Deseja abater R$ ${this.formatarMoeda(this.cobrancaDetalhes.valorPagamento)} do empréstimo?`
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      // Se o usuário clicar em OK, processa o pagamento
+      if (result) {
         this.processarPagamento();
       }
     });
@@ -255,22 +266,18 @@ export class CobrancaDetalhesComponent implements OnInit {
     // Verificar se foi quitado
     if (this.cobrancaDetalhes.valorTotal <= 0) {
       this.cobrancaDetalhes.status = 'quitado';
-      Swal.fire({
-        title: 'Empréstimo Quitado!',
-        text: 'Parabéns! O empréstimo foi quitado com sucesso.',
-        icon: 'success',
-        confirmButtonText: 'Ótimo!',
-        confirmButtonColor: '#4caf50'
+      this.dialog.open(DialogMessageComponent, {
+        data: {
+          title: 'Empréstimo Quitado!',
+          message: 'Parabéns! O empréstimo foi quitado com sucesso.'
+        }
       });
     } else {
-      Swal.fire({
-        title: 'Pagamento Realizado!',
-        text: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`,
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#4caf50',
-        timer: 3000,
-        timerProgressBar: true
+      this.dialog.open(DialogMessageComponent, {
+        data: {
+          title: 'Pagamento Realizado!',
+          message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
+        }
       });
     }
   }

@@ -45,6 +45,17 @@ import Swal from 'sweetalert2';
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit {
+  statusSortDirection: 'asc' | 'desc' = 'asc';
+
+  sortByStatus(): void {
+    const direction = this.statusSortDirection;
+    this.dataSource.data = [...this.dataSource.data].sort((a, b) => {
+      if (a.status === b.status) return 0;
+      if (direction === 'asc') return (a.status ?? 0) - (b.status ?? 0);
+      else return (b.status ?? 0) - (a.status ?? 0);
+    });
+    this.statusSortDirection = direction === 'asc' ? 'desc' : 'asc';
+  }
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -106,47 +117,31 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
 
   carregarCobrancas(): void {
     console.log('🚀 Iniciando carregarCobrancas()');
-    
-    // Dados mocados de cobranças com referência às pessoas reais
-    const cobrancasMocadas: Cobranca[] = [];
-    // Criar mais cobranças para testar a paginação
-    this.pessoas.forEach((pessoa, index) => {
-      // Criar 2-3 cobranças por pessoa para ter dados suficientes para paginação
-      const numCobrancas = Math.floor(Math.random() * 3) + 1;
-      for (let i = 0; i < numCobrancas; i++) {
-        const cobrancaId = (index * 3) + i + 1;
-        const cobranca: Cobranca & { pessoa?: Pessoa } = {
-          codigo: cobrancaId,
-          codigoPessoa: pessoa.codigo,
-          tipoCobranca: 'Mensalidade',
-          valor: this.gerarValorAleatorio(),
-          juros: Math.floor(Math.random() * 10),
-          dataVencimento: this.gerarDataVencimento(cobrancaId),
-          dataPagamento: null,
-          status: this.gerarStatusAleatorio(cobrancaId),
-          excluido: false,
-          pessoa: pessoa
-        };
-        // Adicionar data de pagamento se status for pago
-        if (cobranca.status === 2) {
-          cobranca.dataPagamento = this.gerarDataPagamento();
+    this.cobrancaService.getCobrancas().subscribe({
+      next: (cobrancas) => {
+        console.log('✅ Cobranças reais carregadas da API:', cobrancas);
+        // Associar pessoa à cobrança
+        const cobrancasComPessoa = cobrancas.map(c => ({
+          ...c,
+          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
+        }));
+        this.cobrancas = cobrancasComPessoa;
+        this.dataSource.data = cobrancasComPessoa;
+        if (this.paginator) {
+          this.dataSource.paginator = this.paginator;
         }
-        cobrancasMocadas.push(cobranca);
+        if (this.sort) {
+          this.dataSource.sort = this.sort;
+        }
+        this.cdr.detectChanges();
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('❌ Erro ao carregar cobranças:', error);
+        this.error = 'Erro ao carregar dados das cobranças';
+        this.loading = false;
       }
     });
-    console.log('🎯 Cobranças criadas com pessoas da API:', cobrancasMocadas);
-    this.cobrancas = cobrancasMocadas;
-    this.dataSource.data = cobrancasMocadas;
-    // Reconectar paginator após atualizar os dados
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
-    }
-    this.cdr.detectChanges();
-    this.loading = false;
-    console.log('🏁 Loading definido como false, total de cobranças:', cobrancasMocadas.length);
   }
 
   private gerarDescricaoAleatoria(index: number): string {

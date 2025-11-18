@@ -72,12 +72,9 @@
 
             <!-- Status Column -->
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let cobranca">
-                <span [ngClass]="getStatusClass(cobranca.status)">
-                  <mat-icon>{{ getStatusIcon(cobranca.status) }}</mat-icon>
-                  {{ getStatusText(cobranca.status) }}
-                </span>
+              <th mat-header-cell *matHeaderCellDef (click)="sortByStatus()" style="cursor:pointer">Status <mat-icon style="font-size:16px;vertical-align:middle">sort</mat-icon></th>
+              <td mat-cell *matCellDef="let cobranca" class="status-cell">
+                <span [ngClass]="getStatusClass(cobranca.status)">{{ getStatusText(cobranca.status) }}</span>
               </td>
             </ng-container>
 
@@ -86,12 +83,12 @@
             <ng-container matColumnDef="acoes">
               <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
               <td mat-cell *matCellDef="let cobranca" class="actions-column">
-                <button mat-icon-button 
-                        class="actions-btn"
-                        (click)="editarCobranca(cobranca)"
-                        matTooltip="Ver detalhes">
+                <a mat-icon-button 
+                   class="actions-btn"
+                   [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
+                   matTooltip="Ver detalhes">
                   <mat-icon>edit</mat-icon>
-                </button>
+                </a>
               </td>
             </ng-container>
 

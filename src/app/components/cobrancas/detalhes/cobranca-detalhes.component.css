@@ -102,6 +102,10 @@
   color: rgba(0, 0, 0, 0.6);
   font-weight: 400;
   line-height: 16px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  border: 1px solid #e0e0e0;
 }
 
 /* Conteúdo das seções */
@@ -149,6 +153,10 @@
   font-weight: 400;
   text-align: right;
   margin-left: 16px;
+  background: #fff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  border: 1px solid #e0e0e0;
 }
 
 /* Valores específicos com cores */
@@ -162,121 +170,121 @@
   font-weight: 500;
 }
 
-.info-value.pagamento {
-  color: #4caf50;
-  font-weight: 500;
-}
-
-/* Container do pagamento */
-.pagamento-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  justify-content: flex-end;
-}
-
-/* Input de valor */
-.valor-input {
-  width: 160px;
-}
-
-.valor-input .mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
-
-.valor-input .mat-mdc-text-field-wrapper {
-  padding: 0 12px;
-  min-height: 40px;
-}
-
-.valor-input .mdc-text-field {
-  height: 40px;
-}
-
-.valor-input .mat-mdc-form-field-infix {
-  min-height: 40px;
-  padding: 8px 0;
-}
-
-/* Botão abater */
-.abater-btn {
-  height: 40px;
-  min-width: 80px;
-  flex-shrink: 0;
-}
-
-/* Status badge */
-.status-badge {
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 12px;
-  align-self: center;
-  margin-left: auto;
-}
-
-.status-badge.em-dia {
-  background-color: #e8f5e8;
-  color: #2e7d32;
-  border: 1px solid #4caf50;
-}
-
-/* Linha total destacada */
 .total-row {
-  margin-top: 8px;
-  padding-top: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 8px 0;
+  margin-top: 12px;
 }
 
 .total-label {
+  font-size: 16px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.87);
+  color: #1976d2;
 }
 
 .total-value {
   font-size: 16px;
   font-weight: 500;
+  color: #1976d2;
+}
+
+/* Badge de status */
+.badge-status {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+  background: #e0e0e0;
+  color: #333;
+}
+.badge-success {
+  background: #c8e6c9;
   color: #388e3c;
 }
+.badge-warning {
+  background: #fff9c4;
+  color: #fbc02d;
+}
+.badge-danger {
+  background: #ffcdd2;
+  color: #d32f2f;
+}
+.badge-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
 
-/* Divider com espaçamento */
+/* Histórico de pagamentos */
+.pagamentos-historico {
+  margin-top: 16px;
+}
+.historico-expansion {
+  background: #fafafa;
+  border-radius: 4px;
+}
+.historico-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1976d2;
+}
+.historico-icon {
+  color: #1976d2;
+  font-size: 18px;
+  margin-right: 4px;
+}
 .divider-spacing {
-  margin: 12px 0;
+  margin: 16px 0;
+}
+.historico-table {
+  width: 100%;
+  margin-top: 8px;
+}
+.data-header, .valor-header {
+  font-size: 13px;
+  color: #1976d2;
+  font-weight: 500;
+}
+.data-cell, .valor-cell {
+  font-size: 13px;
+  color: #333;
 }
 
-/* Status chip */
-.status-chip {
-  margin-left: auto;
-}
-
-/* Container de ações */
+/* Actions */
 .actions-container {
   display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  gap: 8px;
+}
+/* Container principal seguindo Material Design */
+.cobranca-detalhes {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 16px 0;
+  padding: 64px 16px;
+  text-align: center;
 }
 
-.actions-container button {
-  min-width: 140px;
+.loading-container p {
+  margin-top: 16px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
 }
 
-/* Dividers do Material */
-mat-divider {
-  border-top-color: rgba(0, 0, 0, 0.12);
-}
-
-/* Material Design button styles */
-button[mat-raised-button] {
-  border-radius: 4px;
-  text-transform: uppercase;
-  font-weight: 500;
-  letter-spacing: 0.0892857em;
-}
-
-/* Responsividade */
-@media (max-width: 600px) {
-  .cobranca-detalhes {
-    padding: 8px;
+/* Header seguindo Material Design */
+.header-container {
   }
   
   .header-container {

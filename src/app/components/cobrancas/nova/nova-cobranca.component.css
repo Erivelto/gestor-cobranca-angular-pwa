@@ -1,3 +1,29 @@
+/* Forçar fundo branco no autocomplete usando ::ng-deep */
+::ng-deep .cdk-overlay-pane {
+  background: #fff !important;
+  border-radius: 6px !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+}
+/* Garantir fundo branco e borda para o painel de autocomplete do Material */
+.cdk-overlay-pane {
+  background: #fff !important;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+/* Padding interno para todos os inputs do formulário */
+input.mat-input-element, input.mat-mdc-input-element, input[matInput] {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+/* Garantir fundo branco e borda para o painel de autocomplete */
+.cdk-overlay-pane {
+  background: #fff !important;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
 /* Container principal seguindo Material Design */
 .page-container {
   padding: 16px;
@@ -139,11 +165,11 @@
   line-height: 24px;
 }
 
-.client-details {
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
-  line-height: 20px;
-}
+  .client-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+  }
 
 .new-client-option {
   border-top: 1px solid rgba(0, 0, 0, 0.12);

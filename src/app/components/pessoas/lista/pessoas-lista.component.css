@@ -1,3 +1,15 @@
+.mat-mdc-menu-content {
+  background-color: #fff !important;
+}
+:host ::ng-deep .mat-mdc-menu-content {
+  background-color: #fff !important;
+}
+.enhanced-menu .mat-mdc-menu-content {
+  background-color: #fff !important;
+}
+.enhanced-menu .mat-mdc-menu-content {
+  background: #fff !important;
+}
 /* Container principal */
 .pessoas-lista-container {
   padding: 20px;
@@ -712,6 +724,7 @@
   border-radius: 12px !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
   margin-top: 8px;
+  background: #fff !important;
 }
 
 .enhanced-menu .mat-menu-item {

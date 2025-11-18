@@ -1,3 +1,7 @@
+.status-cell .mat-mdc-chip {
+  pointer-events: none;
+  cursor: default;
+}
 .mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
   display: none !important;
 }
@@ -185,6 +189,7 @@
   font-size: 14px;
   white-space: nowrap;
 }
+
 
 .status-cell {
   text-align: center;

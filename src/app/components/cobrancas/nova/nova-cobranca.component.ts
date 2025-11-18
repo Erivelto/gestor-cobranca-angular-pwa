@@ -18,7 +18,8 @@ import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Pessoa } from '../../../models/api.models';
 import { PessoaCobranca } from '../../../models/api.models';
-import Swal from 'sweetalert2';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogMessageComponent } from '../../shared/dialog-message.component';
 
 @Component({
     selector: 'app-nova-cobranca',
@@ -46,21 +47,25 @@ import Swal from 'sweetalert2';
 export class NovaCobrancaComponent implements OnInit {
     diaVencimento: number = 1;
     private calcularParcelasTimeout: any;
-    // Função para aplicar mascara no campo de juros aplicado (valor)
+    // Função para tratar entrada do campo de juros aplicado (% sobre valor do empréstimo)
     onTaxaJurosInput(event: any): void {
-        let valor = event.target.value;
-        valor = valor.replace(/\D/g, '');
+        let valor = event.target.value.replace(',', '.');
+        valor = valor.replace(/[^\d\.]/g, '');
         if (!valor) {
             this.taxaJuros = 0;
             this.taxaJurosFormatada = '';
             return;
         }
-        const valorNumerico = parseFloat(valor) / 100;
-        this.taxaJuros = valorNumerico;
-        this.taxaJurosFormatada = this.formatarValorMoeda(valorNumerico);
-        event.target.value = this.taxaJurosFormatada;
-        if (this.numeroParcelas > 0 && this.valorEmprestimo > 0) {
-            this.debounceCalcularParcelas();
+        const valorNumerico = parseFloat(valor);
+        this.taxaJuros = isNaN(valorNumerico) ? 0 : valorNumerico;
+        this.taxaJurosFormatada = valor;
+        event.target.value = valor;
+        if (this.valorEmprestimo > 0) {
+            if (this.taxaJuros > 0) {
+                this.totalComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
+            } else {
+                this.totalComJuros = this.valorEmprestimo;
+            }
         }
     }
     loading: boolean = false;
@@ -92,7 +97,8 @@ export class NovaCobrancaComponent implements OnInit {
     constructor(
         private cobrancaService: CobrancaService,
         private pessoaService: PessoaService,
-        private router: Router
+        private router: Router,
+        private dialog: MatDialog
     ) { }
 
     ngOnInit(): void {
@@ -107,12 +113,11 @@ export class NovaCobrancaComponent implements OnInit {
             },
             error: (error) => {
                 console.error('❌ Erro ao carregar pessoas:', error);
-                Swal.fire({
-                    title: 'Erro!',
-                    text: 'Erro ao carregar lista de clientes. Tente novamente.',
-                    icon: 'error',
-                    confirmButtonText: 'Entendi',
-                    confirmButtonColor: '#ef4444'
+                this.dialog.open(DialogMessageComponent, {
+                    data: {
+                        title: 'Erro!',
+                        message: 'Erro ao carregar lista de clientes. Tente novamente.'
+                    }
                 });
             }
         });
@@ -151,22 +156,6 @@ export class NovaCobrancaComponent implements OnInit {
         console.log('✅ Cliente selecionado via autocomplete:', cliente);
 
         // Toast de confirmação
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        });
-
-        Toast.fire({
-            icon: 'success',
-            title: `Cliente ${cliente.nome} selecionado!`
-        });
     }
 
     displayCliente(cliente: Pessoa): string {
@@ -218,7 +207,7 @@ export class NovaCobrancaComponent implements OnInit {
             clearTimeout(this.calcularParcelasTimeout);
         }
         this.calcularParcelasTimeout = setTimeout(() => {
-            this.calcularParcelas();
+            this.calcularValorTotalComJuros();
         }, 400);
     }
 
@@ -258,19 +247,13 @@ export class NovaCobrancaComponent implements OnInit {
         }
     }
 
-    // Calcular parcelas baseado no valor e juros
-    calcularParcelas(): void {
-        if (this.valorEmprestimo > 0 && this.numeroParcelas > 0) {
-            // Cálculo simples: valor principal + juros dividido pelo número de parcelas
-            const valorComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
-            this.valorParcela = valorComJuros / this.numeroParcelas;
-            this.totalComJuros = valorComJuros;
-
-            console.log('💰 Calculando parcelas:', {
+    // Calcular valor total com juros aplicado (% sobre valor do empréstimo)
+    calcularValorTotalComJuros(): void {
+        if (this.valorEmprestimo > 0 && this.taxaJuros >= 0) {
+            this.totalComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
+            console.log('💰 Calculando valor total com juros:', {
                 valorEmprestimo: this.valorEmprestimo,
                 taxaJuros: this.taxaJuros,
-                numeroParcelas: this.numeroParcelas,
-                valorParcela: this.valorParcela,
                 totalComJuros: this.totalComJuros
             });
         }
@@ -279,17 +262,8 @@ export class NovaCobrancaComponent implements OnInit {
     // Gerar cronograma de pagamentos
     gerarCronograma(): void {
         if (!this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0 || this.valorEmprestimo <= 0) {
-            Swal.fire({
-                title: 'Campos Obrigatórios',
-                text: 'Preencha todos os campos antes de gerar o cronograma!',
-                icon: 'warning',
-                confirmButtonText: 'Entendi',
-                confirmButtonColor: '#1976d2',
-                background: '#fff',
-                customClass: {
-                    popup: 'swal-popup-custom'
-                }
-            });
+            // Aqui pode ser implementado Material Dialog futuramente
+            console.warn('Preencha todos os campos antes de gerar o cronograma!');
             return;
         }
 
@@ -318,21 +292,8 @@ export class NovaCobrancaComponent implements OnInit {
         this.mostrarCronograma = true;
         console.log('📅 Cronograma gerado:', this.cronogramaParcelas);
 
-        // SweetAlert de sucesso ao gerar cronograma
-        Swal.fire({
-            title: 'Cronograma Gerado!',
-            text: `Cronograma de ${this.numeroParcelas} parcelas criado com sucesso.`,
-            icon: 'success',
-            confirmButtonText: 'Visualizar',
-            confirmButtonColor: '#4caf50',
-            background: '#fff',
-            timer: 2000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'swal-popup-custom'
-            }
-        });
+        // Aqui pode ser implementado Material Dialog futuramente
+        console.log(`Cronograma de ${this.numeroParcelas} parcelas criado com sucesso.`);
     }
 
     // Obter incremento de dias baseado na periodicidade
@@ -361,7 +322,7 @@ export class NovaCobrancaComponent implements OnInit {
             valorEmprestimo: this.valorEmprestimo,
             taxaJuros: this.taxaJuros
         });
-        if (!this.clienteSelecionado || !this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0) {
+    if (!this.clienteSelecionado || !this.dataInicio) {
             console.warn('Campos obrigatórios não preenchidos');
             // ...existing code...
             return;
@@ -387,15 +348,28 @@ export class NovaCobrancaComponent implements OnInit {
     console.log('Objeto novaCobranca:', novaCobranca);
     console.log('Chamando cobrancaService.createCobranca...');
     this.cobrancaService.createCobranca(payload).subscribe({
-            next: (res: any) => {
-                console.log('Cobrança criada com sucesso na API:', res);
-                // ...existing code...
-            },
-            error: (error: any) => {
-                console.error('Erro ao criar cobrança na API:', error);
-                // ...existing code...
-            }
-        });
+        next: (res: any) => {
+            console.log('Cobrança criada com sucesso na API:', res);
+            const dialogRef = this.dialog.open(DialogMessageComponent, {
+                data: {
+                    title: 'Empréstimo criado!',
+                    message: 'O empréstimo foi adicionado com sucesso.'
+                }
+            });
+            dialogRef.afterClosed().subscribe(() => {
+                this.router.navigate(['/cobrancas']);
+            });
+        },
+        error: (error: any) => {
+            console.error('Erro ao criar cobrança na API:', error);
+            this.dialog.open(DialogMessageComponent, {
+                data: {
+                    title: 'Erro!',
+                    message: 'Não foi possível adicionar o empréstimo. Tente novamente.'
+                }
+            });
+        }
+    });
     }
 
     // Limpar formulário
@@ -418,21 +392,7 @@ export class NovaCobrancaComponent implements OnInit {
     // Cancelar cadastro
     cancelarCadastro(): void {
         if (this.clienteSelecionado || this.valorEmprestimo > 0) {
-            Swal.fire({
-                title: 'Cancelar Cadastro?',
-                text: 'Você tem dados preenchidos. Deseja realmente cancelar?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sim, cancelar',
-                cancelButtonText: 'Continuar editando'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.voltarListaCobrancas();
-                }
-            });
-        } else {
+            // Se desejar, pode implementar Material Dialog para confirmação aqui
             this.voltarListaCobrancas();
         }
     }

@@ -1,3 +1,25 @@
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-secondary {
+  min-width: 80px;
+  max-width: 140px;
+  height: 28px;
+  line-height: 28px;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 16px;
+  padding: 2px 12px;
+  font-weight: 300;
+  font-size: 13px;
+  display: inline-block;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
@@ -233,6 +255,38 @@ h1, h2, h3, h4, h5, h6, p, span:not(.mdc-button__label), div:not(.mat-button-wra
   font-weight: 600 !important;
 }
 
+/* ===== BADGES DE STATUS (GLOBAL) - CORES DO DASHBOARD ===== */
+
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-secondary {
+  min-width: 80px;
+  max-width: 140px;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 16px;
+  padding: 2px 12px;
+  font-weight: 300;
+  font-size: 13px;
+  display: inline-block;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+}
+.badge-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+.badge-secondary {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%) !important;
+  color: #757575 !important;
+  border: 1px solid #bdbdbd !important;
+}
 .mat-raised-button.mat-primary:hover,
 .mat-flat-button.mat-primary:hover {
   background-color: #1976D2 !important;
