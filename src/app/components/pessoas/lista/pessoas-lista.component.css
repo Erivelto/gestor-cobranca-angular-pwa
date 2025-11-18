@@ -595,7 +595,7 @@
 
 /* Desktop Table (Hidden on mobile) */
 .desktop-only {
-  display: none;
+  display: block !important;
 }
 
 .table-card {

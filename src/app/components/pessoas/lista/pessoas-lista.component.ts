@@ -52,7 +52,7 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   loading: boolean = true;
   error: string = '';
   searchTerm: string = '';
-  displayedColumns: string[] = ['codigo', 'nome', 'documento', 'status', 'acoes'];
+  displayedColumns: string[] = ['nome', 'documento', 'acoes'];
 
   constructor(
     private pessoaService: PessoaService,
@@ -136,8 +136,14 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
         console.log('🎯 Pessoas finais:', pessoas);
         console.log('🔢 Total de pessoas processadas:', pessoas.length);
         
-        this.pessoas = pessoas;
-        this.dataSource.data = pessoas;
+        // Ordena por ordem de cadastro (menor código primeiro)
+        const pessoasOrdenadas = pessoas.slice().sort((a, b) => {
+          const codA = typeof a.codigo === 'string' ? parseInt(a.codigo) : a.codigo;
+          const codB = typeof b.codigo === 'string' ? parseInt(b.codigo) : b.codigo;
+          return codA - codB;
+        });
+        this.pessoas = pessoasOrdenadas;
+        this.dataSource.data = pessoasOrdenadas;
         this.loading = false;
         console.log('🏁 Loading definido como false');
         
@@ -218,29 +224,19 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
       this.notificationService.error('Erro', 'Código da pessoa não encontrado');
       return;
     }
-    
     // Converter para number se necessário
     const id = typeof codigo === 'string' ? parseInt(codigo) : codigo;
-    
-    this.notificationService.confirmDelete(
-      'Excluir Cliente',
-      'Tem certeza que deseja excluir este cliente? Esta ação não poderá ser desfeita.'
-    ).then((result) => {
-      if (result.isConfirmed) {
-        this.spinnerService.showFullScreen('Excluindo cliente...');
-        
-        this.pessoaService.deletePessoa(id).subscribe({
-          next: () => {
-            this.spinnerService.hide();
-            this.notificationService.successToast('Cliente excluído com sucesso!');
-            this.loadPessoas();
-          },
-          error: (error) => {
-            console.error('Erro ao excluir pessoa:', error);
-            this.spinnerService.hide();
-            this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
-          }
-        });
+    this.spinnerService.showFullScreen('Excluindo cliente...');
+    this.pessoaService.deletePessoa(id).subscribe({
+      next: () => {
+        this.spinnerService.hide();
+        this.notificationService.successToast('Cliente excluído com sucesso!');
+        this.loadPessoas();
+      },
+      error: (error) => {
+        console.error('Erro ao excluir pessoa:', error);
+        this.spinnerService.hide();
+        this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
       }
     });
   }
