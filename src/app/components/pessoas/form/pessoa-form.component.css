@@ -20,10 +20,6 @@
   line-height: 1.2;
 }
 
-.back-button {
-  color: #6b7280;
-}
-
 .alert {
   padding: 16px;
   border-radius: 8px;
@@ -52,59 +48,30 @@
 }
 
 .form-section {
-  margin-bottom: 0;
-}
 
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.form-group {
-  flex: 1;
-}
-
-.form-group-full {
-  grid-column: 1 / -1;
-}
-
-.form-actions {
-  margin-top: 0;
-}
-
-.button-row {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-}
-
-.button-row button {
-  min-width: 120px;
-}
-
-mat-card-title {
-  width: auto;
-  padding: 10px;
-  text-align: left;
-}
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 16px;
+  .form-section .mat-mdc-card,
+  .form-section .mat-card-content,
+  .form-section .mat-mdc-card-content {
+    box-shadow: none !important;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
-  }
+  /* Removed specific rules affecting inputs, labels, and other elements */
 
-  .button-row {
-    flex-direction: column-reverse;
-  }
+  @media (max-width: 768px) {
+    .page-container {
+      padding: 16px;
+    }
 
-  .button-row button {
-    width: 100%;
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .button-row {
+      flex-direction: column-reverse;
+    }
+
+    .button-row button {
+      width: 100%;
+    }
   }
 }
-

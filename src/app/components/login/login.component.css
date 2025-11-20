@@ -69,14 +69,6 @@
   gap: 20px;
 }
 
-.form-field {
-  width: 100%;
-}
-
-::ng-deep .mat-form-field-outline {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 4px;
-}
 
 .error-message {
   display: flex;

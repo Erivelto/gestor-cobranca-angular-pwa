@@ -19,6 +19,7 @@ import { PessoaService } from '../../../services/pessoa.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SpinnerService } from '../../../services/spinner.service';
 import { Pessoa } from '../../../models/api.models';
+import { CobrancaService } from '../../../services/cobranca.service';
 
 @Component({
   selector: 'app-pessoas-lista',
@@ -59,7 +60,8 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
     private router: Router,
     private notificationService: NotificationService,
     private spinnerService: SpinnerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cobrancaService: CobrancaService
   ) {}
 
   // Método de teste para debug da API
@@ -224,19 +226,34 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
       this.notificationService.error('Erro', 'Código da pessoa não encontrado');
       return;
     }
-    // Converter para number se necessário
     const id = typeof codigo === 'string' ? parseInt(codigo) : codigo;
-    this.spinnerService.showFullScreen('Excluindo cliente...');
-    this.pessoaService.deletePessoa(id).subscribe({
-      next: () => {
-        this.spinnerService.hide();
-        this.notificationService.successToast('Cliente excluído com sucesso!');
-        this.loadPessoas();
+    this.spinnerService.showFullScreen('Verificando cobranças...');
+    // Verifica cobranças ativas antes de excluir
+    this.cobrancaService.getCobrancas().subscribe({
+      next: (cobrancas: any[]) => {
+        const cobrancasAtivas = cobrancas.filter((c: any) => c.codigoPessoa === id && c.status === 1);
+        if (cobrancasAtivas.length > 0) {
+          this.spinnerService.hide();
+          this.notificationService.error('Exclusão bloqueada', 'Este cliente possui cobranças ativas e não pode ser excluído.');
+          return;
+        }
+        // Se não houver cobranças ativas, pode excluir
+        this.pessoaService.deletePessoa(id).subscribe({
+          next: () => {
+            this.spinnerService.hide();
+            this.notificationService.successToast('Cliente excluído com sucesso!');
+            this.loadPessoas();
+          },
+          error: (error: any) => {
+            console.error('Erro ao excluir pessoa:', error);
+            this.spinnerService.hide();
+            this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
+          }
+        });
       },
-      error: (error) => {
-        console.error('Erro ao excluir pessoa:', error);
+      error: (error: any) => {
         this.spinnerService.hide();
-        this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
+        this.notificationService.error('Erro ao verificar cobranças', 'Não foi possível verificar cobranças do cliente. Tente novamente.');
       }
     });
   }
@@ -251,8 +268,10 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
 
   // Métodos para a tabela avançada
   applyFilter(): void {
+    console.log('[applyFilter] searchTerm:', this.searchTerm);
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    
+    console.log('[applyFilter] dataSource.data:', this.dataSource.data);
+    console.log('[applyFilter] dataSource.filteredData:', this.dataSource.filteredData);
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }

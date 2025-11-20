@@ -284,24 +284,21 @@
 }
 
 /* Header seguindo Material Design */
+/* Remover bloco vazio e corrigir media queries */
 .header-container {
-  }
-  
-  .header-container {
-    margin-bottom: 16px;
-  }
-  
-  .page-title {
-    font-size: 20px;
-  }
-  
-  .card-section {
-    padding: 12px;
-  }
-  
-  .main-card {
-    margin-bottom: 16px;
-  }
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: 20px;
+}
+
+.card-section {
+  padding: 12px;
+}
+
+.main-card {
+  margin-bottom: 16px;
 }
 
 /* Apenas em telas muito pequenas quebra para coluna */
@@ -418,8 +415,13 @@ mat-chip {
 /* Tabela dentro do expansion panel */
 .historico-table {
   width: 100%;
-  background: transparent;
-  margin-top: 8px;
+}
+
+/* Espaçamento interno para inputs do Material */
+.valor-input input.mat-input-element {
+  padding-left: 14px;
+  padding-right: 14px;
+  box-sizing: border-box;
 }
 
 /* Header cells Material Design */

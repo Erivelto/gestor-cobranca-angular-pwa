@@ -18,7 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Cobranca, Pessoa } from '../../../models/api.models';
-import Swal from 'sweetalert2';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-cobrancas-lista',
@@ -45,6 +45,25 @@ import Swal from 'sweetalert2';
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit {
+    finalizarCobranca(cobranca: Cobranca): void {
+      if (!cobranca || !cobranca.codigo) {
+        this.showErrorToast('Dados da cobrança não encontrados');
+        return;
+      }
+      // Atualiza status para Pago e define dataPagamento
+      cobranca.status = 2;
+      cobranca.dataPagamento = new Date().toISOString().split('T')[0];
+      this.cobrancaService.updateCobranca(cobranca.codigo, cobranca).subscribe({
+        next: () => {
+          this.showSuccessToast('Cobrança finalizada com sucesso!');
+          this.carregarCobrancas();
+        },
+        error: (error: any) => {
+          console.error('Erro ao finalizar cobrança:', error);
+          this.showErrorToast('Não foi possível finalizar a cobrança. Tente novamente.');
+        }
+      });
+    }
   statusSortDirection: 'asc' | 'desc' = 'asc';
 
   sortByStatus(): void {
@@ -71,7 +90,8 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
     private cobrancaService: CobrancaService,
     private pessoaService: PessoaService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -120,13 +140,29 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
     this.cobrancaService.getCobrancas().subscribe({
       next: (cobrancas) => {
         console.log('✅ Cobranças reais carregadas da API:', cobrancas);
-        // Associar pessoa à cobrança
-        const cobrancasComPessoa = cobrancas.map(c => ({
-          ...c,
-          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
-        }));
-        this.cobrancas = cobrancasComPessoa;
-        this.dataSource.data = cobrancasComPessoa;
+        // Atualizar status baseado na data de vencimento
+        const hoje = new Date();
+        const cobrancasFiltradas = cobrancas.filter(c => c.status !== 2).map(c => {
+          const vencimento = new Date(c.dataVencimento);
+          let novoStatus = c.status;
+          // Se já está pago, mantém status
+          if (c.status === 2) {
+            novoStatus = 2;
+          } else if (hoje > vencimento) {
+            novoStatus = 3; // Vencido/Atraso
+          } else if (hoje.toDateString() === vencimento.toDateString()) {
+            novoStatus = 1; // Pendente (dia do vencimento)
+          } else if (hoje < vencimento) {
+            novoStatus = 5; // Em dia (antes do vencimento)
+          }
+          return {
+            ...c,
+            status: novoStatus,
+            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
+          };
+        });
+        this.cobrancas = cobrancasFiltradas;
+        this.dataSource.data = cobrancasFiltradas;
         if (this.paginator) {
           this.dataSource.paginator = this.paginator;
         }
@@ -207,37 +243,30 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       return;
     }
     
-    Swal.fire({
-      title: 'Excluir Cobrança',
-      text: 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sim, excluir!',
-      cancelButtonText: 'Cancelar'
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        this.cobrancaService.deleteCobranca(cobranca.codigo!).subscribe({
-          next: () => {
-            this.showSuccessToast('Cobrança excluída com sucesso!');
-            this.carregarCobrancas();
-          },
-          error: (error: any) => {
-            console.error('Erro ao excluir cobrança:', error);
-            this.showErrorToast('Não foi possível excluir a cobrança. Tente novamente.');
-          }
-        });
-      }
-    });
+    this.notification.confirmDelete('Excluir Cobrança', 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.')
+      .then((confirmed) => {
+        if (confirmed) {
+          this.cobrancaService.deleteCobranca(cobranca.codigo!).subscribe({
+            next: () => {
+              this.notification.successToast('Cobrança excluída com sucesso!');
+              this.carregarCobrancas();
+            },
+            error: (error: any) => {
+              console.error('Erro ao excluir cobrança:', error);
+              this.notification.errorToast('Não foi possível excluir a cobrança. Tente novamente.');
+            }
+          });
+        }
+      });
   }
 
   getStatusText(status?: number): string {
     switch (status) {
-      case 1: return 'Pendente';
+      case 1: return 'Pendente'; // Dia do vencimento
       case 2: return 'Pago';
-      case 3: return 'Vencido';
+      case 3: return 'Atraso'; // Vencido
       case 4: return 'Cancelado';
+      case 5: return 'Em dia'; // Antes do vencimento
       default: return 'Indefinido';
     }
   }
@@ -293,27 +322,11 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
 
   // Métodos auxiliares para notificações
   private showSuccessToast(message: string): void {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: message,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
+    this.notification.successToast(message);
   }
 
   private showErrorToast(message: string): void {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: message,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
+    this.notification.errorToast(message);
   }
 }
 

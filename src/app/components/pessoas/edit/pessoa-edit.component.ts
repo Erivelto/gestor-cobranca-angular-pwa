@@ -203,8 +203,8 @@ export class PessoaEditComponent implements OnInit {
   }
 
   deleteContato(id: number, index: number): void {
-    this.notificationService.confirmDelete('Deseja realmente excluir este contato?').then((result) => {
-      if (result.isConfirmed) {
+    this.notificationService.confirmDelete('Excluir contato', 'Deseja realmente excluir este contato?').then((result) => {
+      if (result) {
         this.pessoaService.deleteContato(id).subscribe({
           next: () => {
             this.contatos.splice(index, 1);
@@ -258,8 +258,8 @@ export class PessoaEditComponent implements OnInit {
   }
 
   deleteEndereco(id: number, index: number): void {
-    this.notificationService.confirmDelete('Deseja realmente excluir este endereço?').then((result) => {
-      if (result.isConfirmed) {
+    this.notificationService.confirmDelete('Excluir endereço', 'Deseja realmente excluir este endereço?').then((result) => {
+      if (result) {
         this.pessoaService.deleteEndereco(id).subscribe({
           next: () => {
             this.enderecos.splice(index, 1);

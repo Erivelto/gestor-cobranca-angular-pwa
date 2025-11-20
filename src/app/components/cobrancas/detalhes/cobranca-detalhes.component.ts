@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-cobranca-detalhes',
@@ -34,10 +35,45 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatListModule
   ]
 })
 export class CobrancaDetalhesComponent implements OnInit {
+    finalizarCobranca(): void {
+      if (!this.cobrancaDetalhes || !this.cobrancaDetalhes.codigo) {
+        this.dialog.open(DialogMessageComponent, {
+          data: {
+            title: 'Erro',
+            message: 'Dados da cobrança não encontrados.'
+          }
+        });
+        return;
+      }
+      // Atualiza status para Pago e define dataPagamento
+      this.cobrancaDetalhes.status = 2;
+      this.cobrancaDetalhes.dataPagamento = new Date().toISOString().split('T')[0];
+      this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, this.cobrancaDetalhes).subscribe({
+        next: () => {
+          this.dialog.open(DialogMessageComponent, {
+            data: {
+              title: 'Cobrança Finalizada',
+              message: 'Cobrança marcada como paga com sucesso!'
+            }
+          });
+          this.carregarDetalhes();
+        },
+        error: (error: any) => {
+          console.error('Erro ao finalizar cobrança:', error);
+          this.dialog.open(DialogMessageComponent, {
+            data: {
+              title: 'Erro',
+              message: 'Não foi possível finalizar a cobrança. Tente novamente.'
+            }
+          });
+        }
+      });
+    }
   // ...existing code...
 
   pessoaDetalhes: any = null;

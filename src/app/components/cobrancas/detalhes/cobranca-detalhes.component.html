@@ -1,140 +1,112 @@
-<div class="cobranca-detalhes">
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Carregando detalhes da cobrança...</p>
-  </div>
 
-  <!-- Content -->
-  <div *ngIf="!loading">
-    <!-- Header -->
-    <div class="header-container">
-      <button mat-icon-button (click)="voltarLista()" class="back-btn">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1 class="page-title">Cobrança</h1>
-    </div>
 
-    <!-- Main Card -->
-    <mat-card class="main-card">
-      <!-- Cliente Section -->
-      <div class="card-section">
-        <div class="section-header">
-          <mat-icon class="section-icon">person</mat-icon>
-          <h2 class="section-title">Cliente</h2>
+
+
+<div class="cobranca-detalhes mat-elevation-z2" style="padding: 24px; max-width: 700px; margin: 0 auto;">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title style="display: flex; align-items: center; gap: 12px;">
+        <button mat-icon-button (click)="voltarLista()" style="margin-right: 8px;">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span style="font-size: 1.5rem; font-weight: 500;">Detalhes da Cobrança</span>
+      </mat-card-title>
+      <mat-card-subtitle>
+        <span *ngIf="cobrancaDetalhes?.dataVencimento">
+          Vencimento: {{ cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy' }}
+        </span>
+        <span *ngIf="cobrancaDetalhes?.dataInicio" style="margin-left:16px;">
+          Inclusão: {{ cobrancaDetalhes.dataInicio | date:'dd/MM/yyyy' }}
+        </span>
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px;">
+        <div>
+          <h3 style="margin-bottom: 8px; font-size: 1.1rem; font-weight: 500;">Cliente</h3>
+          <mat-list>
+            <mat-list-item>
+              <span matLine>Nome:</span>
+              <span matLine style="font-weight: 500;">{{ pessoaDetalhes?.nome || '-' }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span matLine>Documento:</span>
+              <span matLine style="font-weight: 500;">{{ pessoaDetalhes?.documento || '-' }}</span>
+            </mat-list-item>
+          </mat-list>
         </div>
-        <div class="section-content">
-          <div class="info-row">
-          <span class="info-label">Nome</span>
-          <span class="info-value">{{ pessoaDetalhes?.nome || '-' }}</span>
-          </div>
-          <div class="info-row">
-          <span class="info-label">Documento</span>
-          <span class="info-value">{{ pessoaDetalhes?.documento || '-' }}</span>
-          </div>
+        <div>
+          <h3 style="margin-bottom: 8px; font-size: 1.1rem; font-weight: 500;">Valores</h3>
+          <mat-list>
+            <mat-list-item>
+              <span matLine>Valor:</span>
+              <span matLine style="font-weight: 500;">{{ cobrancaDetalhes?.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span matLine>Juros:</span>
+              <span matLine style="font-weight: 500;">{{ cobrancaDetalhes?.juros }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <span matLine>Status:</span>
+              <span matLine>
+                <span class="badge-status" [ngClass]="getStatusClass(cobrancaDetalhes.status)">
+                  {{ getStatusText(cobrancaDetalhes.status) }}
+                </span>
+              </span>
+            </mat-list-item>
+          </mat-list>
         </div>
       </div>
-
+      <mat-divider style="margin: 24px 0;"></mat-divider>
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Pagamento</h3>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <mat-form-field appearance="outline" style="width: 160px;">
+            <mat-label>Valor</mat-label>
+            <input matInput type="text" [value]="valorPagamentoFormatado"
+                   (input)="onValorPagamentoInput($event)"
+                   (focus)="onValorPagamentoFocus($event)"
+                   (blur)="onValorPagamentoBlur($event)"
+                   placeholder="0,00" maxlength="15">
+            <span matTextPrefix>R$ </span>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="abaterPagamento()">
+            Abater
+          </button>
+        </div>
+      </div>
       <mat-divider></mat-divider>
-
-      <!-- Valores Section -->
-      <div class="card-section">
-        <div class="section-header">
-          <mat-icon class="section-icon">attach_money</mat-icon>
-          <div class="title-with-date">
-            <h2 class="section-title">Empréstimo 1</h2>
-              <span class="date-subtitle">Vencimento: {{ cobrancaDetalhes?.dataVencimento ? (cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy') : '-' }}</span>
-              <span class="date-subtitle" style="margin-left:16px;">Inclusão: {{ cobrancaDetalhes?.dataInicio ? (cobrancaDetalhes.dataInicio | date:'dd/MM/yyyy') : '-' }}</span>
-          </div>
-            <span class="badge-status"
-                  [ngClass]="getStatusClass(cobrancaDetalhes.status)">
-              {{ getStatusText(cobrancaDetalhes.status) }}
-            </span>
-        </div>
-        <div class="section-content">
-          <div class="info-row">
-            <span class="info-label">Valor</span>
-            <span class="info-value emprestimo">{{ cobrancaDetalhes?.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Juros</span>
-            <span class="info-value juros">{{ cobrancaDetalhes?.juros }}</span>
-          </div>
-          <div class="info-row input-row">
-            <span class="info-label">Quanto vai pagar ?</span>
-            <div class="pagamento-container">
-              <mat-form-field appearance="outline" class="valor-input">
-                <mat-label>Valor</mat-label>
-                <input matInput 
-                       type="text" 
-                       [value]="valorPagamentoFormatado"
-                       (input)="onValorPagamentoInput($event)"
-                       (focus)="onValorPagamentoFocus($event)"
-                       (blur)="onValorPagamentoBlur($event)"
-                       placeholder="0,00"
-                       maxlength="15">
-                <span matTextPrefix>R$ </span>
-              </mat-form-field>
-              <button mat-raised-button color="primary" class="abater-btn" (click)="abaterPagamento()">
-                Abater
-              </button>
-            </div>
-          </div>
-          
-          <!-- Histórico de Pagamentos -->
-          <div *ngIf="historicoPagamentos.length > 0" class="pagamentos-historico">
-            <mat-divider class="divider-spacing"></mat-divider>
-            
-            <mat-expansion-panel class="historico-expansion">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon class="historico-icon">history</mat-icon>
-                  <span class="historico-title">Histórico de Pagamentos</span>
-                </mat-panel-title>
-                <mat-panel-description>
-                  {{ historicoPagamentos.length }} pagamento(s) realizado(s)
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              
-              <mat-table [dataSource]="dataSource" class="mat-elevation-z0 historico-table">
-                <!-- Data Column -->
-                <ng-container matColumnDef="data">
-                  <mat-header-cell *matHeaderCellDef class="data-header">Data</mat-header-cell>
-                  <mat-cell *matCellDef="let pagamento" class="data-cell">
-                    {{ pagamento.data | date:'dd/MM/yyyy' }}
-                  </mat-cell>
-                </ng-container>
-
-                <!-- Valor Column -->
-                <ng-container matColumnDef="valor">
-                  <mat-header-cell *matHeaderCellDef class="valor-header">Valor Pago</mat-header-cell>
-                  <mat-cell *matCellDef="let pagamento" class="valor-cell">
-                    {{ pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}
-                  </mat-cell>
-                </ng-container>
-
-                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-              </mat-table>
-            </mat-expansion-panel>
-          </div>
-
-          <mat-divider class="divider-spacing"></mat-divider>
-          <div class="info-row total-row">
-            <span class="info-label total-label">Valor Total</span>
-            <span class="info-value total-value">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
-          </div>
-        </div>
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Valor Total</h3>
+        <span style="font-size: 1.2rem; font-weight: 600;">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
       </div>
-
-    </mat-card>
-
-    <!-- Actions -->
-    <div class="actions-container">
+      <mat-divider></mat-divider>
+      <div *ngIf="historicoPagamentos.length > 0" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Histórico de Pagamentos</h3>
+        <mat-table [dataSource]="dataSource" class="mat-elevation-z0 historico-table">
+          <ng-container matColumnDef="data">
+            <mat-header-cell *matHeaderCellDef>Data</mat-header-cell>
+            <mat-cell *matCellDef="let pagamento">{{ pagamento.data | date:'dd/MM/yyyy' }}</mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="valor">
+            <mat-header-cell *matHeaderCellDef>Valor Pago</mat-header-cell>
+            <mat-cell *matCellDef="let pagamento">{{ pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}</mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+      </div>
+    </mat-card-content>
+    <mat-card-actions style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
       <button mat-raised-button color="primary" (click)="voltarLista()">
         <mat-icon>list</mat-icon>
         Voltar à Lista
       </button>
-    </div>
-  </div>
+      <button mat-raised-button color="accent" *ngIf="cobrancaDetalhes?.status === 1" (click)="finalizarCobranca()">
+        <mat-icon>check_circle</mat-icon>
+        Finalizar Cobrança
+      </button>
+    </mat-card-actions>
+  </mat-card>
 </div>

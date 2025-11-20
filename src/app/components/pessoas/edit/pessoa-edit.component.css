@@ -52,16 +52,6 @@
   font-weight: 500;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.form-row.single {
-  grid-template-columns: 1fr;
-}
 
 .form-row.triple {
   grid-template-columns: 2fr 1fr 1fr;
