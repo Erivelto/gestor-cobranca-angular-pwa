@@ -25,24 +25,35 @@ export class CobrancaService {
     });
   }
 
+  // GET: Buscar todas as cobranças
   getCobrancas(): Observable<Cobranca[]> {
     return this.http.get<Cobranca[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
+  // GET: Buscar cobrança por ID
   getCobrancaById(id: number): Observable<Cobranca> {
     return this.http.get<Cobranca>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
+  // POST: Criar nova cobrança
   createCobranca(payload: PessoaCobranca): Observable<any> {
     return this.http.post<any>(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 
-  updateCobranca(id: number, cobranca: Cobranca): Observable<any> {
+  // PUT: Atualizar cobrança existente
+  updateCobranca(id: number, cobranca: PessoaCobranca): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, cobranca, { headers: this.getHeaders() });
   }
 
+  // DELETE: Remover cobrança
   deleteCobranca(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // Método dedicado para abater pagamento (se necessário)
+  abaterPagamento(id: number, payload: any): Observable<any> {
+    // Ajuste a URL e método conforme a API
+    return this.http.post(`${this.apiUrl}/abater/${id}`, payload, { headers: this.getHeaders() });
   }
 }
 

@@ -1,3 +1,11 @@
+export interface PessoaCobrancaHistorico {
+  codigo: number;
+  codigoCobranca: number;
+  dataVencimento: string;
+  dataPagamento: string;
+  valorPagamento: number;
+}
+
 export interface PessoaCobranca {
   codigo: number;
   codigoPessoa: number;
@@ -8,8 +16,11 @@ export interface PessoaCobranca {
   valorTotal: number;
   dataInicio: string;
   diaVencimento: number;
+  dataPagamento?: string;
   status: number;
   excluido: boolean;
+  historicos?: PessoaCobrancaHistorico[];
+  pessoaCobrancaHistorico?: PessoaCobrancaHistorico;
 }
 // Modelos de dados da API
 
@@ -72,10 +83,16 @@ export interface Cobranca {
   tipoCobranca: string;
   valor: number;
   juros: number;
+  multa?: number;
+  valorTotal?: number;
+  dataInicio?: string;
+  diaVencimento?: number;
   dataVencimento: string;
   dataPagamento: string | null;
   status: number;
   excluido: boolean;
+  historicos?: PessoaCobrancaHistorico[];
+  pessoaCobrancaHistorico?: PessoaCobrancaHistorico;
 }
 
 export interface ViaCepResponse {

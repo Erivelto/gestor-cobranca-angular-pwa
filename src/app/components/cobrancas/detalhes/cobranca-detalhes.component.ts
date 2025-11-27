@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
+import { PessoaCobrancaHistorico } from '../../../models/api.models';
 
 @Component({
   selector: 'app-cobranca-detalhes',
@@ -40,6 +41,14 @@ import { MatListModule } from '@angular/material/list';
   ]
 })
 export class CobrancaDetalhesComponent implements OnInit {
+      // Função utilitária para garantir formato yyyy-MM-dd
+      private formatDate(dateStr?: string): string {
+        if (!dateStr) return new Date().toISOString().split('T')[0];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) return dateStr.split('T')[0];
+        const date = new Date(dateStr);
+        return date.toISOString().split('T')[0];
+      }
     finalizarCobranca(): void {
       if (!this.cobrancaDetalhes || !this.cobrancaDetalhes.codigo) {
         this.dialog.open(DialogMessageComponent, {
@@ -53,7 +62,7 @@ export class CobrancaDetalhesComponent implements OnInit {
       // Atualiza status para Pago e define dataPagamento
       this.cobrancaDetalhes.status = 2;
       this.cobrancaDetalhes.dataPagamento = new Date().toISOString().split('T')[0];
-      this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, this.cobrancaDetalhes).subscribe({
+        this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, this.cobrancaDetalhes).subscribe({
         next: () => {
           this.dialog.open(DialogMessageComponent, {
             data: {
@@ -159,6 +168,23 @@ carregarDetalhes(): void {
     next: (cobranca) => {
       this.cobrancaDetalhes = cobranca;
       console.log('[COBRANCA] Detalhes recebidos:', cobranca);
+      // Preencher histórico de pagamentos se existir
+      let historicoArray: { valor: number, data: Date }[] = [];
+      if (cobranca.historicos && Array.isArray(cobranca.historicos)) {
+        historicoArray = cobranca.historicos.map((h: PessoaCobrancaHistorico) => ({
+          valor: h.valorPagamento,
+          data: h.dataPagamento ? new Date(h.dataPagamento) : new Date()
+        }));
+      }
+      // Incluir pessoaCobrancaHistorico se existir e tiver valorPagamento
+      if (cobranca.pessoaCobrancaHistorico && cobranca.pessoaCobrancaHistorico.valorPagamento) {
+        historicoArray.push({
+          valor: cobranca.pessoaCobrancaHistorico.valorPagamento,
+          data: cobranca.pessoaCobrancaHistorico.dataPagamento ? new Date(cobranca.pessoaCobrancaHistorico.dataPagamento) : new Date()
+        });
+      }
+      this.historicoPagamentos = historicoArray;
+      this.dataSource.data = historicoArray;
       if (cobranca && cobranca.codigoPessoa) {
         console.log('[COBRANCA] codigoPessoa:', cobranca.codigoPessoa);
         this.pessoaService.getPessoaById(cobranca.codigoPessoa).subscribe({
@@ -282,39 +308,115 @@ carregarDetalhes(): void {
   private processarPagamento(): void {
     // Armazenar o valor do pagamento antes de resetar
     const valorPago = this.cobrancaDetalhes.valorPagamento;
+    const dataPagamento = new Date().toISOString();
 
-    // Adicionar ao histórico de pagamentos
+    // Adicionar ao histórico de pagamentos (visual)
     this.historicoPagamentos.push({
       valor: valorPago,
       data: new Date()
     });
-
-    // Atualizar o dataSource da tabela
     this.dataSource.data = [...this.historicoPagamentos];
+
+     // Atualizar valorPagamento do histórico correto
+     // Atualizar histórico existente se dataVencimento igual e valorPagamento/dataPagamento nulos, senão criar novo
+     if (!this.cobrancaDetalhes.historicos) {
+       this.cobrancaDetalhes.historicos = [];
+     }
+     const historicoExistente = this.cobrancaDetalhes.historicos.find(
+       (h: PessoaCobrancaHistorico) => h.dataVencimento === this.cobrancaDetalhes.dataVencimento && h.valorPagamento == null && h.dataPagamento == null
+     );
+     if (historicoExistente) {
+       historicoExistente.valorPagamento = valorPago;
+       historicoExistente.dataPagamento = dataPagamento;
+     } else {
+       this.cobrancaDetalhes.historicos.push({
+         codigo: 0,
+         codigoCobranca: this.cobrancaDetalhes.codigo,
+         dataVencimento: this.cobrancaDetalhes.dataVencimento || dataPagamento,
+         dataPagamento: dataPagamento,
+         valorPagamento: valorPago
+       });
+     }
+
+     // Tipagem explícita para busca de histórico (caso precise atualizar algum existente)
+     // Exemplo:
+     // const historicoParaAtualizar = this.cobrancaDetalhes.historicos.find(
+     //   (h: PessoaCobrancaHistorico) => h.dataVencimento === this.cobrancaDetalhes.dataVencimento && h.valorPagamento == null
+     // );
+
+    // Atualizar pessoaCobrancaHistorico para novo vencimento/pagamento (objeto único)
+    this.cobrancaDetalhes.pessoaCobrancaHistorico = {
+      codigo: 0,
+      codigoCobranca: this.cobrancaDetalhes.codigo,
+      dataVencimento: this.cobrancaDetalhes.dataVencimento || dataPagamento,
+      dataPagamento: dataPagamento,
+      valorPagamento: valorPago
+    };
 
     // Lógica para abater o pagamento
     this.cobrancaDetalhes.valorTotal -= valorPago;
-    
-    // Resetar o campo de pagamento
     this.cobrancaDetalhes.valorPagamento = 0;
     this.valorPagamentoFormatado = '0,00';
 
-    // Verificar se foi quitado
-    if (this.cobrancaDetalhes.valorTotal <= 0) {
-      this.cobrancaDetalhes.status = 'quitado';
-      this.dialog.open(DialogMessageComponent, {
-        data: {
-          title: 'Empréstimo Quitado!',
-          message: 'Parabéns! O empréstimo foi quitado com sucesso.'
+    // Chamar updateCobranca para gravar os dados no backend
+    // Montar apenas o objeto pessoaCobrancaHistorico para o endpoint de abater pagamento
+    const pessoaCobrancaHistorico = {
+      codigo: typeof this.cobrancaDetalhes.pessoaCobrancaHistorico?.codigo === 'number' ? this.cobrancaDetalhes.pessoaCobrancaHistorico.codigo : 0,
+      codigoCobranca: typeof this.cobrancaDetalhes.codigo === 'number' ? this.cobrancaDetalhes.codigo : 0,
+      dataVencimento: (this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataVencimento ?? new Date().toISOString()).replace(/Z$/, ''),
+      dataPagamento: (this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataPagamento ?? new Date().toISOString()).replace(/Z$/, ''),
+      valorPagamento: typeof this.cobrancaDetalhes.pessoaCobrancaHistorico?.valorPagamento === 'number' ? this.cobrancaDetalhes.pessoaCobrancaHistorico.valorPagamento : 0
+    };
+    const cobrancaPayload = {
+      codigo: typeof this.cobrancaDetalhes.codigo === 'number' ? this.cobrancaDetalhes.codigo : 0,
+      codigoPessoa: typeof this.cobrancaDetalhes.codigoPessoa === 'number' ? this.cobrancaDetalhes.codigoPessoa : 0,
+      tipoCobranca: this.cobrancaDetalhes.tipoCobranca ?? '',
+      valor: typeof this.cobrancaDetalhes.valor === 'number' ? this.cobrancaDetalhes.valor : 0,
+      juros: typeof this.cobrancaDetalhes.juros === 'number' ? this.cobrancaDetalhes.juros : 0,
+      multa: typeof this.cobrancaDetalhes.multa === 'number' ? this.cobrancaDetalhes.multa : 0,
+      valorTotal: typeof this.cobrancaDetalhes.valorTotal === 'number' ? this.cobrancaDetalhes.valorTotal : 0,
+      dataInicio: this.cobrancaDetalhes.dataInicio ?? new Date().toISOString(),
+      diaVencimento: typeof this.cobrancaDetalhes.diaVencimento === 'number' ? this.cobrancaDetalhes.diaVencimento : 0,
+      // dataPagamento removido do objeto principal para seguir o novo formato do backend
+      status: typeof this.cobrancaDetalhes.status === 'number' ? this.cobrancaDetalhes.status : 0,
+      excluido: typeof this.cobrancaDetalhes.excluido === 'boolean' ? this.cobrancaDetalhes.excluido : false,
+      pessoaCobrancaHistorico: pessoaCobrancaHistorico
+    };
+    this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, cobrancaPayload).subscribe({
+      next: () => {
+        // Verificar se foi quitado
+        if (this.cobrancaDetalhes.valorTotal <= 0) {
+          this.cobrancaDetalhes.status = 'quitado';
+          this.dialog.open(DialogMessageComponent, {
+            data: {
+              title: 'Empréstimo Quitado!',
+              message: 'Parabéns! O empréstimo foi quitado com sucesso.'
+            }
+          });
+        } else {
+          this.dialog.open(DialogMessageComponent, {
+            data: {
+              title: 'Pagamento Realizado!',
+              message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
+            }
+          });
         }
-      });
-    } else {
-      this.dialog.open(DialogMessageComponent, {
-        data: {
-          title: 'Pagamento Realizado!',
-          message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
+        this.carregarDetalhes();
+      },
+      error: (error: any) => {
+        let mensagem = 'Não foi possível gravar o pagamento.';
+        if (error?.error?.message) {
+          mensagem = error.error.message;
+        } else if (error?.status) {
+          mensagem += ` (Código: ${error.status})`;
         }
-      });
-    }
+        this.dialog.open(DialogMessageComponent, {
+          data: {
+            title: 'Erro',
+            message: mensagem
+          }
+        });
+      }
+    });
   }
 }

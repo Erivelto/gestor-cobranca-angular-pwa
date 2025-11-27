@@ -45,7 +45,7 @@ import { DialogMessageComponent } from '../../shared/dialog-message.component';
     ]
 })
 export class NovaCobrancaComponent implements OnInit {
-    diaVencimento: number = 1;
+    tipoCobranca: string = 'semanal';
     private calcularParcelasTimeout: any;
     // Função para tratar entrada do campo de juros aplicado (% sobre valor do empréstimo)
     onTaxaJurosInput(event: any): void {
@@ -81,6 +81,37 @@ export class NovaCobrancaComponent implements OnInit {
     valorEmprestimoFormatado: string = '';
     taxaJuros: number = 0;
     taxaJurosFormatada: string = '';
+    multa: number = 0;
+    multaFormatada: string = '';
+
+    // Função para tratar entrada do campo de multa (valor monetário)
+    onMultaInput(event: any): void {
+        let valor = event.target.value.replace(/\D/g, '');
+        if (!valor) {
+            this.multa = 0;
+            this.multaFormatada = '';
+            return;
+        }
+        const valorNumerico = parseFloat(valor) / 100;
+        this.multa = valorNumerico;
+        this.multaFormatada = this.formatarValorMoeda(valorNumerico);
+        event.target.value = this.multaFormatada;
+    }
+
+    onMultaFocus(event: any): void {
+        if (this.multa === 0) {
+            event.target.value = '';
+        }
+    }
+
+    onMultaBlur(event: any): void {
+        if (!event.target.value || event.target.value === '') {
+            this.multa = 0;
+            this.multaFormatada = '';
+        } else {
+            event.target.value = this.multaFormatada;
+        }
+    }
     dataInicio: Date | null = null;
     periodicidade: string = '';
 
@@ -320,11 +351,11 @@ export class NovaCobrancaComponent implements OnInit {
             periodicidade: this.periodicidade,
             numeroParcelas: this.numeroParcelas,
             valorEmprestimo: this.valorEmprestimo,
-            taxaJuros: this.taxaJuros
+            taxaJuros: this.taxaJuros,
+            tipoCobranca: this.tipoCobranca
         });
-    if (!this.clienteSelecionado || !this.dataInicio) {
+        if (!this.clienteSelecionado || !this.dataInicio) {
             console.warn('Campos obrigatórios não preenchidos');
-            // ...existing code...
             return;
         }
         // Declarar e inicializar novaCobranca conforme formato da API
@@ -332,44 +363,44 @@ export class NovaCobrancaComponent implements OnInit {
         const novaCobranca: any = {
             codigo: 0,
             codigoPessoa: this.clienteSelecionado?.codigo ?? 0,
-            tipoCobranca: 'semanal',
+            tipoCobranca: this.tipoCobranca,
             valor: this.valorEmprestimo > 0 ? this.valorEmprestimo : 1,
             juros: this.taxaJuros >= 0 ? this.taxaJuros : 0,
-            multa: 6,
+            multa: this.multa >= 0 ? this.multa : 0,
             valorTotal: this.valorEmprestimo * (1 + (this.taxaJuros / 100)),
             dataInicio: dataInicioISO,
-            diaVencimento: this.diaVencimento,
+            diaVencimento: 0, // Sempre enviar 0
             status: 1,
             excluido: false
         };
-    const payload = novaCobranca;
-    console.log('Payload enviado para API:', JSON.stringify(payload, null, 2));
-    console.log('Criando objeto novaCobranca...');
-    console.log('Objeto novaCobranca:', novaCobranca);
-    console.log('Chamando cobrancaService.createCobranca...');
-    this.cobrancaService.createCobranca(payload).subscribe({
-        next: (res: any) => {
-            console.log('Cobrança criada com sucesso na API:', res);
-            const dialogRef = this.dialog.open(DialogMessageComponent, {
-                data: {
-                    title: 'Empréstimo criado!',
-                    message: 'O empréstimo foi adicionado com sucesso.'
-                }
-            });
-            dialogRef.afterClosed().subscribe(() => {
-                this.router.navigate(['/cobrancas']);
-            });
-        },
-        error: (error: any) => {
-            console.error('Erro ao criar cobrança na API:', error);
-            this.dialog.open(DialogMessageComponent, {
-                data: {
-                    title: 'Erro!',
-                    message: 'Não foi possível adicionar o empréstimo. Tente novamente.'
-                }
-            });
-        }
-    });
+        const payload = novaCobranca;
+        console.log('Payload enviado para API:', JSON.stringify(payload, null, 2));
+        console.log('Criando objeto novaCobranca...');
+        console.log('Objeto novaCobranca:', novaCobranca);
+        console.log('Chamando cobrancaService.createCobranca...');
+        this.cobrancaService.createCobranca(payload).subscribe({
+            next: (res: any) => {
+                console.log('Cobrança criada com sucesso na API:', res);
+                const dialogRef = this.dialog.open(DialogMessageComponent, {
+                    data: {
+                        title: 'Empréstimo criado!',
+                        message: 'O empréstimo foi adicionado com sucesso.'
+                    }
+                });
+                dialogRef.afterClosed().subscribe(() => {
+                    this.router.navigate(['/cobrancas']);
+                });
+            },
+            error: (error: any) => {
+                console.error('Erro ao criar cobrança na API:', error);
+                this.dialog.open(DialogMessageComponent, {
+                    data: {
+                        title: 'Erro!',
+                        message: 'Não foi possível adicionar o empréstimo. Tente novamente.'
+                    }
+                });
+            }
+        });
     }
 
     // Limpar formulário

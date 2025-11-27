@@ -15,8 +15,8 @@
         <span *ngIf="cobrancaDetalhes?.dataVencimento">
           Vencimento: {{ cobrancaDetalhes.dataVencimento | date:'dd/MM/yyyy' }}
         </span>
-        <span *ngIf="cobrancaDetalhes?.dataInicio" style="margin-left:16px;">
-          Inclusão: {{ cobrancaDetalhes.dataInicio | date:'dd/MM/yyyy' }}
+        <span *ngIf="cobrancaDetalhes?.dataPagamento" style="margin-left:16px;">
+          Pagamento: {{ cobrancaDetalhes.dataPagamento | date:'dd/MM/yyyy' }}
         </span>
       </mat-card-subtitle>
     </mat-card-header>
@@ -50,8 +50,8 @@
             <mat-list-item>
               <span matLine>Status:</span>
               <span matLine>
-                <span class="badge-status" [ngClass]="getStatusClass(cobrancaDetalhes.status)">
-                  {{ getStatusText(cobrancaDetalhes.status) }}
+                <span class="badge-status" [ngClass]="getStatusClass(cobrancaDetalhes?.status)">
+                  {{ getStatusText(cobrancaDetalhes?.status) }}
                 </span>
               </span>
             </mat-list-item>
@@ -79,7 +79,7 @@
       <mat-divider></mat-divider>
       <div style="margin-bottom: 16px;">
         <h3 style="font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Valor Total</h3>
-        <span style="font-size: 1.2rem; font-weight: 600;">{{ cobrancaDetalhes.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
+        <span style="font-size: 1.2rem; font-weight: 600;">{{ cobrancaDetalhes?.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</span>
       </div>
       <mat-divider></mat-divider>
       <div *ngIf="historicoPagamentos.length > 0" style="margin-bottom: 16px;">

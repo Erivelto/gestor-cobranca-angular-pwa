@@ -97,11 +97,14 @@
                                 <span matTextPrefix>R$ </span>
                             </mat-form-field>
 
-                            <!-- Dia do Vencimento -->
-                            <mat-form-field appearance="outline" style="min-width: 120px;">
-                                <mat-label>Dia do Vencimento</mat-label>
-                                <input matInput type="number" min="1" max="28"
-                                    [(ngModel)]="diaVencimento" placeholder="Ex: 5">
+                            <!-- Tipo de Cobrança -->
+                            <mat-form-field appearance="outline" style="min-width: 160px;">
+                                <mat-label>Tipo de Cobrança</mat-label>
+                                <mat-select [(ngModel)]="tipoCobranca" placeholder="Selecione">
+                                    <mat-option value="semanal">Semanal</mat-option>
+                                    <mat-option value="quinzenal">Quinzenal</mat-option>
+                                    <mat-option value="mensal">Mensal</mat-option>
+                                </mat-select>
                             </mat-form-field>
 
                             <!-- Data de Início -->
@@ -120,6 +123,15 @@
                                     (input)="onTaxaJurosInput($event)" (focus)="onTaxaJurosFocus($event)"
                                     (blur)="onTaxaJurosBlur($event)">
                                 <span matTextSuffix>%</span>
+                            </mat-form-field>
+
+                            <!-- Multa Aplicada -->
+                            <mat-form-field appearance="outline" style="min-width: 120px;">
+                                <mat-label>Multa (R$)</mat-label>
+                                <input matInput type="text" [value]="multaFormatada"
+                                    (input)="onMultaInput($event)" (focus)="onMultaFocus($event)"
+                                    (blur)="onMultaBlur($event)" placeholder="0,00" maxlength="15">
+                                <span matTextPrefix>R$ </span>
                             </mat-form-field>
 
                             <!-- Valor Total -->

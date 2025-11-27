@@ -53,14 +53,40 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       // Atualiza status para Pago e define dataPagamento
       cobranca.status = 2;
       cobranca.dataPagamento = new Date().toISOString().split('T')[0];
-      this.cobrancaService.updateCobranca(cobranca.codigo, cobranca).subscribe({
+      // Monta apenas o objeto pessoaCobrancaHistorico para o endpoint de abater pagamento
+      // Função utilitária para garantir formato yyyy-MM-dd
+      const formatDate = (dateStr?: string) => {
+        if (!dateStr) return new Date().toISOString().split('T')[0];
+        // Se já está no formato yyyy-MM-dd, retorna direto
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        // Se está no formato ISO, extrai só a data
+        if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) return dateStr.split('T')[0];
+        // Tenta converter para Date e extrair
+        const date = new Date(dateStr);
+        return date.toISOString().split('T')[0];
+      };
+
+      const pessoaCobrancaHistorico = {
+        codigo: 0,
+        codigoCobranca: typeof cobranca.codigo === 'number' ? cobranca.codigo : 0,
+        dataVencimento: formatDate(cobranca.dataVencimento),
+        dataPagamento: formatDate(cobranca.dataPagamento),
+        valorPagamento: cobranca.valor !== null && typeof cobranca.valor === 'number' ? cobranca.valor : 0,
+        dataInicio: formatDate(cobranca.dataInicio)
+      };
+      this.cobrancaService.abaterPagamento(cobranca.codigo, pessoaCobrancaHistorico).subscribe({
         next: () => {
           this.showSuccessToast('Cobrança finalizada com sucesso!');
           this.carregarCobrancas();
         },
         error: (error: any) => {
-          console.error('Erro ao finalizar cobrança:', error);
-          this.showErrorToast('Não foi possível finalizar a cobrança. Tente novamente.');
+          let mensagem = 'Erro ao finalizar cobrança.';
+          if (error?.error?.message) {
+            mensagem = error.error.message;
+          } else if (error?.status) {
+            mensagem += ` (Código: ${error.status})`;
+          }
+          this.showErrorToast(mensagem);
         }
       });
     }
