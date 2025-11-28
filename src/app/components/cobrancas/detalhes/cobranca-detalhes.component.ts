@@ -173,7 +173,7 @@ carregarDetalhes(): void {
       if (cobranca.historicos && Array.isArray(cobranca.historicos)) {
         historicoArray = cobranca.historicos.map((h: PessoaCobrancaHistorico) => ({
           valor: h.valorPagamento,
-          data: h.dataPagamento ? new Date(h.dataPagamento) : new Date()
+          data: h.dataVencimento ? new Date(h.dataVencimento) : new Date()
         }));
       }
       // Incluir pessoaCobrancaHistorico se existir e tiver valorPagamento
