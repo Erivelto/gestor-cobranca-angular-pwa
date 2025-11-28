@@ -10,7 +10,7 @@
     "start": "node server.js",
     "build": "ng build --configuration production",
     "build:dev": "ng build",
-    "serve:local": "ng serve --host=127.0.0.1 --port=54015 --proxy-config=proxy.conf.json",
+    "serve:local": "ng serve --host=127.0.0.1 --proxy-config=proxy.conf.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "postinstall": "ng build --configuration production"

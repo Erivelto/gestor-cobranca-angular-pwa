@@ -74,21 +74,21 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
         valorPagamento: cobranca.valor !== null && typeof cobranca.valor === 'number' ? cobranca.valor : 0,
         dataInicio: formatDate(cobranca.dataInicio)
       };
-      this.cobrancaService.abaterPagamento(cobranca.codigo, pessoaCobrancaHistorico).subscribe({
-        next: () => {
-          this.showSuccessToast('Cobrança finalizada com sucesso!');
-          this.carregarCobrancas();
-        },
-        error: (error: any) => {
-          let mensagem = 'Erro ao finalizar cobrança.';
-          if (error?.error?.message) {
-            mensagem = error.error.message;
-          } else if (error?.status) {
-            mensagem += ` (Código: ${error.status})`;
-          }
-          this.showErrorToast(mensagem);
-        }
-      });
+      // this.cobrancaService.abaterPagamento(cobranca.codigo, pessoaCobrancaHistorico).subscribe({
+      //   next: () => {
+      //     this.showSuccessToast('Cobrança finalizada com sucesso!');
+      //     this.carregarCobrancas();
+      //   },
+      //   error: (error: any) => {
+      //     let mensagem = 'Erro ao finalizar cobrança.';
+      //     if (error?.error?.message) {
+      //       mensagem = error.error.message;
+      //     } else if (error?.status) {
+      //       mensagem += ` (Código: ${error.status})`;
+      //     }
+      //     this.showErrorToast(mensagem);
+      //   }
+      // });
     }
   statusSortDirection: 'asc' | 'desc' = 'asc';
 

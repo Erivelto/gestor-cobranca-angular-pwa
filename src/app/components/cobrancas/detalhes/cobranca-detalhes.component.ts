@@ -62,7 +62,7 @@ export class CobrancaDetalhesComponent implements OnInit {
       // Atualiza status para Pago e define dataPagamento
       this.cobrancaDetalhes.status = 2;
       this.cobrancaDetalhes.dataPagamento = new Date().toISOString().split('T')[0];
-        this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, this.cobrancaDetalhes).subscribe({
+        this.cobrancaService.updateCobranca(this.cobrancaDetalhes).subscribe({
         next: () => {
           this.dialog.open(DialogMessageComponent, {
             data: {
@@ -382,7 +382,7 @@ carregarDetalhes(): void {
       excluido: typeof this.cobrancaDetalhes.excluido === 'boolean' ? this.cobrancaDetalhes.excluido : false,
       pessoaCobrancaHistorico: pessoaCobrancaHistorico
     };
-    this.cobrancaService.updateCobranca(this.cobrancaDetalhes.codigo, cobrancaPayload).subscribe({
+    this.cobrancaService.updateCobranca(cobrancaPayload).subscribe({
       next: () => {
         // Verificar se foi quitado
         if (this.cobrancaDetalhes.valorTotal <= 0) {

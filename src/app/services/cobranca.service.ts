@@ -41,8 +41,8 @@ export class CobrancaService {
   }
 
   // PUT: Atualizar cobrança existente
-  updateCobranca(id: number, cobranca: PessoaCobranca): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, cobranca, { headers: this.getHeaders() });
+  updateCobranca( cobranca: PessoaCobranca): Observable<any> {
+    return this.http.put(`${this.apiUrl}`, cobranca, { headers: this.getHeaders() });
   }
 
   // DELETE: Remover cobrança
@@ -51,9 +51,9 @@ export class CobrancaService {
   }
 
   // Método dedicado para abater pagamento (se necessário)
-  abaterPagamento(id: number, payload: any): Observable<any> {
+ // abaterPagamento(id: number, payload: any): Observable<any> {
     // Ajuste a URL e método conforme a API
-    return this.http.post(`${this.apiUrl}/abater/${id}`, payload, { headers: this.getHeaders() });
-  }
+   // return this.http.post(`${this.apiUrl}/abater/${id}`, payload, { headers: this.getHeaders() });
+  //}
 }
 
