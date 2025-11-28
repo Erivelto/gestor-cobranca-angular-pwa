@@ -1,3 +1,29 @@
+@media (max-width: 767px) {
+  .table-container,
+  .enhanced-table-container {
+    overflow-x: auto !important;
+    width: 100% !important;
+    min-width: 320px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .enhanced-pessoas-table {
+    min-width: 600px !important;
+    font-size: 0.85rem !important;
+  }
+  .enhanced-pessoas-table .mat-header-cell,
+  .enhanced-pessoas-table .mat-cell {
+    padding: 10px 6px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+  }
+  .actions-cell,
+  .actions-column {
+    width: 44px !important;
+    min-width: 36px !important;
+    max-width: 60px !important;
+    padding: 0 !important;
+  }
+}
 .mat-mdc-menu-content {
   background-color: #fff !important;
 }
@@ -638,7 +664,7 @@
 
 .actions-cell {
   text-align: right;
-  width: 80px;
+  width: 100px;
 }
 
 /* Status chips aprimorados */

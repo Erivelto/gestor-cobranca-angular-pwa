@@ -81,8 +81,8 @@
           <!-- Nome Column -->
           <ng-container matColumnDef="nome">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
-            <td mat-cell *matCellDef="let pessoa" (click)="onRowClick(pessoa)">
-              <div class="nome-cell">
+            <td mat-cell *matCellDef="let pessoa">
+              <div class="nome-cell" style="cursor:pointer;" (click)="editarPessoaAvancado(pessoa.codigo)">
                 <mat-icon class="person-icon">person</mat-icon>
                 <span class="nome-text">{{ formatarNome(pessoa.nome) }}</span>
               </div>
@@ -109,21 +109,10 @@
                       class="actions-btn">
                 <mat-icon>more_vert</mat-icon>
               </button>
-              
               <mat-menu #actionsMenu="matMenu" class="enhanced-menu">
-                <button mat-menu-item (click)="toggleDestaque(pessoa)">
-                  <mat-icon [class.destacado]="pessoa.destacado">{{ pessoa.destacado ? 'star' : 'star_border' }}</mat-icon>
-                  <span>{{ pessoa.destacado ? 'Remover Destaque' : 'Destacar' }}</span>
-                </button>
-                <mat-divider></mat-divider>
                 <button mat-menu-item (click)="editarPessoaAvancado(pessoa.codigo)">
                   <mat-icon color="primary">edit</mat-icon>
                   <span>Editar</span>
-                </button>
-                <mat-divider></mat-divider>
-                <button mat-menu-item (click)="deletarPessoa(pessoa.codigo)" class="delete-action">
-                  <mat-icon color="warn">delete</mat-icon>
-                  <span>Excluir</span>
                 </button>
               </mat-menu>
             </td>
