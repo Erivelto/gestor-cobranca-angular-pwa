@@ -25,7 +25,7 @@
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Nome Completo *</mat-label>
             <input matInput type="text" name="nome" [(ngModel)]="pessoa.nome" placeholder="Digite o nome completo"
-              required [disabled]="loading" />
+              required [disabled]="loading" maxlength="80" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>CPF/CNPJ *</mat-label>
