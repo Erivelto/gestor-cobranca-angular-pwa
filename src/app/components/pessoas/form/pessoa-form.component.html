@@ -1,11 +1,7 @@
 <div class="page-container">
   <div class="dashboard-header">
     <h1>{{ isEditMode ? 'Editar Cliente' : 'Nova Pessoa' }}</h1>
-    <button 
-      mat-icon-button 
-      (click)="voltar()" 
-      matTooltip="Voltar"
-      class="back-button">
+    <button mat-icon-button (click)="voltar()" matTooltip="Voltar" class="back-button">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </div>
@@ -28,29 +24,13 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Nome Completo *</mat-label>
-            <input
-              matInput
-              type="text"
-              name="nome"
-              [(ngModel)]="pessoa.nome"
-              placeholder="Digite o nome completo"
-              required
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="nome" [(ngModel)]="pessoa.nome" placeholder="Digite o nome completo"
+              required [disabled]="loading" />
           </mat-form-field>
-        </div>
-        <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>CPF/CNPJ *</mat-label>
-            <input
-              matInput
-              type="text"
-              name="documento"
-              [(ngModel)]="pessoa.documento"
-              placeholder="000.000.000-00"
-              required
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="documento" [(ngModel)]="pessoa.documento" placeholder="000.000.000-00"
+              required [disabled]="loading" />
             <mat-hint>Digite apenas números</mat-hint>
           </mat-form-field>
         </div>
@@ -64,56 +44,28 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>E-mail</mat-label>
-            <input
-              matInput
-              type="email"
-              name="email"
-              [(ngModel)]="contato.email"
-              placeholder="email@exemplo.com"
-              [disabled]="loading"
-            />
+            <input matInput type="email" name="email" [(ngModel)]="contato.email" placeholder="email@exemplo.com"
+              [disabled]="loading" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Site</mat-label>
-            <input
-              matInput
-              type="text"
-              name="site"
-              [(ngModel)]="contato.site"
-              placeholder="www.exemplo.com"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="site" [(ngModel)]="contato.site" placeholder="www.exemplo.com"
+              [disabled]="loading" />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>DDD</mat-label>
-            <input
-              matInput
-              type="text"
-              name="ddd"
-              [(ngModel)]="contato.ddd"
-              placeholder="11"
-              maxlength="2"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="ddd" [(ngModel)]="contato.ddd" placeholder="11" maxlength="2"
+              [disabled]="loading" />
           </mat-form-field>
-
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Celular</mat-label>
-            <input
-              matInput
-              type="text"
-              name="celular"
-              [(ngModel)]="contato.celular"
-              placeholder="91234-5678"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="celular" [(ngModel)]="contato.celular" placeholder="91234-5678"
+              [disabled]="loading" />
           </mat-form-field>
-
-
         </div>
       </mat-card-content>
     </mat-card>
@@ -123,108 +75,57 @@
       <mat-card-title>Endereço</mat-card-title>
       <mat-card-content>
         <div class="form-row">
-          <mat-form-field appearance="outline" class="form-group">
+          <mat-form-field appearance="outline" class="form-group-full">
             <mat-label>CEP</mat-label>
-            <input
-              matInput
-              type="text"
-              name="cep"
-              [(ngModel)]="endereco.cep"
-              placeholder="00000-000"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="cep" [(ngModel)]="endereco.cep" placeholder="00000-000"
+              [disabled]="loading" />
           </mat-form-field>
+          <button style="height: 54px; margin: 0 0 18px 0;" type="button" mat-raised-button color="primary" (click)="buscarCep()"
+            [disabled]="loading || loadingCep || !endereco.cep">
+            <mat-icon *ngIf="loadingCep">refresh</mat-icon>
+            {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
+          </button>
+        </div>
 
-          <div class="form-group">
-            <button
-              type="button"
-              mat-raised-button
-              color="accent"
-              (click)="buscarCep()"
-              [disabled]="loading || loadingCep || !endereco.cep"
-            >
-              <mat-icon *ngIf="loadingCep">refresh</mat-icon>
-              {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
-            </button>
-          </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-group">
+            <mat-label>Logradouro</mat-label>
+            <input matInput type="text" name="logradouro" [(ngModel)]="endereco.logradouro"
+              placeholder="Rua, Avenida, etc." [disabled]="loading" />
+          </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group-full">
-            <mat-label>Logradouro</mat-label>
-            <input
-              matInput
-              type="text"
-              name="logradouro"
-              [(ngModel)]="endereco.logradouro"
-              placeholder="Rua, Avenida, etc."
-              [disabled]="loading"
-            />
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="form-group">
             <mat-label>Número</mat-label>
-            <input
-              matInput
-              type="text"
-              name="numero"
-              [(ngModel)]="endereco.numrero"
-              placeholder="Nº"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="numero" [(ngModel)]="endereco.numrero" placeholder="Nº"
+              [disabled]="loading" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Complemento</mat-label>
-            <input
-              matInput
-              type="text"
-              name="complemento"
-              [(ngModel)]="endereco.complemento"
-              placeholder="Apto, Bloco, etc."
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="complemento" [(ngModel)]="endereco.complemento"
+              placeholder="Apto, Bloco, etc." [disabled]="loading" />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Bairro</mat-label>
-            <input
-              matInput
-              type="text"
-              name="bairro"
-              [(ngModel)]="endereco.bairro"
-              placeholder="Bairro"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="bairro" [(ngModel)]="endereco.bairro" placeholder="Bairro"
+              [disabled]="loading" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Cidade</mat-label>
-            <input
-              matInput
-              type="text"
-              name="cidade"
-              [(ngModel)]="endereco.cidade"
-              placeholder="Cidade"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="cidade" [(ngModel)]="endereco.cidade" placeholder="Cidade"
+              [disabled]="loading" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-group">
             <mat-label>Estado</mat-label>
-            <input
-              matInput
-              type="text"
-              name="uf"
-              [(ngModel)]="endereco.uf"
-              placeholder="UF"
-              maxlength="2"
-              [disabled]="loading"
-            />
+            <input matInput type="text" name="uf" [(ngModel)]="endereco.uf" placeholder="UF" maxlength="2"
+              [disabled]="loading" />
           </mat-form-field>
         </div>
       </mat-card-content>
@@ -235,36 +136,24 @@
       <mat-card-title>Anexar Documento ou Imagem</mat-card-title>
       <mat-card-content>
         <div class="form-row">
-          <div class="file-upload-container">
-            <input
-              type="file"
-              #fileInput
-              (change)="onFileSelected($event)"
-              accept=".pdf,.jpg,.jpeg,.png"
-              style="display: none"
-              [disabled]="loading"
-            />
-            <button
-              type="button"
-              mat-raised-button
-              color="accent"
-              (click)="fileInput.click()"
-              [disabled]="loading"
-            >
+          <div class="file-upload-container form-group">
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png"
+              style="display: none" [disabled]="loading" />
+            <button type="button" mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="loading">
               <mat-icon>attach_file</mat-icon>
               Selecionar Arquivo
             </button>
             <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
           </div>
         </div>
-        <mat-hint>Formatos aceitos: PDF, JPG, JPEG, PNG</mat-hint>
+        <mat-hint style="margin-top: 10px; float: left;">Formatos aceitos: PDF, JPG, JPEG, PNG</mat-hint>
       </mat-card-content>
     </mat-card>
 
     <!-- Botões -->
     <mat-card class="form-actions">
       <mat-card-content>
-        <div class="button-row">
+        <div class="button-row" style="display: flex; justify-content: flex-end; gap: 12px;">
           <button type="button" mat-stroked-button (click)="voltar()" [disabled]="loading">
             <mat-icon>cancel</mat-icon>
             Cancelar
@@ -279,4 +168,3 @@
     </mat-card>
   </form>
 </div>
-
