@@ -1,4 +1,12 @@
 @media (max-width: 767px) {
+  td .documento-text {
+    display: none !important;
+  }
+  th.documento-header {
+    display: none !important;
+  }
+}
+@media (max-width: 767px) {
   .table-container,
   .enhanced-table-container {
     overflow-x: auto !important;

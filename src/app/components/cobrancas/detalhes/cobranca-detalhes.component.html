@@ -59,6 +59,14 @@
               </mat-list-item>
               <mat-list-item>
                 <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                  <span matLine style="min-width: 60px;">Vencimento:</span>
+                  <span matLine style="font-weight: 500;">
+                    {{ cobrancaDetalhes?.proximoVencimento ? (cobrancaDetalhes.proximoVencimento | date:'dd/MM/yyyy') : 'Campo não recebido da API' }}
+                  </span>
+                </div>
+              </mat-list-item>
+              <mat-list-item>
+                <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
                   <span matLine style="min-width: 60px;">Status:</span>
                   <span matLine>
                     <span class="badge-status" [ngClass]="getStatusClass(cobrancaDetalhes?.status)">
@@ -96,19 +104,33 @@
         </div>
         <mat-divider></mat-divider>
         <div *ngIf="historicoPagamentos.length > 0" style="margin-bottom: 16px;">
-          <h3 style="font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Histórico de Pagamentos</h3>
-          <mat-table [dataSource]="dataSource" class="mat-elevation-z0 historico-table">
-            <ng-container matColumnDef="data">
-              <mat-header-cell *matHeaderCellDef>Data</mat-header-cell>
-              <mat-cell *matCellDef="let pagamento">{{ pagamento.data | date:'dd/MM/yyyy' }}</mat-cell>
-            </ng-container>
-            <ng-container matColumnDef="valor">
-              <mat-header-cell *matHeaderCellDef>Valor Pago</mat-header-cell>
-              <mat-cell *matCellDef="let pagamento">{{ pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}</mat-cell>
-            </ng-container>
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-          </mat-table>
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>Histórico de Pagamentos</mat-panel-title>
+              </mat-expansion-panel-header>
+              <mat-table [dataSource]="dataSource" class="mat-elevation-z0 historico-table">
+                <ng-container matColumnDef="data">
+                  <mat-header-cell *matHeaderCellDef>Data</mat-header-cell>
+                  <mat-cell *matCellDef="let pagamento">
+                    <ng-container *ngIf="pagamento.valor > 0">
+                      {{ pagamento.data | date:'dd/MM/yyyy' }}
+                    </ng-container>
+                  </mat-cell>
+                </ng-container>
+                <ng-container matColumnDef="valor">
+                  <mat-header-cell *matHeaderCellDef>Valor Pago</mat-header-cell>
+                  <mat-cell *matCellDef="let pagamento">
+                    <ng-container *ngIf="pagamento.valor > 0">
+                      {{ pagamento.valor | currency:'BRL':'symbol':'1.2-2' }}
+                    </ng-container>
+                  </mat-cell>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+              </mat-table>
+            </mat-expansion-panel>
+          </mat-accordion>
         </div>
       </mat-card-content>
       <mat-card-actions style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
@@ -116,10 +138,10 @@
           <mat-icon>list</mat-icon>
           Voltar à Lista
         </button>
-        <button mat-raised-button color="accent" *ngIf="cobrancaDetalhes?.status === 1" (click)="finalizarCobranca()">
+        <!-- <button mat-raised-button color="accent" *ngIf="cobrancaDetalhes?.status === 1" (click)="finalizarCobranca()">
           <mat-icon>check_circle</mat-icon>
           Finalizar Cobrança
-        </button>
+        </button> -->
       </mat-card-actions>
     </mat-card>
   </div>

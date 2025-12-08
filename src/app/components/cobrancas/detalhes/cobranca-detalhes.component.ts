@@ -169,12 +169,17 @@ carregarDetalhes(): void {
       this.cobrancaDetalhes = cobranca;
       console.log('[COBRANCA] Detalhes recebidos:', cobranca);
       // Preencher histórico de pagamentos se existir
-      let historicoArray: { valor: number, data: Date }[] = [];
-      if (cobranca.historicos && Array.isArray(cobranca.historicos)) {
-        historicoArray = cobranca.historicos.map((h: PessoaCobrancaHistorico) => ({
-          valor: h.valorPagamento,
-          data: h.dataVencimento ? new Date(h.dataVencimento) : new Date()
-        }));
+         let historicoArray: { valor: number, data: Date }[] = [];
+         if (cobranca.historicos && Array.isArray(cobranca.historicos)) {
+           // Filtra apenas históricos com valorPagamento e dataPagamento preenchidos
+           const historicosPagos = cobranca.historicos.filter(
+             (h: PessoaCobrancaHistorico) => h.valorPagamento != null && h.dataPagamento != null
+           );
+           historicoArray = historicosPagos.map((h: PessoaCobrancaHistorico) => ({
+             valor: h.valorPagamento,
+             // Ajusta para fuso local do usuário
+             data: h.dataPagamento ? new Date(h.dataPagamento + 'Z') : new Date()
+           }));
       }
       // Incluir pessoaCobrancaHistorico se existir e tiver valorPagamento
       if (cobranca.pessoaCobrancaHistorico && cobranca.pessoaCobrancaHistorico.valorPagamento) {
@@ -183,8 +188,10 @@ carregarDetalhes(): void {
           data: cobranca.pessoaCobrancaHistorico.dataPagamento ? new Date(cobranca.pessoaCobrancaHistorico.dataPagamento) : new Date()
         });
       }
-      this.historicoPagamentos = historicoArray;
-      this.dataSource.data = historicoArray;
+      // Filtrar apenas pagamentos com valor > 0
+      const historicoPagamentosFiltrados = historicoArray.filter(h => h.valor > 0);
+      this.historicoPagamentos = historicoPagamentosFiltrados;
+      this.dataSource.data = historicoPagamentosFiltrados;
       if (cobranca && cobranca.codigoPessoa) {
         console.log('[COBRANCA] codigoPessoa:', cobranca.codigoPessoa);
         this.pessoaService.getPessoaById(cobranca.codigoPessoa).subscribe({
@@ -359,14 +366,29 @@ carregarDetalhes(): void {
     this.valorPagamentoFormatado = '0,00';
 
     // Chamar updateCobranca para gravar os dados no backend
-    // Montar apenas o objeto pessoaCobrancaHistorico para o endpoint de abater pagamento
+    // Montar todos os campos obrigatórios esperados pela API
     const pessoaCobrancaHistorico = {
       codigo: typeof this.cobrancaDetalhes.pessoaCobrancaHistorico?.codigo === 'number' ? this.cobrancaDetalhes.pessoaCobrancaHistorico.codigo : 0,
       codigoCobranca: typeof this.cobrancaDetalhes.codigo === 'number' ? this.cobrancaDetalhes.codigo : 0,
-      dataVencimento: (this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataVencimento ?? new Date().toISOString()).replace(/Z$/, ''),
-      dataPagamento: (this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataPagamento ?? new Date().toISOString()).replace(/Z$/, ''),
+      dataVencimento: this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataVencimento ?? new Date().toISOString(),
+      dataPagamento: this.cobrancaDetalhes.pessoaCobrancaHistorico?.dataPagamento ?? new Date().toISOString(),
       valorPagamento: typeof this.cobrancaDetalhes.pessoaCobrancaHistorico?.valorPagamento === 'number' ? this.cobrancaDetalhes.pessoaCobrancaHistorico.valorPagamento : 0
     };
+
+    // Montar historicos
+    const historicos = Array.isArray(this.cobrancaDetalhes.historicos) && this.cobrancaDetalhes.historicos.length > 0
+      ? this.cobrancaDetalhes.historicos
+          .filter((h: PessoaCobrancaHistorico) => h.valorPagamento != null && h.dataPagamento != null)
+          .map((h: PessoaCobrancaHistorico) => ({
+            codigo: typeof h.codigo === 'number' ? h.codigo : 0,
+            codigoCobranca: typeof h.codigoCobranca === 'number' ? h.codigoCobranca : 0,
+            dataVencimento: h.dataVencimento ?? new Date().toISOString(),
+            dataPagamento: h.dataPagamento ?? new Date().toISOString(),
+            valorPagamento: typeof h.valorPagamento === 'number' ? h.valorPagamento : 0
+          }))
+      : [pessoaCobrancaHistorico];
+
+    // Payload completo
     const cobrancaPayload = {
       codigo: typeof this.cobrancaDetalhes.codigo === 'number' ? this.cobrancaDetalhes.codigo : 0,
       codigoPessoa: typeof this.cobrancaDetalhes.codigoPessoa === 'number' ? this.cobrancaDetalhes.codigoPessoa : 0,
@@ -377,10 +399,13 @@ carregarDetalhes(): void {
       valorTotal: typeof this.cobrancaDetalhes.valorTotal === 'number' ? this.cobrancaDetalhes.valorTotal : 0,
       dataInicio: this.cobrancaDetalhes.dataInicio ?? new Date().toISOString(),
       diaVencimento: typeof this.cobrancaDetalhes.diaVencimento === 'number' ? this.cobrancaDetalhes.diaVencimento : 0,
-      // dataPagamento removido do objeto principal para seguir o novo formato do backend
+      dataQuitacao: this.cobrancaDetalhes.dataQuitacao ?? new Date().toISOString(),
       status: typeof this.cobrancaDetalhes.status === 'number' ? this.cobrancaDetalhes.status : 0,
       excluido: typeof this.cobrancaDetalhes.excluido === 'boolean' ? this.cobrancaDetalhes.excluido : false,
+      // historicos removido do payload conforme solicitado
       pessoaCobrancaHistorico: pessoaCobrancaHistorico
+      // Adiciona pessoaCobrancaDetalhe se existir
+      , ...(this.cobrancaDetalhes.pessoaCobrancaDetalhe ? { pessoaCobrancaDetalhe: this.cobrancaDetalhes.pessoaCobrancaDetalhe } : {})
     };
     this.cobrancaService.updateCobranca(cobrancaPayload).subscribe({
       next: () => {
