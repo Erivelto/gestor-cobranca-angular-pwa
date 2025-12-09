@@ -26,9 +26,16 @@ export class CobrancaService {
   }
 
   // GET: Buscar todas as cobranças
-  getCobrancas(): Observable<Cobranca[]> {
-    return this.http.get<Cobranca[]>(this.apiUrl, { headers: this.getHeaders() });
-  }
+getCobrancas(): Observable<Cobranca[]> {
+  const usuarioId = this.authService.currentUserValue?.id ?? 
+                    Number(localStorage.getItem('userId')) ?? 1;
+  const url = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
+  
+  console.log('🔍 CobrancaService.getCobrancas() - usuarioId:', usuarioId);
+  console.log('📡 URL:', url);
+  
+  return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+}
 
   // GET: Buscar cobrança por ID
   getCobrancaById(id: number): Observable<Cobranca> {
