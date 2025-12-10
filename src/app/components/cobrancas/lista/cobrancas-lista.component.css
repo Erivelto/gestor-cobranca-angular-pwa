@@ -430,3 +430,63 @@
   background-color: #2E7D32 !important;
   color: #DCEDC8 !important;
 }
+
+/* ===== ESTILOS PARA TABS ===== */
+
+.cobrancas-tabs {
+  width: 100%;
+}
+
+.cobrancas-tabs ::ng-deep .mat-mdc-tab-labels {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.cobrancas-tabs ::ng-deep .mat-mdc-tab-label {
+  min-width: 150px;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.3s ease;
+}
+
+.cobrancas-tabs ::ng-deep .mat-mdc-tab-label:hover {
+  color: #667eea;
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.cobrancas-tabs ::ng-deep .mat-mdc-tab-label.mat-mdc-tab-label-active {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.cobrancas-tabs ::ng-deep .mat-mdc-tab-header-pagination-chevron {
+  border-color: #667eea;
+}
+
+.tab-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.tab-label {
+  margin-left: 8px;
+}
+
+.tab-content {
+  padding: 20px 24px;
+  background-color: #ffffff;
+  min-height: 300px;
+}
+
+.empty-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #9ca3af;
+  font-size: 16px;
+  text-align: center;
+  padding: 40px;
+}

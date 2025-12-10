@@ -57,10 +57,56 @@ getCobrancas(): Observable<Cobranca[]> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Método dedicado para abater pagamento (se necessário)
- // abaterPagamento(id: number, payload: any): Observable<any> {
-    // Ajuste a URL e método conforme a API
-   // return this.http.post(`${this.apiUrl}/abater/${id}`, payload, { headers: this.getHeaders() });
-  //}
+  // Método para buscar todas as cobranças (usa o endpoint existente)
+  // O backend fará a filtragem por status quando os endpoints específicos estiverem disponíveis
+  getAllCobrancas(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  // Métodos para buscar cobranças por status específicos (agora disponíveis no backend)
+  getAllAtrasadaLista(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllAtrasadoLista/${usuarioId}`;
+    console.log('📡 Chamando endpoint de atrasados:', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  getAllEmDiaLista(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllEmDiaLista/${usuarioId}`;
+    console.log('📡 Chamando endpoint em dia:', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  getAllVenceHojeLista(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllVenceHojeLista/${usuarioId}`;
+    console.log('📡 Chamando endpoint vence hoje:', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  // Endpoints para Dashboard (sem "Lista")
+  getAllEmDia(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllEmDia/${usuarioId}`;
+    console.log('📡 Chamando endpoint em dia (dashboard):', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  getAllAtrasado(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllAtrasado/${usuarioId}`;
+    console.log('📡 Chamando endpoint atrasado (dashboard):', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
+
+  getAllVenceHoje(): Observable<Cobranca[]> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllVenceHoje/${usuarioId}`;
+    console.log('📡 Chamando endpoint vence hoje (dashboard):', url);
+    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+  }
 }
 

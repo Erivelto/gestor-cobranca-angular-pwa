@@ -12,105 +12,119 @@
   <div class="enhanced-table-container">
     <mat-card class="enhanced-table-card">
       
-      <!-- Loading Overlay -->
+
+      <!-- Não há mais loading/error/cobrancas globais. Estados são por status abaixo. -->
+
+
+      <!-- Estados globais -->
       <div *ngIf="loading" class="loading-overlay">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
         <p>Carregando cobranças...</p>
       </div>
-
-      <!-- Error State -->
       <mat-card *ngIf="error && !loading" class="error-card">
         <mat-card-content class="error-content">
           <mat-icon class="error-icon">error_outline</mat-icon>
           <p>{{ error }}</p>
-          <button mat-button (click)="carregarCobrancas()">
-            <mat-icon>refresh</mat-icon>
-            Tentar Novamente
-          </button>
         </mat-card-content>
       </mat-card>
 
-      <!-- Empty State -->
-      <mat-card *ngIf="!loading && !error && cobrancas.length === 0" class="empty-card">
-        <mat-card-content class="empty-content">
-          <mat-icon class="empty-icon">receipt_long</mat-icon>
-          <h2>Nenhuma cobrança encontrada</h2>
-          <p>Comece criando sua primeira cobrança</p>
-          <button mat-raised-button color="accent" (click)="novaCobranca()">
-            <mat-icon>add</mat-icon>
-            Cadastrar Primeira Cobrança
-          </button>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Table Content -->
-  <div *ngIf="!loading && !error && cobrancas.length > 0">
-        <!-- Table Header -->
-        <div class="table-header">
-          <mat-form-field class="search-field" appearance="outline">
-            <mat-label>Buscar cobranças...</mat-label>
-            <input matInput 
-                   [(ngModel)]="searchTerm" 
-                   (keyup)="applyFilter()"
-                   placeholder="Digite o nome do cliente...">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <!-- Table Wrapper -->
-        <div class="table-wrapper">
-          <table mat-table [dataSource]="dataSource" class="enhanced-cobrancas-table">
-            
-            <!-- Nome Column -->
-            <ng-container matColumnDef="nome">
-              <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
-              <td mat-cell *matCellDef="let cobranca" class="nome-cell">
-                <mat-icon class="person-icon">person</mat-icon>
-                <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
-              </td>
-            </ng-container>
-
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef (click)="sortByStatus()" style="cursor:pointer">Status <mat-icon style="font-size:16px;vertical-align:middle">sort</mat-icon></th>
-              <td mat-cell *matCellDef="let cobranca" class="status-cell">
-                <span [ngClass]="getStatusClass(cobranca.status)">{{ getStatusText(cobranca.status) }}</span>
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <!-- Actions Column -->
-            <ng-container matColumnDef="acoes">
-              <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
-              <td mat-cell *matCellDef="let cobranca" class="actions-column">
-                <a mat-icon-button 
-                   class="actions-btn"
-                   [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
-                   matTooltip="Ver detalhes">
-                  <mat-icon>edit</mat-icon>
-                </a>
-              </td>
-            </ng-container>
-
-            <!-- Header and Row Definitions -->
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-                class="data-row row-hover"
-                (click)="onRowClick(row)"></tr>
-          </table>
-
-          <!-- Sem dados filtrados -->
-          <div *ngIf="dataSource.filteredData.length === 0 && searchTerm && !loading" 
-               class="no-data">
-            <div class="no-data-container">
-              <mat-icon class="no-data-icon">search_off</mat-icon>
-              <p class="no-data-message">Nenhuma cobrança encontrada para "{{ searchTerm }}"</p>
-            </div>
+      <mat-tab-group *ngIf="!loading && !error && pessoas && pessoas.length > 0" class="cobrancas-tabs">
+        <!-- Aba: Em Dia -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">check_circle</mat-icon>
+            <span class="tab-label">Em Dia</span>
+          </ng-template>
+          <div class="tab-content">
+            <div *ngIf="emDiaCobrancas.length === 0" class="empty-message">Nenhuma cobrança em dia encontrada.</div>
+            <table *ngIf="emDiaCobrancas.length > 0" mat-table [dataSource]="emDiaCobrancas" class="enhanced-cobrancas-table">
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <td mat-cell *matCellDef="let cobranca" class="nome-cell">
+                  <mat-icon class="person-icon">person</mat-icon>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <td mat-cell *matCellDef="let cobranca" class="actions-column">
+                  <a mat-icon-button 
+                     class="actions-btn"
+                     [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
+                     matTooltip="Ver detalhes">
+                    <mat-icon>edit</mat-icon>
+                  </a>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['nome','acoes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['nome','acoes'];" class="data-row row-hover"></tr>
+            </table>
           </div>
-        </div>
+        </mat-tab>
 
+        <!-- Aba: Atrasadas -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">error</mat-icon>
+            <span class="tab-label">Atrasadas</span>
+          </ng-template>
+          <div class="tab-content">
+            <div *ngIf="atrasadasCobrancas.length === 0" class="empty-message">Nenhuma cobrança atrasada encontrada.</div>
+            <table *ngIf="atrasadasCobrancas.length > 0" mat-table [dataSource]="atrasadasCobrancas" class="enhanced-cobrancas-table">
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <td mat-cell *matCellDef="let cobranca" class="nome-cell">
+                  <mat-icon class="person-icon">person</mat-icon>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <td mat-cell *matCellDef="let cobranca" class="actions-column">
+                  <a mat-icon-button 
+                     class="actions-btn"
+                     [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
+                     matTooltip="Ver detalhes">
+                    <mat-icon>edit</mat-icon>
+                  </a>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['nome','acoes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['nome','acoes'];" class="data-row row-hover"></tr>
+            </table>
+          </div>
+        </mat-tab>
 
-      </div>
-    </mat-card>
-  </div>
-</div>
+        <!-- Aba: Vence Hoje -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">schedule</mat-icon>
+            <span class="tab-label">Vence Hoje</span>
+          </ng-template>
+          <div class="tab-content">
+            <div *ngIf="venceHojeCobrancas.length === 0" class="empty-message">Nenhuma cobrança vencendo hoje encontrada.</div>
+            <table *ngIf="venceHojeCobrancas.length > 0" mat-table [dataSource]="venceHojeCobrancas" class="enhanced-cobrancas-table">
+              <ng-container matColumnDef="nome">
+                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <td mat-cell *matCellDef="let cobranca" class="nome-cell">
+                  <mat-icon class="person-icon">person</mat-icon>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="acoes">
+                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <td mat-cell *matCellDef="let cobranca" class="actions-column">
+                  <a mat-icon-button 
+                     class="actions-btn"
+                     [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
+                     matTooltip="Ver detalhes">
+                    <mat-icon>edit</mat-icon>
+                  </a>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="['nome','acoes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['nome','acoes'];" class="data-row row-hover"></tr>
+            </table>
+          </div>
+        </mat-tab>
+      </mat-tab-group>

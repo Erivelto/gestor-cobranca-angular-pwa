@@ -129,33 +129,51 @@ export class DashboardComponent implements OnInit {
         ? { message: 'Atualizando...', overlay: false, fullScreen: false }
         : { message: 'Carregando dados do dashboard...', overlay: true };
 
+      // Fazer requisições para todos os dados específicos da API
       const result = await this.spinnerService.withSpinner(
         () => forkJoin([
           this.pessoaService.getPessoas(),
-          this.cobrancaService.getCobrancas()
+          this.cobrancaService.getAllEmDia(),
+          this.cobrancaService.getAllAtrasado(),
+          this.cobrancaService.getAllVenceHoje()
         ]).toPromise(),
         spinnerConfig
       );
 
       if (result) {
-        const [pessoas, cobrancas] = result;
+        let [pessoas, emDia, venceHoje, atrasadas] = result;
+
+        // Garantir que são arrays
+        if (!Array.isArray(emDia)) {
+          console.warn('⚠️ emDia não é um array:', emDia);
+          emDia = emDia ? [emDia] : [];
+        }
+        if (!Array.isArray(venceHoje)) {
+          console.warn('⚠️ venceHoje não é um array:', venceHoje);
+          venceHoje = venceHoje ? [venceHoje] : [];
+        }
+        if (!Array.isArray(atrasadas)) {
+          console.warn('⚠️ atrasadas não é um array:', atrasadas);
+          atrasadas = atrasadas ? [atrasadas] : [];
+        }
 
         // Processar dados das pessoas
-        this.totalPessoas = pessoas.length;
+        this.totalPessoas = Array.isArray(pessoas) ? pessoas.length : 0;
 
-        // Processar dados das cobranças
-        this.totalCobrancas = cobrancas.length;
+        // Calcular total de cobranças
+        this.totalCobrancas = emDia.length + venceHoje.length + atrasadas.length;
         
-        // Separar por status (assumindo: 0=Em dia, 1=À vencer, 2=Devedor)
-        const cobrancasEmDia = cobrancas.filter((c: Cobranca) => c.status === 0);
-        const cobrancasAVencer = cobrancas.filter((c: Cobranca) => c.status === 1);
-        const cobrancasDevedor = cobrancas.filter((c: Cobranca) => c.status === 2);
-        
-        // Calcular valores por status
-        this.valorEmDia = cobrancasEmDia.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorAVencer = cobrancasAVencer.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorDevedor = cobrancasDevedor.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
-        this.valorTotal = cobrancas.reduce((sum: number, c: Cobranca) => sum + c.valor, 0);
+        // Calcular valores por status usando dados diretos da API
+        this.valorEmDia = emDia.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
+        this.valorAVencer = venceHoje.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
+        this.valorDevedor = atrasadas.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
+        this.valorTotal = this.valorEmDia + this.valorAVencer + this.valorDevedor;
+
+        console.log('📊 Dados do Dashboard carregados da API:');
+        console.log('   - Em Dia:', emDia.length, 'cobranças - R$', this.valorEmDia);
+        console.log('   - Vence Hoje:', venceHoje.length, 'cobranças - R$', this.valorAVencer);
+        console.log('   - Devedor (Atrasadas):', atrasadas.length, 'cobranças - R$', this.valorDevedor);
+        console.log('   - Total:', this.totalCobrancas, 'cobranças - R$', this.valorTotal);
 
         // Configurar cards de estatísticas
         this.setupStatCards();
@@ -165,7 +183,7 @@ export class DashboardComponent implements OnInit {
       this.cdr.markForCheck();
 
     } catch (error) {
-      console.error('Erro ao carregar dados do dashboard:', error);
+      console.error('❌ Erro ao carregar dados do dashboard:', error);
       this.notificationService.error(
         'Erro de Carregamento', 
         'Não foi possível carregar os dados do dashboard. Tente recarregar a página.'

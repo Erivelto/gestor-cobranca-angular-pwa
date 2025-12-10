@@ -1,3 +1,4 @@
+// ...existing code...
 import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -15,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Cobranca, Pessoa } from '../../../models/api.models';
@@ -41,10 +43,22 @@ import { NotificationService } from '../../../services/notification.service';
     MatInputModule,
     MatPaginatorModule,
     MatSortModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatTabsModule
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit {
+      get emDiaCobrancas(): Cobranca[] {
+        return this.cobrancas.filter(c => c.status === 5);
+      }
+
+      get atrasadasCobrancas(): Cobranca[] {
+        return this.cobrancas.filter(c => c.status === 3);
+      }
+
+      get venceHojeCobrancas(): Cobranca[] {
+        return this.cobrancas.filter(c => c.status === 1);
+      }
     finalizarCobranca(cobranca: Cobranca): void {
       if (!cobranca || !cobranca.codigo) {
         this.showErrorToast('Dados da cobrança não encontrados');
@@ -162,47 +176,72 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   }
 
   carregarCobrancas(): void {
-    console.log('🚀 Iniciando carregarCobrancas()');
-    this.cobrancaService.getCobrancas().subscribe({
-      next: (cobrancas) => {
-        console.log('✅ Cobranças reais carregadas da API:', cobrancas);
-        // Atualizar status baseado na data de vencimento
-        const hoje = new Date();
-        const cobrancasFiltradas = cobrancas.filter(c => c.status !== 2).map(c => {
-          const vencimento = new Date(c.dataVencimento);
-          let novoStatus = c.status;
-          // Se já está pago, mantém status
-          if (c.status === 2) {
-            novoStatus = 2;
-          } else if (hoje > vencimento) {
-            novoStatus = 3; // Vencido/Atraso
-          } else if (hoje.toDateString() === vencimento.toDateString()) {
-            novoStatus = 1; // Pendente (dia do vencimento)
-          } else if (hoje < vencimento) {
-            novoStatus = 5; // Em dia (antes do vencimento)
-          }
-          return {
-            ...c,
-            status: novoStatus,
-            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
-          };
-        });
-        this.cobrancas = cobrancasFiltradas;
-        this.dataSource.data = cobrancasFiltradas;
-        if (this.paginator) {
-          this.dataSource.paginator = this.paginator;
-        }
-        if (this.sort) {
-          this.dataSource.sort = this.sort;
-        }
-        this.cdr.detectChanges();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('❌ Erro ao carregar cobranças:', error);
-        this.error = 'Erro ao carregar dados das cobranças';
-        this.loading = false;
+    console.log('🚀 Iniciando carregarCobrancas() - usando endpoints específicos por status');
+    this.loading = true;
+    this.error = '';
+
+    // Buscar cobranças de cada status em paralelo usando os endpoints do backend
+    Promise.all([
+      this.cobrancaService.getAllEmDiaLista().toPromise(),
+      this.cobrancaService.getAllAtrasadaLista().toPromise(),
+      this.cobrancaService.getAllVenceHojeLista().toPromise()
+    ]).then(([emDia, atrasadas, venceHoje]) => {
+      // Garantir que são arrays
+      let emDiaArray = Array.isArray(emDia) ? emDia : (emDia ? [emDia] : []);
+      let atrasadasArray = Array.isArray(atrasadas) ? atrasadas : (atrasadas ? [atrasadas] : []);
+      let venceHojeArray = Array.isArray(venceHoje) ? venceHoje : (venceHoje ? [venceHoje] : []);
+
+      console.log('✅ Respostas recebidas do backend');
+      console.log('   - Em Dia:', emDiaArray.length, 'cobranças');
+      console.log('   - Atrasadas:', atrasadasArray.length, 'cobranças');
+      console.log('   - Vence Hoje:', venceHojeArray.length, 'cobranças');
+      
+      // Combinar todas as cobranças com seus respectivos status
+      const todasCobrancas = [
+        ...emDiaArray.map(c => ({ 
+          ...c, 
+          status: 5, // Em dia
+          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+        })),
+        ...atrasadasArray.map(c => ({ 
+          ...c, 
+          status: 3, // Atrasadas
+          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+        })),
+        ...venceHojeArray.map(c => ({ 
+          ...c, 
+          status: 1, // Vence hoje
+          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+        }))
+      ];
+      
+      this.cobrancas = todasCobrancas;
+      this.dataSource.data = todasCobrancas;
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
       }
+      if (this.sort) {
+        this.dataSource.sort = this.sort;
+      }
+      this.cdr.detectChanges();
+      this.loading = false;
+      
+      console.log('✅ Total de cobranças processadas:', todasCobrancas.length);
+    }).catch(error => {
+      console.error('❌ Erro ao carregar cobranças:', error);
+      
+      // Mensagem de erro mais detalhada
+      let mensagemErro = 'Erro ao carregar dados das cobranças';
+      if (error?.status === 404) {
+        mensagemErro = 'Endpoint não encontrado. Verifique a configuração do servidor.';
+      } else if (error?.status === 401) {
+        mensagemErro = 'Não autorizado. Faça login novamente.';
+      } else if (error?.status === 500) {
+        mensagemErro = 'Erro no servidor. Tente novamente mais tarde.';
+      }
+      
+      this.error = mensagemErro;
+      this.loading = false;
     });
   }
 
