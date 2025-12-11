@@ -1,6 +1,6 @@
 // ...existing code...
 import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -48,6 +48,7 @@ import { NotificationService } from '../../../services/notification.service';
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit {
+  selectedTabIndex = 0;
       get emDiaCobrancas(): Cobranca[] {
         return this.cobrancas.filter(c => c.status === 5);
       }
@@ -130,11 +131,18 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
     private cobrancaService: CobrancaService,
     private pessoaService: PessoaService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      const tab = (data['tab'] as string) || '';
+      if (tab === 'em-dia') this.selectedTabIndex = 0;
+      else if (tab === 'devedor' || tab === 'atrasadas') this.selectedTabIndex = 1;
+      else if (tab === 'vence-hoje') this.selectedTabIndex = 2;
+    });
     this.carregarPessoas();
     this.setupTable();
   }

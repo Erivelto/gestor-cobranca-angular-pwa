@@ -28,7 +28,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-tab-group *ngIf="!loading && !error && pessoas && pessoas.length > 0" class="cobrancas-tabs">
+      <mat-tab-group *ngIf="!loading && !error && pessoas && pessoas.length > 0" class="cobrancas-tabs" [selectedIndex]="selectedTabIndex">
         <!-- Aba: Em Dia -->
         <mat-tab>
           <ng-template mat-tab-label>

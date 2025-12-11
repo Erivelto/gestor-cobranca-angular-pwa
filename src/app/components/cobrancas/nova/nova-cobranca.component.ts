@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatOptionModule } from '@angular/material/core';
+import { MatOptionModule, MAT_DATE_LOCALE, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
@@ -20,6 +20,18 @@ import { Pessoa } from '../../../models/api.models';
 import { PessoaCobranca } from '../../../models/api.models';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
+
+const BR_DATE_FORMATS = {
+    parse: {
+        dateInput: 'DD/MM/YYYY'
+    },
+    display: {
+        dateInput: 'DD/MM/YYYY',
+        monthYearLabel: 'MMMM YYYY',
+        dateA11yLabel: 'LL',
+        monthYearA11yLabel: 'MMMM YYYY'
+    }
+};
 
 @Component({
     selector: 'app-nova-cobranca',
@@ -42,6 +54,10 @@ import { DialogMessageComponent } from '../../shared/dialog-message.component';
         MatNativeDateModule,
         MatSelectModule,
         MatTableModule
+    ],
+    providers: [
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+        { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS }
     ]
 })
 export class NovaCobrancaComponent implements OnInit {
@@ -129,8 +145,12 @@ export class NovaCobrancaComponent implements OnInit {
         private cobrancaService: CobrancaService,
         private pessoaService: PessoaService,
         private router: Router,
-        private dialog: MatDialog
-    ) { }
+        private dialog: MatDialog,
+        private dateAdapter: DateAdapter<Date>
+    ) {
+        // Ajusta o datepicker para usar locale brasileiro (dd/MM/yyyy)
+        this.dateAdapter.setLocale('pt-BR');
+    }
 
     ngOnInit(): void {
         this.carregarPessoas();

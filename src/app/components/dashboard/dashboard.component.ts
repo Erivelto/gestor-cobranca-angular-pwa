@@ -119,6 +119,20 @@ export class DashboardComponent implements OnInit {
     this.router.navigate([rota]);
   }
 
+  navegarParaStatus(status: 'em-dia' | 'vence-hoje' | 'devedor'): void {
+    if (status === 'em-dia') {
+      this.navegarPara('/cobrancas/em-dia');
+      return;
+    }
+    if (status === 'vence-hoje') {
+      this.navegarPara('/cobrancas/vence-hoje');
+      return;
+    }
+    if (status === 'devedor') {
+      this.navegarPara('/cobrancas/devedor');
+    }
+  }
+
   async refreshData(): Promise<void> {
     await this.loadDashboardData(true);
   }
@@ -141,39 +155,25 @@ export class DashboardComponent implements OnInit {
       );
 
       if (result) {
-        let [pessoas, emDia, venceHoje, atrasadas] = result;
-
-        // Garantir que são arrays
-        if (!Array.isArray(emDia)) {
-          console.warn('⚠️ emDia não é um array:', emDia);
-          emDia = emDia ? [emDia] : [];
-        }
-        if (!Array.isArray(venceHoje)) {
-          console.warn('⚠️ venceHoje não é um array:', venceHoje);
-          venceHoje = venceHoje ? [venceHoje] : [];
-        }
-        if (!Array.isArray(atrasadas)) {
-          console.warn('⚠️ atrasadas não é um array:', atrasadas);
-          atrasadas = atrasadas ? [atrasadas] : [];
-        }
+        const [pessoas, emDiaValor, atrasadoValor, venceHojeValor] = result;
 
         // Processar dados das pessoas
         this.totalPessoas = Array.isArray(pessoas) ? pessoas.length : 0;
 
-        // Calcular total de cobranças
-        this.totalCobrancas = emDia.length + venceHoje.length + atrasadas.length;
-        
-        // Calcular valores por status usando dados diretos da API
-        this.valorEmDia = emDia.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
-        this.valorAVencer = venceHoje.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
-        this.valorDevedor = atrasadas.reduce((sum: number, c: Cobranca) => sum + (c.valorTotal || c.valor || 0), 0);
+        // API retorna somente o valor (double) para cada status
+        this.valorEmDia = Number(emDiaValor) || 0;
+        this.valorDevedor = Number(atrasadoValor) || 0;
+        this.valorAVencer = Number(venceHojeValor) || 0;
         this.valorTotal = this.valorEmDia + this.valorAVencer + this.valorDevedor;
 
-        console.log('📊 Dados do Dashboard carregados da API:');
-        console.log('   - Em Dia:', emDia.length, 'cobranças - R$', this.valorEmDia);
-        console.log('   - Vence Hoje:', venceHoje.length, 'cobranças - R$', this.valorAVencer);
-        console.log('   - Devedor (Atrasadas):', atrasadas.length, 'cobranças - R$', this.valorDevedor);
-        console.log('   - Total:', this.totalCobrancas, 'cobranças - R$', this.valorTotal);
+        // Sem contagem individual de cobranças nesses endpoints
+        this.totalCobrancas = 0;
+
+        console.log('📊 Dados do Dashboard carregados da API (totais):');
+        console.log('   - Em Dia (R$):', this.valorEmDia);
+        console.log('   - Vence Hoje (R$):', this.valorAVencer);
+        console.log('   - Devedor (Atrasadas) (R$):', this.valorDevedor);
+        console.log('   - Total (R$):', this.valorTotal);
 
         // Configurar cards de estatísticas
         this.setupStatCards();
@@ -208,7 +208,7 @@ export class DashboardComponent implements OnInit {
         icon: 'check_circle',
         color: 'success',
         subtitle: 'Cobranças quitadas',
-        progress: Math.round((this.valorEmDia / this.valorTotal) * 100)
+        progress: this.valorTotal ? Math.round((this.valorEmDia / this.valorTotal) * 100) : 0
       },
       {
         title: 'Vence Hoje',
@@ -216,7 +216,7 @@ export class DashboardComponent implements OnInit {
         icon: 'schedule',
         color: 'info',
         subtitle: 'Cobranças pendentes',
-        progress: Math.round((this.valorAVencer / this.valorTotal) * 100)
+        progress: this.valorTotal ? Math.round((this.valorAVencer / this.valorTotal) * 100) : 0
       },
       {
         title: 'Devedor',
@@ -224,7 +224,7 @@ export class DashboardComponent implements OnInit {
         icon: 'warning',
         color: 'warn',
         subtitle: 'Cobranças em atraso',
-        progress: Math.round((this.valorDevedor / this.valorTotal) * 100)
+        progress: this.valorTotal ? Math.round((this.valorDevedor / this.valorTotal) * 100) : 0
       }
     ];
   }

@@ -19,6 +19,9 @@ const routes: Routes = [
   { path: 'pessoas/editar/:id', component: PessoaFormComponent },
   { path: 'pessoas/edit/:id', component: PessoaEditComponent },
   { path: 'cobrancas', component: CobrancasListaComponent },
+  { path: 'cobrancas/em-dia', component: CobrancasListaComponent, data: { tab: 'em-dia' } },
+  { path: 'cobrancas/vence-hoje', component: CobrancasListaComponent, data: { tab: 'vence-hoje' } },
+  { path: 'cobrancas/devedor', component: CobrancasListaComponent, data: { tab: 'devedor' } },
   { path: 'cobrancas/nova', component: NovaCobrancaComponent },
   { path: 'cobrancas/detalhes/:id', component: CobrancaDetalhesComponent },
   { path: '**', redirectTo: '/login' }
