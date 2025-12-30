@@ -341,5 +341,34 @@ export class PessoaFormComponent implements OnInit {
   voltar(): void {
     this.router.navigate(['/pessoas']);
   }
+
+  // Métodos para validação numérica
+  onlyNumbers(event: any, field: string): void {
+    let value = event.target.value.replace(/\D/g, '');
+    
+    if (field === 'documento') {
+      // CPF: até 11 dígitos
+      value = value.substring(0, 11);
+      this.pessoa.documento = value;
+    } else if (field === 'ddd') {
+      // DDD: até 2 dígitos
+      value = value.substring(0, 2);
+      this.contato.ddd = value;
+    } else if (field === 'celular') {
+      // Celular: até 9 dígitos
+      value = value.substring(0, 9);
+      this.contato.celular = value;
+    } else if (field === 'cep') {
+      // CEP: até 8 dígitos
+      value = value.substring(0, 8);
+      this.endereco.cep = value;
+    } else if (field === 'numero') {
+      // Número: até 10 dígitos
+      value = value.substring(0, 10);
+      this.endereco.numrero = value;
+    }
+    
+    event.target.value = value;
+  }
 }
 

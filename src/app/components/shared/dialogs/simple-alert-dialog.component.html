@@ -3,5 +3,15 @@
   <p>{{ data.message }}</p>
 </div>
 <div mat-dialog-actions align="end">
-  <button mat-button color="primary" (click)="close()">OK</button>
+  <ng-container [ngSwitch]="data.type">
+    <!-- Tipo 'question' (confirmação): Exibe Cancelar e Excluir/Confirmar -->
+    <ng-container *ngSwitchCase="'question'">
+      <button mat-button (click)="cancel()" color="primary">{{ data.cancelText || 'Cancelar' }}</button>
+      <button mat-raised-button (click)="confirm()" [color]="data.confirmText === 'Excluir' ? 'warn' : 'primary'">{{ data.confirmText || 'OK' }}</button>
+    </ng-container>
+    <!-- Tipo padrão (apenas OK) -->
+    <ng-container *ngSwitchDefault>
+      <button mat-button color="primary" (click)="close()">OK</button>
+    </ng-container>
+  </ng-container>
 </div>

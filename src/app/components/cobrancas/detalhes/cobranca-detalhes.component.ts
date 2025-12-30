@@ -1,5 +1,6 @@
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
+import { NotificationService } from '../../../services/notification.service';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
@@ -142,6 +143,7 @@ export class CobrancaDetalhesComponent implements OnInit {
   private router: Router,
   private cobrancaService: CobrancaService,
   private pessoaService: PessoaService,
+  private notificationService: NotificationService,
   private dialog: MatDialog
   ) {}
 
@@ -220,6 +222,34 @@ carregarDetalhes(): void {
 
   voltarLista(): void {
     this.router.navigate(['/cobrancas']);
+  }
+
+  deleteCobranca(): void {
+    if (!this.cobrancaDetalhes || !this.cobrancaDetalhes.codigo) {
+      this.notificationService.error('Erro', 'Dados da cobrança não encontrados.');
+      return;
+    }
+
+    this.notificationService.confirmDelete('Excluir Cobrança', 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.')
+      .then((confirmed) => {
+        if (confirmed) {
+          this.cobrancaService.deleteCobranca(this.cobrancaDetalhes.codigo).subscribe({
+            next: () => {
+              this.notificationService.success('Cobrança excluída!', 'Cobrança removida com sucesso.');
+              setTimeout(() => {
+                this.router.navigate(['/cobrancas']);
+              }, 1000);
+            },
+            error: (error: any) => {
+              console.error('Erro ao excluir cobrança:', error);
+              this.notificationService.error('Erro', 'Não foi possível excluir a cobrança. Tente novamente.');
+            }
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Erro na confirmação:', error);
+      });
   }
 
   getStatusColor(): string {

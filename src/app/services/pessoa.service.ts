@@ -28,10 +28,10 @@ export class PessoaService {
   }
 
   // === MÉTODOS DE PESSOA ===
-  getPessoas(): Observable<Pessoa[]> {
+  getPessoas(includeDeleted: boolean = false): Observable<Pessoa[]> {
     console.log('🔍 PessoaService.getPessoas() - Iniciando requisição');
     const usuarioId = this.authService.currentUserValue?.id ?? 1;
-    const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
+    const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=${includeDeleted}`;
     console.log('👤 UsuarioId:', usuarioId);
     console.log('🌐 URL da API (lista pessoas):', listaEndpoint);
     console.log('🔑 Token disponível:', !!this.authService.token);
@@ -43,7 +43,8 @@ export class PessoaService {
       this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() }).subscribe({
         next: (data) => {
           console.log('✅ Resposta da API recebida:', data);
-          observer.next(data);
+          const sanitized = includeDeleted ? data : data.filter((p: any) => p?.status !== 0 && p?.excluido !== true);
+          observer.next(sanitized);
           observer.complete();
         },
         error: (error) => {
@@ -116,7 +117,8 @@ export class PessoaService {
           ];
           
           console.log('🎭 Retornando dados mock:', mockPessoas);
-          observer.next(mockPessoas);
+          const sanitizedMock = includeDeleted ? mockPessoas : mockPessoas.filter((p: any) => p?.status !== 0 && p?.excluido !== true);
+          observer.next(sanitizedMock);
           observer.complete();
         }
       });

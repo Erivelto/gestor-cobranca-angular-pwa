@@ -20,6 +20,7 @@ import { Pessoa } from '../../../models/api.models';
 import { PessoaCobranca } from '../../../models/api.models';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
+import { SpinnerService } from '../../../services/spinner.service';
 
 const BR_DATE_FORMATS = {
     parse: {
@@ -146,7 +147,8 @@ export class NovaCobrancaComponent implements OnInit {
         private pessoaService: PessoaService,
         private router: Router,
         private dialog: MatDialog,
-        private dateAdapter: DateAdapter<Date>
+        private dateAdapter: DateAdapter<Date>,
+        private spinnerService: SpinnerService
     ) {
         // Ajusta o datepicker para usar locale brasileiro (dd/MM/yyyy)
         this.dateAdapter.setLocale('pt-BR');
@@ -363,7 +365,7 @@ export class NovaCobrancaComponent implements OnInit {
     }
 
     // Salvar empréstimo
-    salvarEmprestimo(): void {
+    async salvarEmprestimo(): Promise<void> {
         console.log('Botão salvar clicado');
         console.log('Dados do formulário:', {
             clienteSelecionado: this.clienteSelecionado,
@@ -398,29 +400,31 @@ export class NovaCobrancaComponent implements OnInit {
         console.log('Criando objeto novaCobranca...');
         console.log('Objeto novaCobranca:', novaCobranca);
         console.log('Chamando cobrancaService.createCobranca...');
-        this.cobrancaService.createCobranca(payload).subscribe({
-            next: (res: any) => {
-                console.log('Cobrança criada com sucesso na API:', res);
-                const dialogRef = this.dialog.open(DialogMessageComponent, {
-                    data: {
-                        title: 'Empréstimo criado!',
-                        message: 'O empréstimo foi adicionado com sucesso.'
-                    }
-                });
-                dialogRef.afterClosed().subscribe(() => {
-                    this.router.navigate(['/cobrancas']);
-                });
-            },
-            error: (error: any) => {
-                console.error('Erro ao criar cobrança na API:', error);
-                this.dialog.open(DialogMessageComponent, {
-                    data: {
-                        title: 'Erro!',
-                        message: 'Não foi possível adicionar o empréstimo. Tente novamente.'
-                    }
-                });
-            }
-        });
+
+        try {
+            const res = await this.spinnerService.withSpinner(
+                () => this.cobrancaService.createCobranca(payload).toPromise(),
+                { message: 'Adicionando empréstimo...', overlay: true }
+            );
+            console.log('Cobrança criada com sucesso na API:', res);
+            const dialogRef = this.dialog.open(DialogMessageComponent, {
+                data: {
+                    title: 'Empréstimo criado!',
+                    message: 'O empréstimo foi adicionado com sucesso.'
+                }
+            });
+            dialogRef.afterClosed().subscribe(() => {
+                this.router.navigate(['/cobrancas']);
+            });
+        } catch (error: any) {
+            console.error('Erro ao criar cobrança na API:', error);
+            this.dialog.open(DialogMessageComponent, {
+                data: {
+                    title: 'Erro!',
+                    message: 'Não foi possível adicionar o empréstimo. Tente novamente.'
+                }
+            });
+        }
     }
 
     // Limpar formulário

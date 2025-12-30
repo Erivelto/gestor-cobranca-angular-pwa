@@ -138,10 +138,10 @@
           <mat-icon>list</mat-icon>
           Voltar à Lista
         </button>
-        <!-- <button mat-raised-button color="accent" *ngIf="cobrancaDetalhes?.status === 1" (click)="finalizarCobranca()">
-          <mat-icon>check_circle</mat-icon>
-          Finalizar Cobrança
-        </button> -->
+        <button mat-raised-button color="warn" (click)="deleteCobranca()">
+          <mat-icon>delete</mat-icon>
+          Excluir Cobrança
+        </button>
       </mat-card-actions>
     </mat-card>
   </div>

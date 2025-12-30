@@ -204,23 +204,31 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       console.log('   - Atrasadas:', atrasadasArray.length, 'cobranças');
       console.log('   - Vence Hoje:', venceHojeArray.length, 'cobranças');
       
-      // Combinar todas as cobranças com seus respectivos status
+      const isActive = (c: any) => c && c.excluido !== true && c.status !== 0;
+
+      // Combinar todas as cobranças com seus respectivos status e filtrar excluídas
       const todasCobrancas = [
-        ...emDiaArray.map(c => ({ 
-          ...c, 
-          status: 5, // Em dia
-          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-        })),
-        ...atrasadasArray.map(c => ({ 
-          ...c, 
-          status: 3, // Atrasadas
-          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-        })),
-        ...venceHojeArray.map(c => ({ 
-          ...c, 
-          status: 1, // Vence hoje
-          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-        }))
+        ...emDiaArray
+          .filter(isActive)
+          .map(c => ({ 
+            ...c, 
+            status: 5, // Em dia
+            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+          })),
+        ...atrasadasArray
+          .filter(isActive)
+          .map(c => ({ 
+            ...c, 
+            status: 3, // Atrasadas
+            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+          })),
+        ...venceHojeArray
+          .filter(isActive)
+          .map(c => ({ 
+            ...c, 
+            status: 1, // Vence hoje
+            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
+          }))
       ];
       
       this.cobrancas = todasCobrancas;
