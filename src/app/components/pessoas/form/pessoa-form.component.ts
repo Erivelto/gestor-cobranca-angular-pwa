@@ -30,7 +30,10 @@ export class PessoaFormComponent implements OnInit {
     ddd: '',
     celular: '',
     excluido: false,
-    tipo: ' '  // API espera espaço quando vazio
+    tipo: ' ',  // API espera espaço quando vazio
+    dddAdic: '',
+    celularAdic: '',
+    descricaoAdic: ''
   };
 
   endereco: PessoaEndereco = {
@@ -358,6 +361,14 @@ export class PessoaFormComponent implements OnInit {
       // Celular: até 9 dígitos
       value = value.substring(0, 9);
       this.contato.celular = value;
+    } else if (field === 'dddAdic') {
+      // DDD adicional: até 2 dígitos
+      value = value.substring(0, 2);
+      this.contato.dddAdic = value;
+    } else if (field === 'celularAdic') {
+      // Celular adicional: até 9 dígitos
+      value = value.substring(0, 9);
+      this.contato.celularAdic = value;
     } else if (field === 'cep') {
       // CEP: até 8 dígitos
       value = value.substring(0, 8);

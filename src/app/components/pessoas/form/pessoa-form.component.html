@@ -69,27 +69,27 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Contato -->
+    <!-- Contato Adicional -->
     <mat-card class="form-section" *ngIf="!isEditMode">
       <mat-card-title>Contato Adicional</mat-card-title>
       <mat-card-content>
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
-            <mat-label>E-mail</mat-label>
-            <input matInput type="email" name="email" [(ngModel)]="contato.email" placeholder="email@exemplo.com"
+            <mat-label>Descrição (Adicional)</mat-label>
+            <input matInput type="text" name="descricaoAdic" [(ngModel)]="contato.descricaoAdic" placeholder="Observações do contato adicional"
               [disabled]="loading" />
           </mat-form-field>
         </div>
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-group">
-            <mat-label>DDD</mat-label>
-            <input matInput type="text" name="ddd" [(ngModel)]="contato.ddd" placeholder="11" maxlength="2"
-              [disabled]="loading" (input)="onlyNumbers($event, 'ddd')" />
+            <mat-label>DDD (Adicional)</mat-label>
+            <input matInput type="text" name="dddAdic" [(ngModel)]="contato.dddAdic" placeholder="11" maxlength="2"
+              [disabled]="loading" (input)="onlyNumbers($event, 'dddAdic')" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="form-group">
-            <mat-label>Celular</mat-label>
-            <input matInput type="text" name="celular" [(ngModel)]="contato.celular" placeholder="912345678"
-              [disabled]="loading" (input)="onlyNumbers($event, 'celular')" />
+            <mat-label>Celular (Adicional)</mat-label>
+            <input matInput type="text" name="celularAdic" [(ngModel)]="contato.celularAdic" placeholder="912345678"
+              [disabled]="loading" (input)="onlyNumbers($event, 'celularAdic')" />
           </mat-form-field>
         </div>
       </mat-card-content>

@@ -51,7 +51,24 @@ export class PessoaEditComponent implements OnInit {
     ddd: '',
     celular: '',
     excluido: false,
-    tipo: 'celular'
+    tipo: 'celular',
+    dddAdic: '',
+    celularAdic: '',
+    descricaoAdic: ''
+  };
+
+  novoContatoAdic: PessoaContato = {
+    codigo: 0,
+    codigoPessoa: 0,
+    email: '',
+    site: '',
+    ddd: '',
+    celular: '',
+    excluido: false,
+    tipo: 'celular',
+    dddAdic: '',
+    celularAdic: '',
+    descricaoAdic: ''
   };
 
   novoEndereco: PessoaEndereco = {
@@ -75,11 +92,23 @@ export class PessoaEditComponent implements OnInit {
   
   // Controles de exibição
   showAddContato: boolean = false;
+  showAddContatoAdic: boolean = false;
   showAddEndereco: boolean = false;
   
   // Dados para edição inline
   editingContato: number | null = null;
+  editingContatoAdic: number | null = null;
   editingEndereco: number | null = null;
+
+  // Getter para contatos principais (que possuem dados principais preenchidos)
+  get contatosPrincipais(): PessoaContato[] {
+    return this.contatos.filter(c => c.ddd || c.celular || c.email || c.site);
+  }
+
+  // Getter para contatos com dados adicionais
+  get contatosAdicionais(): PessoaContato[] {
+    return this.contatos.filter(c => c.dddAdic || c.celularAdic || c.descricaoAdic);
+  }
 
   constructor(
     private pessoaService: PessoaService,
@@ -219,6 +248,56 @@ export class PessoaEditComponent implements OnInit {
     });
   }
 
+  // === MÉTODOS DE CONTATO ADICIONAL ===
+  addContatoAdic(): void {
+    if (!this.validateContatoAdic()) {
+      return;
+    }
+
+    this.novoContatoAdic.codigoPessoa = this.pessoa.codigo;
+    // Garantir que campos principais estejam vazios ao criar contato adicional
+    this.novoContatoAdic.ddd = '';
+    this.novoContatoAdic.celular = '';
+    this.novoContatoAdic.email = '';
+    this.novoContatoAdic.site = '';
+    
+    this.pessoaService.createContato(this.novoContatoAdic).subscribe({
+      next: (contato) => {
+        this.contatos.push(contato);
+        this.resetNovoContatoAdic();
+        this.showAddContatoAdic = false;
+        this.notificationService.success('Sucesso!', 'Contato adicional adicionado com sucesso!');
+      },
+      error: (error) => {
+        console.error('Erro ao adicionar contato adicional:', error);
+        this.notificationService.error('Erro do Servidor', 'Erro ao adicionar contato adicional. Tente novamente.');
+      }
+    });
+  }
+
+  deleteContatoAdic(contato: PessoaContato): void {
+    this.notificationService.confirmDelete('Excluir contato adicional', 'Deseja realmente excluir este contato adicional?').then((result) => {
+      if (result) {
+        // Limpar apenas os campos adicionais
+        contato.dddAdic = '';
+        contato.celularAdic = '';
+        contato.descricaoAdic = '';
+
+        // Atualizar o contato no servidor
+        this.pessoaService.updateContato(contato.codigo!, contato).subscribe({
+          next: () => {
+            this.editingContatoAdic = null;
+            this.notificationService.success('Excluído!', 'Contato adicional excluído com sucesso!');
+          },
+          error: (error) => {
+            console.error('Erro ao excluir contato adicional:', error);
+            this.notificationService.error('Erro do Servidor', 'Erro ao excluir contato adicional. Tente novamente.');
+          }
+        });
+      }
+    });
+  }
+
   // === MÉTODOS DE ENDEREÇO ===
   addEndereco(): void {
     if (!this.validateEndereco()) {
@@ -320,6 +399,15 @@ export class PessoaEditComponent implements OnInit {
     this.novoContato.ddd = value;
   }
 
+  formatDDDAdic(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 2) {
+      value = value.substring(0, 2);
+    }
+    event.target.value = value;
+    this.novoContatoAdic.dddAdic = value;
+  }
+
   formatTelefone(event: any): void {
     let value = event.target.value.replace(/\D/g, ''); // Remove tudo que não é número
     if (value.length > 9) {
@@ -327,6 +415,15 @@ export class PessoaEditComponent implements OnInit {
     }
     event.target.value = value;
     this.novoContato.celular = value;
+  }
+
+  formatTelefoneAdic(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 9) {
+      value = value.substring(0, 9);
+    }
+    event.target.value = value;
+    this.novoContatoAdic.celularAdic = value;
   }
 
   // === VALIDAÇÕES ===
@@ -362,6 +459,21 @@ export class PessoaEditComponent implements OnInit {
     return true;
   }
 
+  validateContatoAdic(): boolean {
+    // Validar se pelo menos DDD e celular adicional estão preenchidos
+    if (!this.novoContatoAdic.dddAdic || this.novoContatoAdic.dddAdic.length !== 2) {
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha o DDD adicional com 2 dígitos.');
+      return false;
+    }
+
+    if (!this.novoContatoAdic.celularAdic || this.novoContatoAdic.celularAdic.length < 8) {
+      this.notificationService.error('Dados Inválidos', 'Por favor, preencha o número do celular adicional.');
+      return false;
+    }
+
+    return true;
+  }
+
   validateEndereco(): boolean {
     if (!this.novoEndereco.cep || !this.novoEndereco.logradouro) {
       this.notificationService.error('Dados Inválidos', 'Por favor, preencha pelo menos o CEP e o logradouro do endereço.');
@@ -386,7 +498,26 @@ export class PessoaEditComponent implements OnInit {
       ddd: '',
       celular: '',
       excluido: false,
-      tipo: 'celular'
+      tipo: 'celular',
+      dddAdic: '',
+      celularAdic: '',
+      descricaoAdic: ''
+    };
+  }
+
+  resetNovoContatoAdic(): void {
+    this.novoContatoAdic = {
+      codigo: 0,
+      codigoPessoa: 0,
+      email: '',
+      site: '',
+      ddd: '',
+      celular: '',
+      excluido: false,
+      tipo: 'celular',
+      dddAdic: '',
+      celularAdic: '',
+      descricaoAdic: ''
     };
   }
 

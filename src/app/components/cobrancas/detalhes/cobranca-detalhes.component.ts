@@ -19,6 +19,7 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 import { PessoaCobrancaHistorico } from '../../../models/api.models';
+import { SpinnerService } from '../../../services/spinner.service';
 
 @Component({
   selector: 'app-cobranca-detalhes',
@@ -144,7 +145,8 @@ export class CobrancaDetalhesComponent implements OnInit {
   private cobrancaService: CobrancaService,
   private pessoaService: PessoaService,
   private notificationService: NotificationService,
-  private dialog: MatDialog
+  private dialog: MatDialog,
+  private spinnerService: SpinnerService
   ) {}
 
   ngOnInit(): void {
@@ -342,7 +344,7 @@ carregarDetalhes(): void {
     });
   }
 
-  private processarPagamento(): void {
+  private async processarPagamento(): Promise<void> {
     // Armazenar o valor do pagamento antes de resetar
     const valorPago = this.cobrancaDetalhes.valorPagamento;
     const dataPagamento = new Date().toISOString();
@@ -437,41 +439,42 @@ carregarDetalhes(): void {
       // Adiciona pessoaCobrancaDetalhe se existir
       , ...(this.cobrancaDetalhes.pessoaCobrancaDetalhe ? { pessoaCobrancaDetalhe: this.cobrancaDetalhes.pessoaCobrancaDetalhe } : {})
     };
-    this.cobrancaService.updateCobranca(cobrancaPayload).subscribe({
-      next: () => {
-        // Verificar se foi quitado
-        if (this.cobrancaDetalhes.valorTotal <= 0) {
-          this.cobrancaDetalhes.status = 'quitado';
-          this.dialog.open(DialogMessageComponent, {
-            data: {
-              title: 'Empréstimo Quitado!',
-              message: 'Parabéns! O empréstimo foi quitado com sucesso.'
-            }
-          });
-        } else {
-          this.dialog.open(DialogMessageComponent, {
-            data: {
-              title: 'Pagamento Realizado!',
-              message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
-            }
-          });
-        }
-        this.carregarDetalhes();
-      },
-      error: (error: any) => {
-        let mensagem = 'Não foi possível gravar o pagamento.';
-        if (error?.error?.message) {
-          mensagem = error.error.message;
-        } else if (error?.status) {
-          mensagem += ` (Código: ${error.status})`;
-        }
+    try {
+      await this.spinnerService.withSpinner(
+        () => this.cobrancaService.updateCobranca(cobrancaPayload).toPromise(),
+        { message: 'Abatendo pagamento...', fullScreen: true }
+      );
+
+      if (this.cobrancaDetalhes.valorTotal <= 0) {
+        this.cobrancaDetalhes.status = 'quitado';
         this.dialog.open(DialogMessageComponent, {
           data: {
-            title: 'Erro',
-            message: mensagem
+            title: 'Empréstimo Quitado!',
+            message: 'Parabéns! O empréstimo foi quitado com sucesso.'
+          }
+        });
+      } else {
+        this.dialog.open(DialogMessageComponent, {
+          data: {
+            title: 'Pagamento Realizado!',
+            message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
           }
         });
       }
-    });
+      this.carregarDetalhes();
+    } catch (error: any) {
+      let mensagem = 'Não foi possível gravar o pagamento.';
+      if (error?.error?.message) {
+        mensagem = error.error.message;
+      } else if (error?.status) {
+        mensagem += ` (Código: ${error.status})`;
+      }
+      this.dialog.open(DialogMessageComponent, {
+        data: {
+          title: 'Erro',
+          message: mensagem
+        }
+      });
+    }
   }
 }

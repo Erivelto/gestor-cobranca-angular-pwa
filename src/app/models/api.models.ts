@@ -61,6 +61,9 @@ export interface PessoaContato {
   celular?: string;
   excluido?: boolean;
   tipo?: string;
+  dddAdic?: string;
+  celularAdic?: string;
+  descricaoAdic?: string;
 }
 
 export interface PessoaEndereco {

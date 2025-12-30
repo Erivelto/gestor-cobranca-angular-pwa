@@ -93,31 +93,31 @@
     </mat-card-title>
     <mat-card-content>
       <!-- Lista de Contatos -->
-      <div *ngIf="contatos.length > 0" class="items-list">
-        <mat-card *ngFor="let contato of contatos; let i = index" class="item-card">
+      <div *ngIf="contatosPrincipais.length > 0" class="items-list">
+        <mat-card *ngFor="let contato of contatosPrincipais; let i = index" class="item-card">
           <mat-card-content>
-            <div *ngIf="editingContato !== i" class="item-display">
+            <div *ngIf="editingContato !== contatos.indexOf(contato)" class="item-display">
               <div class="item-info">
                 <span class="item-type">{{ getTipoContatoText(contato.tipo) }}</span>
                 <div class="contact-details">
                   <span *ngIf="contato.ddd && contato.celular" class="item-value">
-                    ({{ contato.ddd }}) {{ contato.celular }}
+                    Telefone: ({{ contato.ddd }}) {{ contato.celular }}
                   </span>
-                  <span *ngIf="contato.email" class="item-value">{{ contato.email }}</span>
-                  <span *ngIf="contato.site" class="item-value">{{ contato.site }}</span>
+                  <span *ngIf="contato.email" class="item-value">E-mail: {{ contato.email }}</span>
+                  <span *ngIf="contato.site" class="item-value">Site/Redes: {{ contato.site }}</span>
                 </div>
               </div>
               <div class="item-actions">
-                <button mat-icon-button color="primary" (click)="editContato(i)">
+                <button mat-icon-button color="primary" (click)="editContato(contatos.indexOf(contato))">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteContato(contato.codigo!, i)">
+                <button mat-icon-button color="warn" (click)="deleteContato(contato.codigo!, contatos.indexOf(contato))">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </div>
 
-            <div *ngIf="editingContato === i" class="item-edit">
+            <div *ngIf="editingContato === contatos.indexOf(contato)" class="item-edit">
               <div class="form-row">
                 <mat-form-field appearance="outline" class="form-group">
                   <mat-label>Tipo</mat-label>
@@ -129,18 +129,18 @@
                   </mat-select>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="form-group">
+                <mat-form-field appearance="outline" class="form-group small">
                   <mat-label>DDD</mat-label>
                   <input matInput [(ngModel)]="contato.ddd" name="ddd{{i}}" maxlength="2" />
                 </mat-form-field>
-              </div>
 
-              <div class="form-row">
                 <mat-form-field appearance="outline" class="form-group">
                   <mat-label>Celular</mat-label>
-                  <input matInput [(ngModel)]="contato.celular" name="celular{{i}}" />
+                  <input matInput [(ngModel)]="contato.celular" name="celular{{i}}" maxlength="9" />
                 </mat-form-field>
+              </div>
 
+              <div class="form-row single">
                 <mat-form-field appearance="outline" class="form-group">
                   <mat-label>E-mail</mat-label>
                   <input matInput [(ngModel)]="contato.email" name="email{{i}}" type="email" />
@@ -202,11 +202,19 @@
               </mat-form-field>
             </div>
 
-            <div class="form-row single" *ngIf="novoContato.tipo === 'email'">
+            <div class="form-row single">
               <mat-form-field appearance="outline" class="form-group">
                 <mat-label>E-mail</mat-label>
                 <input matInput [(ngModel)]="novoContato.email" name="email" type="email" 
                        placeholder="exemplo@email.com" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row single">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Site/Redes Sociais</mat-label>
+                <input matInput [(ngModel)]="novoContato.site" name="site" 
+                       placeholder="Facebook / Instagram" />
               </mat-form-field>
             </div>
 
@@ -224,7 +232,7 @@
         </mat-card>
       </div>
 
-      <div *ngIf="contatos.length === 0 && !showAddContato" class="empty-state">
+      <div *ngIf="contatosPrincipais.length === 0 && !showAddContato" class="empty-state">
         <mat-icon>phone</mat-icon>
         <p>Nenhum contato cadastrado</p>
         <button mat-button color="primary" (click)="showAddContato = true">
@@ -233,10 +241,136 @@
       </div>
 
       <!-- Botão para adicionar novo contato quando já há contatos -->
-      <div *ngIf="contatos.length > 0 && !showAddContato" class="add-new-button">
+      <div *ngIf="contatosPrincipais.length > 0 && !showAddContato" class="add-new-button">
         <button mat-raised-button color="primary" (click)="showAddContato = true">
           <mat-icon>add</mat-icon>
           Adicionar novo contato
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Contatos Adicionais -->
+  <mat-card class="form-section" *ngIf="!loading">
+    <mat-card-title>
+      Contatos Adicionais
+    </mat-card-title>
+    <mat-card-content>
+      <!-- Lista de Contatos Adicionais -->
+      <div *ngIf="contatosAdicionais.length > 0" class="items-list">
+        <mat-card *ngFor="let contato of contatosAdicionais; let i = index" class="item-card">
+          <mat-card-content>
+            <div *ngIf="editingContatoAdic !== contatos.indexOf(contato)" class="item-display">
+              <div class="item-info">
+                <div class="contact-details">
+                  <span *ngIf="contato.descricaoAdic" class="item-value">Descrição: {{ contato.descricaoAdic }}</span>
+                  <span *ngIf="contato.dddAdic && contato.celularAdic" class="item-value">
+                    Telefone: ({{ contato.dddAdic }}) {{ contato.celularAdic }}
+                  </span>
+                </div>
+              </div>
+              <div class="item-actions">
+                <button mat-icon-button color="primary" (click)="editingContatoAdic = contatos.indexOf(contato)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteContatoAdic(contato)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="editingContatoAdic === contatos.indexOf(contato)" class="item-edit">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>DDD (Adicional)</mat-label>
+                  <input matInput [(ngModel)]="contato.dddAdic" name="dddAdic{{i}}" maxlength="2" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Celular (Adicional)</mat-label>
+                  <input matInput [(ngModel)]="contato.celularAdic" name="celularAdic{{i}}" maxlength="9" />
+                </mat-form-field>
+              </div>
+
+              <div class="form-row single">
+                <mat-form-field appearance="outline" class="form-group">
+                  <mat-label>Descrição (Adicional)</mat-label>
+                  <input matInput [(ngModel)]="contato.descricaoAdic" name="descricaoAdic{{i}}" 
+                         placeholder="Ex: Comercial, Recado, etc." />
+                </mat-form-field>
+              </div>
+
+              <div class="edit-actions">
+                <button mat-button color="primary" (click)="saveContato(contato)">
+                  <mat-icon>save</mat-icon>
+                  Salvar
+                </button>
+                <button mat-button (click)="editingContatoAdic = null">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div *ngIf="contatosAdicionais.length === 0" class="empty-state">
+        <mat-icon>phone</mat-icon>
+        <p>Nenhum contato adicional cadastrado</p>
+        <button mat-button color="primary" (click)="showAddContatoAdic = true">
+          Adicionar primeiro contato adicional
+        </button>
+      </div>
+
+      <!-- Adicionar Novo Contato Adicional -->
+      <div *ngIf="showAddContatoAdic && contatos.length > 0" class="add-form">
+        <mat-card class="add-card">
+          <mat-card-title>Novo Contato Adicional</mat-card-title>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-group small">
+                <mat-label>DDD (Adicional)</mat-label>
+                <input matInput [(ngModel)]="novoContatoAdic.dddAdic" name="novoDddAdic" placeholder="11" maxlength="2" 
+                       (input)="formatDDDAdic($event)" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Celular (Adicional)</mat-label>
+                <input matInput [(ngModel)]="novoContatoAdic.celularAdic" name="novoCelularAdic" 
+                       placeholder="99999-9999" maxlength="10"
+                       (input)="formatTelefoneAdic($event)" />
+                <mat-hint>Apenas números (sem espaços ou traços)</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row single">
+              <mat-form-field appearance="outline" class="form-group">
+                <mat-label>Descrição (Adicional)</mat-label>
+                <input matInput [(ngModel)]="novoContatoAdic.descricaoAdic" name="novaDescricaoAdic" 
+                       placeholder="Ex: Comercial, Recado, etc." />
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="addContatoAdic()">
+                <mat-icon>add</mat-icon>
+                Adicionar
+              </button>
+              <button mat-button (click)="showAddContatoAdic = false; resetNovoContatoAdic()">
+                <mat-icon>cancel</mat-icon>
+                Cancelar
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Botão para adicionar novo contato adicional -->
+      <div *ngIf="contatosAdicionais.length > 0 && !showAddContatoAdic" class="add-new-button">
+        <button mat-raised-button color="primary" (click)="showAddContatoAdic = true">
+          <mat-icon>add</mat-icon>
+          Adicionar novo contato adicional
         </button>
       </div>
     </mat-card-content>
