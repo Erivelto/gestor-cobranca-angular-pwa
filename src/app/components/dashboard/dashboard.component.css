@@ -465,6 +465,12 @@
   color: white;
 }
 
+.enhanced-stat-card.card-accent {
+  background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+  color: white;
+}
+
+
 /* Card Header */
 .enhanced-stat-card .card-header {
   display: flex;

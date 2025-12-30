@@ -48,6 +48,7 @@ export class DashboardComponent implements OnInit {
   valorEmDia: number = 0;
   valorAVencer: number = 0;
   valorDevedor: number = 0;
+  valorJuros: number = 0;
   valorTotal: number = 0;
   loading: boolean = true;
   statsCols: number = 4;
@@ -149,13 +150,14 @@ export class DashboardComponent implements OnInit {
           this.pessoaService.getPessoas(),
           this.cobrancaService.getAllEmDia(),
           this.cobrancaService.getAllAtrasado(),
-          this.cobrancaService.getAllVenceHoje()
+          this.cobrancaService.getAllVenceHoje(),
+          this.cobrancaService.getAllJuros()
         ]).toPromise(),
         spinnerConfig
       );
 
       if (result) {
-        const [pessoas, emDiaValor, atrasadoValor, venceHojeValor] = result;
+        const [pessoas, emDiaValor, atrasadoValor, venceHojeValor, jurosValor] = result;
 
         // Processar dados das pessoas
         this.totalPessoas = Array.isArray(pessoas) ? pessoas.length : 0;
@@ -164,6 +166,7 @@ export class DashboardComponent implements OnInit {
         this.valorEmDia = Number(emDiaValor) || 0;
         this.valorDevedor = Number(atrasadoValor) || 0;
         this.valorAVencer = Number(venceHojeValor) || 0;
+        this.valorJuros = Number(jurosValor) || 0;
         this.valorTotal = this.valorEmDia + this.valorAVencer + this.valorDevedor;
 
         // Sem contagem individual de cobranças nesses endpoints
@@ -173,6 +176,7 @@ export class DashboardComponent implements OnInit {
         console.log('   - Em Dia (R$):', this.valorEmDia);
         console.log('   - Vence Hoje (R$):', this.valorAVencer);
         console.log('   - Devedor (Atrasadas) (R$):', this.valorDevedor);
+        console.log('   - Juros (R$):', this.valorJuros);
         console.log('   - Total (R$):', this.valorTotal);
 
         // Configurar cards de estatísticas
@@ -225,6 +229,13 @@ export class DashboardComponent implements OnInit {
         color: 'warn',
         subtitle: 'Cobranças em atraso',
         progress: this.valorTotal ? Math.round((this.valorDevedor / this.valorTotal) * 100) : 0
+      },
+      {
+        title: 'Valor Juros',
+        value: `R$ ${this.valorJuros.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        icon: 'trending_up',
+        color: 'accent',
+        subtitle: 'Juros acumulados'
       }
     ];
   }

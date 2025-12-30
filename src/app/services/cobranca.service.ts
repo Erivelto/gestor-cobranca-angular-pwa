@@ -108,5 +108,12 @@ getCobrancas(): Observable<Cobranca[]> {
     console.log('📡 Chamando endpoint vence hoje (dashboard):', url);
     return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
   }
+
+  getAllJuros(): Observable<number> {
+    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
+    const url = `${this.apiUrl}/GetAllJuros/${usuarioId}`;
+    console.log('📡 Chamando endpoint juros (dashboard):', url);
+    return this.http.get<number>(url, { headers: this.getHeaders() });
+  }
 }
 
