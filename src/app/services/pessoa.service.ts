@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { Pessoa, PessoaContato, PessoaEndereco, PessoaFile } from '../models/api.models';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
@@ -29,100 +29,12 @@ export class PessoaService {
 
   // === MÉTODOS DE PESSOA ===
   getPessoas(includeDeleted: boolean = false): Observable<Pessoa[]> {
-    console.log('🔍 PessoaService.getPessoas() - Iniciando requisição');
     const usuarioId = this.authService.currentUserValue?.id ?? 1;
     const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=${includeDeleted}`;
-    console.log('👤 UsuarioId:', usuarioId);
-    console.log('🌐 URL da API (lista pessoas):', listaEndpoint);
-    console.log('🔑 Token disponível:', !!this.authService.token);
-    
-    return new Observable(observer => {
-      console.log('📡 Fazendo requisição HTTP...');
-      
-      // Primeiro tenta a API real
-      this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() }).subscribe({
-        next: (data) => {
-          console.log('✅ Resposta da API recebida:', data);
-          const sanitized = includeDeleted ? data : data.filter((p: any) => p?.status !== 0 && p?.excluido !== true);
-          observer.next(sanitized);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('❌ Erro na API, usando dados mock:', error);
-          
-          // Se falhar, usa dados mock
-          const mockPessoas: Pessoa[] = [
-            {
-              codigo: 1,
-              nome: 'João Silva Santos',
-              documento: '123.456.789-01',
-              status: 1,
-              contatos: [{
-                codigo: 1,
-                codigoPessoa: 1,
-                email: 'joao@email.com',
-                ddd: '11',
-                celular: '99999-9999'
-              }],
-              enderecos: [{
-                codigo: 1,
-                codigoPessoa: 1,
-                tipo: 'R',
-                logradouro: 'Rua das Flores',
-                numrero: '123',
-                bairro: 'Centro',
-                cidade: 'São Paulo',
-                uf: 'SP',
-                cep: '01000-000'
-              }]
-            },
-            {
-              codigo: 2,
-              nome: 'Maria Oliveira Costa',
-              documento: '987.654.321-09',
-              status: 1,
-              contatos: [{
-                codigo: 2,
-                codigoPessoa: 2,
-                email: 'maria@email.com',
-                ddd: '11',
-                celular: '88888-8888'
-              }]
-            },
-            {
-              codigo: 3,
-              nome: 'Pedro Almeida Souza',
-              documento: '111.222.333-44',
-              status: 0,
-              contatos: [{
-                codigo: 3,
-                codigoPessoa: 3,
-                email: 'pedro@email.com',
-                ddd: '21',
-                celular: '77777-7777'
-              }]
-            },
-            {
-              codigo: 4,
-              nome: 'Ana Carolina Lima',
-              documento: '555.666.777-88',
-              status: 1
-            },
-            {
-              codigo: 5,
-              nome: 'Carlos Eduardo Ferreira',
-              documento: '999.888.777-66',
-              status: 1
-            }
-          ];
-          
-          console.log('🎭 Retornando dados mock:', mockPessoas);
-          const sanitizedMock = includeDeleted ? mockPessoas : mockPessoas.filter((p: any) => p?.status !== 0 && p?.excluido !== true);
-          observer.next(sanitizedMock);
-          observer.complete();
-        }
-      });
-    });
+
+    return this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() }).pipe(
+      map((data) => includeDeleted ? data : data.filter((p: any) => p?.status !== 0 && p?.excluido !== true))
+    );
   }
 
   getPessoaById(id: number): Observable<Pessoa> {
@@ -164,7 +76,17 @@ export class PessoaService {
   }
 
   getEnderecosByPessoaId(pessoaId: number): Observable<PessoaEndereco[]> {
-    return this.http.get<PessoaEndereco[]>(this.enderecoUrl, { headers: this.getHeaders() });
+    // Tenta o endpoint específico; se 404, cai para a lista completa e filtra pelo código da pessoa
+    const headers = this.getHeaders();
+    return this.http.get<PessoaEndereco[]>(`${this.enderecoUrl}/pessoa/${pessoaId}`, { headers }).pipe(
+      catchError((err) => {
+        if (err.status === 404) {
+          return this.http.get<PessoaEndereco[]>(this.enderecoUrl, { headers });
+        }
+        return throwError(() => err);
+      }),
+      map((enderecos) => (enderecos || []).filter((e) => Number(e.codigoPessoa) === Number(pessoaId)))
+    );
   }
 
   updateEndereco(id: number, endereco: PessoaEndereco): Observable<any> {

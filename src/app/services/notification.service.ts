@@ -68,4 +68,8 @@ export class NotificationService {
   confirmDelete(title: string, message: string): Promise<boolean> {
     return this.confirm(title, message, 'Excluir', 'Cancelar');
   }
+
+  confirmAction(title: string, message: string, confirmText: string = 'Confirmar', cancelText: string = 'Cancelar'): Promise<boolean> {
+    return this.confirm(title, message, confirmText, cancelText);
+  }
 }

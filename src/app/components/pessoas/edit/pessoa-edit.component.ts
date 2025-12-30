@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -90,6 +91,10 @@ export class PessoaEditComponent implements OnInit {
   success: string = '';
   error: string = '';
   
+  // Controle de mudanças não salvas
+  hasUnsavedChanges: boolean = false;
+  originalPessoa: string = '';
+    
   // Controles de exibição
   showAddContato: boolean = false;
   showAddContatoAdic: boolean = false;
@@ -119,51 +124,45 @@ export class PessoaEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('PessoaEditComponent inicializado');
     const id = this.route.snapshot.paramMap.get('id');
     this.pessoaId = id;
-    console.log('ID da pessoa para edição:', id);
     if (id) {
-      this.loadPessoa(parseInt(id));
-      this.loadContatos(parseInt(id));
-      this.loadEnderecos(parseInt(id));
+      this.loadAllData(parseInt(id));
     }
   }
 
-  loadPessoa(id: number): void {
+  // Carrega todos os dados em paralelo para otimizar performance
+  loadAllData(pessoaId: number): void {
     this.loading = true;
-    this.pessoaService.getPessoaById(id).subscribe({
-      next: (pessoa) => {
+
+    forkJoin({
+      pessoa: this.pessoaService.getPessoaById(pessoaId),
+      contatos: this.pessoaService.getContatosByPessoaId(pessoaId),
+      enderecos: this.pessoaService.getEnderecosByPessoaId(pessoaId)
+    }).subscribe({
+      next: ({ pessoa, contatos, enderecos }) => {
         this.pessoa = pessoa;
+        
+        // Filtra contatos vazios
+        this.contatos = contatos.filter((c) => {
+          const hasPrincipal = !!(c.ddd || c.celular || c.email || c.site);
+          const hasAdicional = !!(c.dddAdic || c.celularAdic || c.descricaoAdic);
+          return hasPrincipal || hasAdicional;
+        });
+        
+        // Endereços já filtrados pelo service
+        this.enderecos = enderecos;
+        
+        // Armazena estado original para detectar mudanças
+        this.originalPessoa = JSON.stringify(this.pessoa);
+        this.hasUnsavedChanges = false;
+        
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erro ao carregar pessoa:', error);
+        console.error('Erro ao carregar dados:', error);
         this.notificationService.error('Erro do Servidor', 'Erro ao carregar os dados do cliente. Tente novamente.');
         this.loading = false;
-      }
-    });
-  }
-
-  loadContatos(pessoaId: number): void {
-    this.pessoaService.getContatosByPessoaId(pessoaId).subscribe({
-      next: (contatos) => {
-        this.contatos = contatos;
-      },
-      error: (error) => {
-        console.error('Erro ao carregar contatos:', error);
-      }
-    });
-  }
-
-  loadEnderecos(pessoaId: number): void {
-    this.pessoaService.getEnderecosByPessoaId(pessoaId).subscribe({
-      next: (enderecos) => {
-        // Filtrar endereços da pessoa específica (usando codigopessoa conforme api.models.ts)
-        this.enderecos = enderecos.filter(endereco => endereco.codigoPessoa === pessoaId);
-      },
-      error: (error) => {
-        console.error('Erro ao carregar endereços:', error);
       }
     });
   }
@@ -183,6 +182,8 @@ export class PessoaEditComponent implements OnInit {
       next: () => {
         console.log('Sucesso na atualização, chamando notificação...');
         this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
+        this.originalPessoa = JSON.stringify(this.pessoa);
+        this.hasUnsavedChanges = false;
         this.loading = false;
       },
       error: (error) => {
@@ -546,7 +547,65 @@ export class PessoaEditComponent implements OnInit {
     }, 3000);
   }
 
-  voltar(): void {
-    this.router.navigate(['/pessoas']);
+  // === CONTROLE DE MUDANÇAS NÃO SALVAS ===
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    if (this.checkForChanges()) {
+      $event.returnValue = true;
+    }
+  }
+
+  checkForChanges(): boolean {
+    const currentPessoa = JSON.stringify(this.pessoa);
+    return currentPessoa !== this.originalPessoa;
+  }
+
+  async canNavigateAway(): Promise<boolean> {
+    if (!this.checkForChanges()) {
+      return true;
+    }
+
+    return new Promise((resolve) => {
+      this.notificationService.confirmAction(
+        'Alterações não salvas',
+        'Você tem alterações não salvas. Deseja salvar antes de sair?',
+        'Salvar',
+        'Descartar'
+      ).then((result) => {
+        if (result) {
+          // Usuário escolheu salvar
+          if (this.validatePessoa()) {
+            this.loading = true;
+            this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
+              next: () => {
+                this.notificationService.success('Sucesso!', 'Cliente salvo com sucesso!');
+                this.originalPessoa = JSON.stringify(this.pessoa);
+                this.hasUnsavedChanges = false;
+                this.loading = false;
+                resolve(true);
+              },
+              error: (error) => {
+                console.error('Erro ao salvar:', error);
+                this.notificationService.error('Erro do Servidor', 'Erro ao salvar. Tente novamente.');
+                this.loading = false;
+                resolve(false);
+              }
+            });
+          } else {
+            resolve(false);
+          }
+        } else {
+          // Usuário escolheu descartar mudanças
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  async voltar(): Promise<void> {
+    const canLeave = await this.canNavigateAway();
+    if (canLeave) {
+      this.router.navigate(['/pessoas']);
+    }
   }
 }
