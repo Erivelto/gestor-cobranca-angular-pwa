@@ -87,52 +87,54 @@ export class ParcelamentoListaComponent implements OnInit {
     this.loading = true;
     this.spinner.show();
 
-    this.parcelamentoService.getParcelamentos().subscribe({
-      next: (data) => {
-        // Filtrar apenas parcelamentos ativos (status 1)
-        this.parcelamentos = data.filter(p => p.status === 1 && !p.excluido);
-        this.dataSource.data = this.parcelamentos;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.applyFilter();
-        this.carregarNomesPessoas();
-        this.loading = false;
-        this.spinner.hide();
+    // Primeiro obtém as pessoas do usuário logado; depois filtra os parcelamentos por elas
+    this.pessoaService.getPessoas().subscribe({
+      next: (pessoas) => {
+        const pessoaIdsPermitidos = new Set(pessoas.map((p) => p.codigo));
+        pessoas.forEach((p) => (this.pessoasMap[p.codigo] = p.nome));
+
+        this.parcelamentoService.getParcelamentos().subscribe({
+          next: (data) => {
+            // Filtra parcelamentos do usuário logado (pessoa vinculada) e ativos
+            this.parcelamentos = data.filter(
+              (p) => p.status === 1 && !p.excluido && pessoaIdsPermitidos.has(p.codigoPessoa)
+            );
+
+            this.dataSource.data = this.parcelamentos;
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+            this.applyFilter();
+            this.carregarProximosVencimentos();
+            this.loading = false;
+            this.spinner.hide();
+          },
+          error: (error) => {
+            console.error('❌ Erro ao carregar parcelamentos:', error);
+            this.loading = false;
+            this.spinner.hide();
+            this.notificationService.errorToast('Falha ao carregar parcelamentos');
+          }
+        });
       },
       error: (error) => {
-        console.error('❌ Erro ao carregar parcelamentos:', error);
+        console.error('❌ Erro ao carregar pessoas do usuário logado:', error);
         this.loading = false;
         this.spinner.hide();
-        this.notificationService.errorToast('Falha ao carregar parcelamentos');
+        this.notificationService.errorToast('Falha ao carregar pessoas do usuário');
       }
     });
   }
 
-  carregarNomesPessoas(): void {
-    const codigosPessoas = [...new Set(this.parcelamentos.map(p => p.codigoPessoa))];
-    
-    codigosPessoas.forEach(codigo => {
-      this.pessoaService.getPessoaById(codigo).subscribe({
-        next: (pessoa) => {
-          this.pessoasMap[codigo] = pessoa.nome;
-        },
-        error: (error) => {
-          console.error(`Erro ao carregar pessoa ${codigo}:`, error);
-        }
-      });
-    });
-
-    // Carregar próximos vencimentos
-    this.parcelamentos.forEach(parcelamento => {
+  private carregarProximosVencimentos(): void {
+    this.parcelamentos.forEach((parcelamento) => {
       this.parcelamentoService.getDetalhesParcelamento(parcelamento.codigo).subscribe({
         next: (detalhes) => {
-          // Filtrar parcelas não pagas (dataPagamento null) e ordenar por data de vencimento
           const parcelasAbertas = detalhes
-            .filter(d => !d.dataPagamento)
+            .filter((d) => !d.dataPagamento)
             .sort((a, b) => new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime());
-          
-          this.proximosVencimentosMap[parcelamento.codigo] = parcelasAbertas.length > 0 
-            ? parcelasAbertas[0].dataVencimento 
+
+          this.proximosVencimentosMap[parcelamento.codigo] = parcelasAbertas.length > 0
+            ? parcelasAbertas[0].dataVencimento
             : null;
         },
         error: (error) => {
