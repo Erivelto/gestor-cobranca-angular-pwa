@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,7 +33,6 @@ import { CobrancaService } from '../../../services/cobranca.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    MatMenuModule,
     MatChipsModule,
     MatDividerModule,
     MatFormFieldModule,

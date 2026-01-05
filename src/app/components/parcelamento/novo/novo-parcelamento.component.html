@@ -1,0 +1,97 @@
+<div class="novo-parcelamento-container">
+  <mat-card class="form-card">
+    <div class="header-row">
+      <div class="title-block">
+        <h2 class="title">{{ title }}</h2>
+        <p class="subtitle">Preencha os dados do parcelamento</p>
+      </div>
+      <button mat-icon-button color="primary" (click)="cancelar()" matTooltip="Voltar">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="salvar()">
+        <div class="form-grid">
+          <!-- Pessoa -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Pessoa</mat-label>
+            <mat-select formControlName="codigoPessoa">
+              <mat-option value="">Selecione uma pessoa</mat-option>
+              <mat-option *ngFor="let pessoa of pessoas" [value]="pessoa.codigo">
+                {{ pessoa.nome }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('codigoPessoa')?.hasError('required')">
+              Pessoa é obrigatória
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Quantidade de Parcelas -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Quantidade de Parcelas</mat-label>
+            <input matInput type="number" formControlName="quantidadeParcelas" min="1" max="120">
+            <mat-icon matPrefix>receipt_long</mat-icon>
+            <mat-error *ngIf="form.get('quantidadeParcelas')?.hasError('required')">
+              Quantidade de parcelas é obrigatória
+            </mat-error>
+            <mat-error *ngIf="form.get('quantidadeParcelas')?.hasError('min')">
+              Mínimo de 1 parcela
+            </mat-error>
+            <mat-error *ngIf="form.get('quantidadeParcelas')?.hasError('max')">
+              Máximo de 120 parcelas
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Valor Total -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Valor Total (R$)</mat-label>
+            <input
+              matInput
+              type="text"
+              [value]="valorTotalFormatado"
+              (input)="onValorTotalInput($event)"
+              (focus)="onValorTotalFocus($event)"
+              (blur)="onValorTotalBlur($event)">
+            <mat-icon matPrefix>attach_money</mat-icon>
+            <mat-error *ngIf="form.get('valorTotal')?.hasError('required')">
+              Valor total é obrigatório
+            </mat-error>
+            <mat-error *ngIf="form.get('valorTotal')?.hasError('min')">
+              Valor deve ser maior que 0
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Status -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option [value]="0">Pendente</mat-option>
+              <mat-option [value]="1">Ativo</mat-option>
+              <mat-option [value]="2">Finalizado</mat-option>
+              <mat-option [value]="3">Cancelado</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('status')?.hasError('required')">
+              Status é obrigatório
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="salvar()" [disabled]="loading || form.invalid">
+        <mat-icon *ngIf="!loading">save</mat-icon>
+        <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-progress-spinner>
+        {{ isEditing ? 'Atualizar' : 'Criar' }} Parcelamento
+      </button>
+      <button mat-button (click)="cancelar()" [disabled]="loading">
+        Cancelar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
