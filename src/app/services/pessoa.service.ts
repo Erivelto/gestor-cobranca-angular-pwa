@@ -29,7 +29,12 @@ export class PessoaService {
 
   // === MÉTODOS DE PESSOA ===
   getPessoas(includeDeleted: boolean = false): Observable<Pessoa[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? 1;
+    // Primeiro tenta obter do usuário logado, depois do localStorage, depois usa 1 como padrão
+    const usuarioIdFromUser = this.authService.currentUserValue?.id;
+    const usuarioIdFromStorage = localStorage.getItem('userId');
+    const usuarioId = usuarioIdFromUser ?? (usuarioIdFromStorage ? parseInt(usuarioIdFromStorage) : 1);
+    
+    console.log('👤 getPessoas() - usuarioId:', usuarioId, '(from user:', usuarioIdFromUser, '| from storage:', usuarioIdFromStorage, ')');
     const listaEndpoint = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=${includeDeleted}`;
 
     return this.http.get<Pessoa[]>(listaEndpoint, { headers: this.getHeaders() }).pipe(

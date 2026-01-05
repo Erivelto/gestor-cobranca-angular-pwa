@@ -244,7 +244,6 @@
 }
 
 .actions-cell {
-  display: inline-flex;
   gap: 8px;
   align-items: center;
 }

@@ -78,7 +78,6 @@
 }
 
 .mat-column-acoes .actions-cell {
-  display: inline-flex;
   justify-content: center;
   gap: 8px;
   align-items: center;
@@ -329,7 +328,7 @@
 .actions-column {
   text-align: center;
   width: 60px;
-  min-width: 130px;
+  min-width: 165px;
 }
 
 .actions-btn {

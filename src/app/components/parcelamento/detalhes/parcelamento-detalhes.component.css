@@ -1,0 +1,356 @@
+.parcelamento-detalhes-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.form-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px;
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #263238;
+  padding: 4px 0;
+}
+
+.subtitle {
+  margin: 0;
+  color: #607d8b;
+  font-size: 0.95rem;
+}
+
+/* Sections */
+.info-section,
+.progress-section,
+.parcelas-section {
+  margin: 2rem 0;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #263238;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+/* Progress Section */
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-info .label {
+  font-weight: 600;
+  color: #666;
+}
+
+.progress-info .percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+mat-progress-bar {
+  margin-bottom: 2rem;
+  height: 6px;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.metric-item {
+  text-align: center;
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
+.metric-item:nth-child(2) {
+  border-left-color: #ff9800;
+}
+
+.metric-item:nth-child(3) {
+  border-left-color: #4caf50;
+}
+
+.metric-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 0.5rem;
+}
+
+.metric-item:nth-child(2) .metric-number {
+  color: #ff9800;
+}
+
+.metric-item:nth-child(3) .metric-number {
+  color: #4caf50;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Table Styles */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.parcelas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.parcelas-table thead tr {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+.parcelas-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.parcelas-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.parcelas-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.parcelas-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.data-row:hover {
+  background-color: #f5f5f5;
+}
+
+.actions-cell {
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.actions-cell button {
+  color: #757575;
+}
+
+.actions-cell button:hover {
+  color: #424242;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-icon mat-icon {
+  color: #4caf50 !important;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.empty-message mat-icon {
+  font-size: 3rem;
+  color: #ddd;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* Chips Status */
+mat-chip {
+  margin: 0;
+  cursor: default;
+}
+
+mat-chip.status-pending {
+  background-color: #ffc107 !important;
+  color: #fff !important;
+}
+
+mat-chip.status-paid {
+  background-color: #4caf50 !important;
+  color: #fff !important;
+}
+
+mat-chip.status-cancelled {
+  background-color: #f44336 !important;
+  color: #fff !important;
+}
+
+mat-chip.status-overdue {
+  background-color: #ff5722 !important;
+  color: #fff !important;
+}
+
+/* Card Actions */
+mat-card-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  gap: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .parcelamento-detalhes-container {
+    margin: 1rem;
+    padding: 0;
+  }
+
+  .header-row {
+    margin: 15px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .parcelas-table {
+    font-size: 0.85rem;
+  }
+
+  .parcelas-table th {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .parcelas-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Snackbar Styles */
+::ng-deep .success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detalhes-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions button {
+    flex: 1;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .parcelamento-detalhes-container {
+    padding: 1rem;
+  }
+
+  .header-info h1 {
+    font-size: 1.5rem;
+  }
+
+  .parcelas-table {
+    font-size: 0.85rem;
+  }
+}

@@ -11,6 +11,7 @@ import { NovaCobrancaComponent } from './components/cobrancas/nova/nova-cobranca
 import { CobrancaDetalhesComponent } from './components/cobrancas/detalhes/cobranca-detalhes.component';
 import { ParcelamentoListaComponent } from './components/parcelamento/lista/parcelamento-lista.component';
 import { NovoParcelamentoComponent } from './components/parcelamento/novo/novo-parcelamento.component';
+import { ParcelamentoDetalhesComponent } from './components/parcelamento/detalhes/parcelamento-detalhes.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -29,7 +30,7 @@ const routes: Routes = [
   { path: 'parcelamento', component: ParcelamentoListaComponent },
   { path: 'parcelamento/novo', component: NovoParcelamentoComponent },
   { path: 'parcelamento/editar/:id', component: NovoParcelamentoComponent },
-  { path: 'parcelamento/detalhes/:id', component: CobrancaDetalhesComponent },
+  { path: 'parcelamento/detalhes/:id', component: ParcelamentoDetalhesComponent },
   { path: '**', redirectTo: '/login' }
 ];
 
