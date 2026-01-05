@@ -131,27 +131,51 @@ export class NovoParcelamentoComponent implements OnInit {
     this.loading = true;
     this.spinner.show();
 
-    const operacao = this.isEditing
-      ? this.parcelamentoService.atualizarParcelamento(this.parcelamentoId!, dados)
-      : this.parcelamentoService.criarParcelamento(dados);
+    if (this.isEditing) {
+      // Se editando, usa o método de atualização padrão
+      this.parcelamentoService.atualizarParcelamento(this.parcelamentoId!, dados).subscribe({
+        next: (result) => {
+          Swal.fire('Sucesso!', 'Parcelamento atualizado com sucesso', 'success');
+          this.loading = false;
+          this.spinner.hide();
+          this.router.navigate(['/parcelamento']);
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar parcelamento:', error);
+          Swal.fire('Erro!', 'Falha ao atualizar parcelamento', 'error');
+          this.loading = false;
+          this.spinner.hide();
+        }
+      });
+    } else {
+      // Se criando, usa o novo método que cria parcelamento + detalhes das parcelas
+      const dataCadastroAgora = this.obterDataAtualFormatada();
+      console.log('📅 Data de cadastro para cálculo de parcelas:', dataCadastroAgora);
 
-    operacao.subscribe({
-      next: (result) => {
-        Swal.fire('Sucesso!', 
-          `Parcelamento ${this.isEditing ? 'atualizado' : 'criado'} com sucesso`,
-          'success'
-        );
-        this.loading = false;
-        this.spinner.hide();
-        this.router.navigate(['/parcelamento']);
-      },
-      error: (error) => {
-        console.error('Erro ao salvar parcelamento:', error);
-        Swal.fire('Erro!', 'Falha ao salvar parcelamento', 'error');
-        this.loading = false;
-        this.spinner.hide();
-      }
-    });
+      this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataCadastroAgora).subscribe({
+        next: (result) => {
+          Swal.fire('Sucesso!', 'Parcelamento criado com sucesso com todas as parcelas', 'success');
+          this.loading = false;
+          this.spinner.hide();
+          // 🎯 Redirecionar para a tela de DETALHES do parcelamento criado
+          this.router.navigate(['/parcelamento/detalhes', result.codigo]);
+        },
+        error: (error) => {
+          console.error('Erro ao criar parcelamento:', error);
+          Swal.fire('Erro!', 'Falha ao criar parcelamento', 'error');
+          this.loading = false;
+          this.spinner.hide();
+        }
+      });
+    }
+  }
+
+  private obterDataAtualFormatada(): string {
+    const hoje = new Date();
+    const year = hoje.getFullYear();
+    const month = String(hoje.getMonth() + 1).padStart(2, '0');
+    const day = String(hoje.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   cancelar(): void {

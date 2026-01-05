@@ -64,9 +64,10 @@ export class ParcelamentoListaComponent implements OnInit {
   parcelamentos: PessoaParcelamento[] = [];
   dataSource = new MatTableDataSource<PessoaParcelamento>([]);
   pessoasMap: { [key: number]: string } = {};
+  proximosVencimentosMap: { [key: number]: string | null } = {};
   searchTerm = '';
   loading = false;
-  displayedColumns: string[] = ['pessoa', 'quantidadeParcelas', 'valorTotal', 'acoes'];
+  displayedColumns: string[] = ['pessoa', 'quantidadeParcelas', 'valorTotal', 'proximoVencimento', 'acoes'];
   selectedTabIndex = 0;
 
   ngOnInit(): void {
@@ -120,6 +121,26 @@ export class ParcelamentoListaComponent implements OnInit {
         }
       });
     });
+
+    // Carregar próximos vencimentos
+    this.parcelamentos.forEach(parcelamento => {
+      this.parcelamentoService.getDetalhesParcelamento(parcelamento.codigo).subscribe({
+        next: (detalhes) => {
+          // Filtrar parcelas não pagas (dataPagamento null) e ordenar por data de vencimento
+          const parcelasAbertas = detalhes
+            .filter(d => !d.dataPagamento)
+            .sort((a, b) => new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime());
+          
+          this.proximosVencimentosMap[parcelamento.codigo] = parcelasAbertas.length > 0 
+            ? parcelasAbertas[0].dataVencimento 
+            : null;
+        },
+        error: (error) => {
+          console.error(`Erro ao carregar detalhes do parcelamento ${parcelamento.codigo}:`, error);
+          this.proximosVencimentosMap[parcelamento.codigo] = null;
+        }
+      });
+    });
   }
 
   applyFilter(): void {
@@ -131,6 +152,14 @@ export class ParcelamentoListaComponent implements OnInit {
 
   getNomePessoa(codigoPessoa: number): string {
     return this.pessoasMap[codigoPessoa] || 'Carregando...';
+  }
+
+  getProximoVencimento(codigoParcelamento: number): string {
+    const dataVencimento = this.proximosVencimentosMap[codigoParcelamento];
+    if (!dataVencimento) {
+      return this.proximosVencimentosMap[codigoParcelamento] === null ? 'Todas pagas' : 'Carregando...';
+    }
+    return new Date(dataVencimento).toLocaleDateString('pt-BR');
   }
 
   getStatusLabel(status: number): string {
