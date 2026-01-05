@@ -794,7 +794,8 @@
   }
   
   .enhanced-stat-card .value {
-    font-size: 1.4rem;
+    font-size: 1.7rem;
+    margin-bottom: 2px;
     line-height: 1.1;
   }
   
@@ -869,7 +870,8 @@
   }
   
   .enhanced-stat-card .value {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 3px;
     line-height: 1.1;
     font-weight: 700;
   }
@@ -945,7 +947,8 @@
   }
   
   .enhanced-stat-card .value {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
+    margin-bottom: 1px;
     line-height: 1;
   }
   

@@ -1,0 +1,105 @@
+<div class="parcelamento-lista-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Parcelamentos Ativos</h1>
+    </div>
+    <button mat-raised-button color="primary" class="add-new-btn" (click)="novoParcelamento()">
+      <mat-icon>add</mat-icon>
+      Novo Parcelamento
+    </button>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <mat-card class="table-card">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-overlay">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Carregando parcelamentos...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && parcelamentos.length === 0" class="empty-message">
+        <mat-icon class="empty-icon">inbox</mat-icon>
+        <p>Nenhum parcelamento ativo encontrado</p>
+        <button mat-button color="primary" (click)="novoParcelamento()">
+          Criar primeiro parcelamento
+        </button>
+      </div>
+
+      <!-- Table with search and no-data row -->
+      <div *ngIf="!loading && parcelamentos.length > 0" class="enhanced-table-container">
+        <div class="table-header">
+          <mat-form-field class="search-field" appearance="outline">
+            <mat-label>Buscar parcelamentos...</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Digite para buscar">
+            <mat-icon matSuffix>search</mat-icon>
+            <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm=''; applyFilter()" matTooltip="Limpar busca">
+              <mat-icon>clear</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div class="table-wrapper">
+          <table mat-table [dataSource]="dataSource" matSort class="parcelamentos-table">
+            <!-- Pessoa Column -->
+            <ng-container matColumnDef="pessoa">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Pessoa</th>
+              <td mat-cell *matCellDef="let element">{{ getNomePessoa(element.codigoPessoa) }}</td>
+            </ng-container>
+
+            <!-- Quantidade de Parcelas Column -->
+            <ng-container matColumnDef="quantidadeParcelas">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Parcelas</th>
+              <td mat-cell *matCellDef="let element">{{ element.quantidadeParcelas }}</td>
+            </ng-container>
+
+            <!-- Valor Total Column -->
+            <ng-container matColumnDef="valorTotal">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Total</th>
+              <td mat-cell *matCellDef="let element">{{ element.valorTotal | currency:'BRL' }}</td>
+            </ng-container>
+
+            <!-- Ações Column -->
+            <ng-container matColumnDef="acoes">
+              <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+              <td mat-cell *matCellDef="let element" class="actions-cell">
+                <button mat-icon-button color="primary" (click)="editarParcelamento(element)" matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="excluirParcelamento(element)" matTooltip="Excluir">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                <div class="no-data-container">
+                  <mat-icon class="no-data-icon">search_off</mat-icon>
+                  <p class="no-data-message">
+                    <span *ngIf="searchTerm; else noResultsParcelamentos">
+                      Nenhum resultado encontrado para "{{ searchTerm }}"
+                    </span>
+                    <ng-template #noResultsParcelamentos>
+                      Nenhum parcelamento encontrado
+                    </ng-template>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <div class="loading-overlay" *ngIf="loading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Carregando dados...</p>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

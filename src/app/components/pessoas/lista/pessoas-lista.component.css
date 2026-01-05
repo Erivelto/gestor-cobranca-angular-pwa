@@ -236,6 +236,19 @@
   font-size: 0.9rem;
 }
 
+/* Coluna de ações sem menu */
+.actions-column,
+.actions-cell {
+  text-align: center;
+  justify-content: center;
+}
+
+.actions-cell {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
 /* Loading overlay */
 .loading-overlay {
   position: absolute;

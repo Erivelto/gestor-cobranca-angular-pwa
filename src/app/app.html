@@ -18,6 +18,10 @@
           <mat-icon matListIcon>paid</mat-icon>
           <span>Cobranças</span>
         </a>
+        <a mat-list-item routerLink="/parcelamento" routerLinkActive="active" (click)="drawer.close()">
+          <mat-icon matListIcon>credit_card</mat-icon>
+          <span>Parcelamentos</span>
+        </a>
         <mat-divider></mat-divider>
         <a mat-list-item (click)="logout(); drawer.close()">
           <mat-icon matListIcon>logout</mat-icon>

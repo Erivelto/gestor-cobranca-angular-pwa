@@ -1,0 +1,146 @@
+<div class="cobranca-detalhes-container" *ngIf="!loading; else loadingTemplate">
+  <!-- Header com botões de ação -->
+  <div class="detalhes-header">
+    <div class="header-info">
+      <h1>Detalhes do Parcelamento</h1>
+      <p class="breadcrumb">
+        <a (click)="voltar()" class="breadcrumb-link">Parcelamentos</a>
+        <span class="separator">/</span>
+        <span>Detalhes</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="editarParcelamento()">
+        <mat-icon>edit</mat-icon>
+        Editar
+      </button>
+      <button mat-button (click)="voltar()">
+        <mat-icon>arrow_back</mat-icon>
+        Voltar
+      </button>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <!-- Card de Informações Principais -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Informações do Parcelamento</mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <div class="info-grid" *ngIf="parcelamento">
+          <div class="info-item">
+            <span class="label">Código:</span>
+            <span class="value">{{ parcelamento.codigo }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Pessoa:</span>
+            <span class="value">{{ pessoa?.nome || 'Carregando...' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Quantidade de Parcelas:</span>
+            <span class="value">{{ parcelamento.quantidadeParcelas }} parcelas</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Valor Total:</span>
+            <span class="value highlight">{{ formatarMoeda(parcelamento.valorTotal) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Valor por Parcela:</span>
+            <span class="value">{{ formatarMoeda(valorParcelaMensal) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Status:</span>
+            <mat-chip [ngClass]="getStatusClass(parcelamento.status)">
+              {{ getStatusLabel(parcelamento.status) }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Card de Detalhes das Parcelas -->
+    <mat-card class="details-card">
+      <mat-card-header>
+        <mat-card-title>Detalhes das Parcelas</mat-card-title>
+        <mat-card-subtitle>{{ detalhes.length }} parcela(s)</mat-card-subtitle>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <div *ngIf="detalhes.length === 0" class="empty-message">
+          <mat-icon>inbox</mat-icon>
+          <p>Nenhum detalhe de parcela encontrado</p>
+        </div>
+        <table *ngIf="detalhes.length > 0" mat-table [dataSource]="dataSource" class="parcelas-table">
+          <!-- Número da Parcela -->
+          <ng-container matColumnDef="numeroParcela">
+            <th mat-header-cell *matHeaderCellDef>Parcela</th>
+            <td mat-cell *matCellDef="let element">#{{ element.numeroParcela }}</td>
+          </ng-container>
+
+          <!-- Valor da Parcela -->
+          <ng-container matColumnDef="valorParcela">
+            <th mat-header-cell *matHeaderCellDef>Valor</th>
+            <td mat-cell *matCellDef="let element">{{ formatarMoeda(element.valorParcela) }}</td>
+          </ng-container>
+
+          <!-- Data Vencimento -->
+          <ng-container matColumnDef="dataVencimento">
+            <th mat-header-cell *matHeaderCellDef>Vencimento</th>
+            <td mat-cell *matCellDef="let element">{{ formatarData(element.dataVencimento) }}</td>
+          </ng-container>
+
+          <!-- Data Pagamento -->
+          <ng-container matColumnDef="dataPagamento">
+            <th mat-header-cell *matHeaderCellDef>Data Pagamento</th>
+            <td mat-cell *matCellDef="let element">{{ formatarData(element.dataPagamento) }}</td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip [ngClass]="getStatusClass(element.status)" size="small">
+                {{ getStatusLabel(element.status) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Ações -->
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let element" class="actions-cell">
+              <button mat-icon-button 
+                *ngIf="element.status !== 1"
+                matTooltip="Registrar Pagamento"
+                (click)="registrarPagamento(element)"
+                color="accent">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <span *ngIf="element.status === 1" class="status-icon">
+                <mat-icon color="accent">done</mat-icon>
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="data-row"></tr>
+        </table>
+        <mat-paginator 
+          *ngIf="detalhes.length > 0"
+          [pageSizeOptions]="[5, 10, 25, 100]" 
+          showFirstLastButtons>
+        </mat-paginator>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="loading-overlay">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Carregando detalhes do parcelamento...</p>
+  </div>
+</ng-template>

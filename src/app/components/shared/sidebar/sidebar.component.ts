@@ -66,6 +66,12 @@ export class SidebarComponent {
       tooltip: 'Cobranças pendentes'
     },
     {
+      label: 'Parcelamentos',
+      icon: 'credit_card',
+      route: '/parcelamento',
+      tooltip: 'Gerenciar parcelamentos'
+    },
+    {
       label: 'Relatórios',
       icon: 'analytics',
       route: '/relatorios',

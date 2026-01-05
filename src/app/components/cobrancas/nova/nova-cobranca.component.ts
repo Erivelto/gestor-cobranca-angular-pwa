@@ -14,6 +14,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatDividerModule } from '@angular/material/divider';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Pessoa } from '../../../models/api.models';
@@ -54,7 +55,8 @@ const BR_DATE_FORMATS = {
         MatDatepickerModule,
         MatNativeDateModule,
         MatSelectModule,
-        MatTableModule
+        MatTableModule,
+        MatDividerModule
     ],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },

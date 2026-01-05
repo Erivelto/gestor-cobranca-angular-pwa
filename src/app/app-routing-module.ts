@@ -9,6 +9,8 @@ import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.compo
 import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
 import { NovaCobrancaComponent } from './components/cobrancas/nova/nova-cobranca.component';
 import { CobrancaDetalhesComponent } from './components/cobrancas/detalhes/cobranca-detalhes.component';
+import { ParcelamentoListaComponent } from './components/parcelamento/lista/parcelamento-lista.component';
+import { NovoParcelamentoComponent } from './components/parcelamento/novo/novo-parcelamento.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -24,6 +26,10 @@ const routes: Routes = [
   { path: 'cobrancas/devedor', component: CobrancasListaComponent, data: { tab: 'devedor' } },
   { path: 'cobrancas/nova', component: NovaCobrancaComponent },
   { path: 'cobrancas/detalhes/:id', component: CobrancaDetalhesComponent },
+  { path: 'parcelamento', component: ParcelamentoListaComponent },
+  { path: 'parcelamento/novo', component: NovoParcelamentoComponent },
+  { path: 'parcelamento/editar/:id', component: NovoParcelamentoComponent },
+  { path: 'parcelamento/detalhes/:id', component: CobrancaDetalhesComponent },
   { path: '**', redirectTo: '/login' }
 ];
 

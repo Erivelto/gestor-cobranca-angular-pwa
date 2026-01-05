@@ -121,3 +121,22 @@ export interface ArquivoImagem {
   pasta: string;
 }
 
+export interface PessoaParcelamento {
+  codigo: number;
+  codigoPessoa: number;
+  quantidadeParcelas: number;
+  valorTotal: number;
+  status: number;
+  excluido: boolean;
+}
+
+export interface PessoaParcelamentoDetalhe {
+  codigo: number;
+  codigoParcelamento: number;
+  numeroParcela: number;
+  valorParcela: number;
+  dataVencimento: string;
+  dataPagamento?: string | null;
+  status: number;
+  excluido: boolean;
+}

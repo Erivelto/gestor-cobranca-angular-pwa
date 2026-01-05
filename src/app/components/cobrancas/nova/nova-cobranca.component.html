@@ -1,161 +1,139 @@
-<div>
-    <!-- Header -->
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-        <button mat-icon-button routerLink="/cobrancas">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
-        <h1 style="margin: 0; font-size: 1.7rem;">Nova Cobrança</h1>
+<div class="nova-cobranca-container">
+  <mat-card class="form-card">
+    <div class="header-row">
+      <div class="title-block">
+        <h2 class="title">Nova Cobrança</h2>
+        <p class="subtitle">Preencha os dados da cobrança</p>
+      </div>
+      <button mat-icon-button color="primary" routerLink="/cobrancas" matTooltip="Voltar">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
     </div>
 
-    <!-- Loading State -->
-    <mat-card *ngIf="loading">
-        <mat-card-content style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
-            <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-            <p>Carregando formulário...</p>
-        </mat-card-content>
-    </mat-card>
+    <mat-divider></mat-divider>
 
-    <!-- Form Container -->
-    <div *ngIf="!loading">
-        <!-- Client Selection Section -->
-        <div>
-            <mat-card>
-                <mat-card-header>
-                    <mat-card-title>
-                        Seleção de Cliente
-                    </mat-card-title>
-                    <mat-card-subtitle>Busque e selecione o cliente para a cobrança</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                    <!-- Busca de Cliente (padrão pessoas-lista) -->
-                    <div style="max-width: 400px; margin-bottom: 12px;">
-                        <mat-form-field appearance="outline" style="width: 100%;">
-                            <mat-label>Buscar clientes...</mat-label>
-                            <input matInput [(ngModel)]="clienteSearch" [matAutocomplete]="clienteAutocomplete"
-                                (input)="buscarClientes()" placeholder="Digite para buscar">
-                            <mat-icon matPrefix>search</mat-icon>
-                            <button mat-icon-button matSuffix *ngIf="clienteSearch"
-                                (click)="clienteSearch=''; buscarClientes()" matTooltip="Limpar busca">
-                                <mat-icon>clear</mat-icon>
-                            </button>
-                        </mat-form-field>
-                        <mat-autocomplete #clienteAutocomplete="matAutocomplete"
-                            (optionSelected)="onClienteSelected($event)" [displayWith]="displayCliente">
-                            <mat-option *ngFor="let cliente of clientesEncontrados" [value]="cliente">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-weight: 500;">{{ cliente.nome }}</span>
-                                    <small>
-                                        {{ cliente.documento }}
-                                        <span *ngIf="cliente.contatos && cliente.contatos.length > 0">
-                                            • {{ cliente.contatos[0].email || 'Sem email' }}
-                                        </span>
-                                    </small>
-                                </div>
-                            </mat-option>
-                            <!-- Opção para cadastrar novo cliente -->
-                            <mat-option *ngIf="clienteSearch && clientesEncontrados.length === 0"
-                                (click)="novoCliente()">
-                                <span>Cadastrar "{{ clienteSearch }}"</span>
-                            </mat-option>
-                        </mat-autocomplete>
-                    </div>
+    <mat-card-content>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-overlay">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Carregando formulário...</p>
+      </div>
 
-                    <!-- Informações do cliente selecionado -->
-                    <div *ngIf="clienteSelecionado" style="margin-top: 8px;">
-                        <span style="font-size: 0.95rem; color: #666;">Cliente Selecionado</span>
-                        <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 2px;">
-                            <strong>{{ clienteSelecionado.nome }}</strong>
-                            <small>{{ clienteSelecionado.documento }}</small>
-                            <small *ngIf="clienteSelecionado.contatos && clienteSelecionado.contatos.length > 0">
-                                {{ clienteSelecionado.contatos[0].email || 'Sem email' }}
-                            </small>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
+      <div *ngIf="!loading">
+        <div class="form-grid">
+          <!-- Seleção de Cliente -->
+          <div class="section-title full-width">
+            <mat-icon>person</mat-icon>
+            <h3>Cliente</h3>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Buscar cliente</mat-label>
+            <input matInput [(ngModel)]="clienteSearch" [matAutocomplete]="clienteAutocomplete"
+              (input)="buscarClientes()" placeholder="Digite para buscar">
+            <mat-icon matPrefix>search</mat-icon>
+            <button mat-icon-button matSuffix *ngIf="clienteSearch"
+              (click)="clienteSearch=''; buscarClientes()" matTooltip="Limpar busca">
+              <mat-icon>clear</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-autocomplete #clienteAutocomplete="matAutocomplete"
+            (optionSelected)="onClienteSelected($event)" [displayWith]="displayCliente">
+            <mat-option *ngFor="let cliente of clientesEncontrados" [value]="cliente">
+              <div class="cliente-option">
+                <span class="cliente-nome">{{ cliente.nome }}</span>
+                <small>{{ cliente.documento }}</small>
+              </div>
+            </mat-option>
+            <mat-option *ngIf="clienteSearch && clientesEncontrados.length === 0" (click)="novoCliente()">
+              <span>Cadastrar "{{ clienteSearch }}"</span>
+            </mat-option>
+          </mat-autocomplete>
+
+          <!-- Informações do cliente selecionado -->
+          <div *ngIf="clienteSelecionado" class="cliente-info full-width">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <strong>{{ clienteSelecionado.nome }}</strong>
+              <small>{{ clienteSelecionado.documento }}</small>
+            </div>
+          </div>
+
+          <!-- Dados do Empréstimo -->
+          <div *ngIf="clienteSelecionado" class="section-title full-width">
+            <mat-icon>attach_money</mat-icon>
+            <h3>Dados do Empréstimo</h3>
+          </div>
+
+          <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
+            <mat-label>Valor do Empréstimo</mat-label>
+            <input matInput type="text" [value]="valorEmprestimoFormatado"
+              (input)="onValorEmprestimoInput($event)" (focus)="onValorEmprestimoFocus($event)"
+              (blur)="onValorEmprestimoBlur($event)" placeholder="0,00">
+            <span matTextPrefix>R$ </span>
+            <mat-icon matPrefix>attach_money</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
+            <mat-label>Tipo de Cobrança</mat-label>
+            <mat-select [(ngModel)]="tipoCobranca">
+              <mat-option value="semanal">Semanal</mat-option>
+              <mat-option value="quinzenal">Quinzenal</mat-option>
+              <mat-option value="mensal">Mensal</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>calendar_today</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width" *ngIf="clienteSelecionado">
+            <mat-label>Data de início</mat-label>
+            <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicio">
+            <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-icon matPrefix>event</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
+            <mat-label>Juros Aplicado</mat-label>
+            <input matInput type="text" [value]="taxaJurosFormatada"
+              (input)="onTaxaJurosInput($event)" (focus)="onTaxaJurosFocus($event)"
+              (blur)="onTaxaJurosBlur($event)">
+            <span matTextSuffix>%</span>
+            <mat-icon matPrefix>percent</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
+            <mat-label>Multa</mat-label>
+            <input matInput type="text" [value]="multaFormatada"
+              (input)="onMultaInput($event)" (focus)="onMultaFocus($event)"
+              (blur)="onMultaBlur($event)" placeholder="0,00">
+            <span matTextPrefix>R$ </span>
+            <mat-icon matPrefix>warning</mat-icon>
+          </mat-form-field>
+
+          <!-- Valor Total -->
+          <div *ngIf="clienteSelecionado && valorEmprestimo > 0" class="valor-total full-width">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <div>
+              <span class="label">Valor Total</span>
+              <span class="value">{{ totalComJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
         </div>
+      </div>
+    </mat-card-content>
 
-        <!-- Loan Values Section -->
-        <div *ngIf="clienteSelecionado">
-            <mat-card>
-                <mat-card-header>
-                    <mat-card-title>
-                        Dados do Empréstimo
-                    </mat-card-title>
-                    <mat-card-subtitle>Informe o valor e os juros aplicados ao empréstimo</mat-card-subtitle>
-                </mat-card-header>
+    <mat-divider *ngIf="clienteSelecionado && valorEmprestimo > 0"></mat-divider>
 
-                <mat-card-content>
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
-                            <!-- Valor do Empréstimo -->
-                            <mat-form-field appearance="outline" style="min-width: 180px;">
-                                <mat-label>Valor do Empréstimo (R$)</mat-label>
-                                <input matInput type="text" [value]="valorEmprestimoFormatado"
-                                    (input)="onValorEmprestimoInput($event)" (focus)="onValorEmprestimoFocus($event)"
-                                    (blur)="onValorEmprestimoBlur($event)" placeholder="0,00" maxlength="15">
-                                <span matTextPrefix>R$ </span>
-                            </mat-form-field>
-
-                            <!-- Tipo de Cobrança -->
-                            <mat-form-field appearance="outline" style="min-width: 160px;">
-                                <mat-label>Tipo de Cobrança</mat-label>
-                                <mat-select [(ngModel)]="tipoCobranca" placeholder="Selecione">
-                                    <mat-option value="semanal">Semanal</mat-option>
-                                    <mat-option value="quinzenal">Quinzenal</mat-option>
-                                    <mat-option value="mensal">Mensal</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-
-                            <!-- Data de Início -->
-                            <mat-form-field appearance="outline" style="min-width: 180px;">
-                                <mat-label>Data de início</mat-label>
-                                <input matInput [matDatepicker]="pickerInicio"
-                                    [(ngModel)]="dataInicio" placeholder="Selecione a data">
-                                <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-                                <mat-datepicker #pickerInicio></mat-datepicker>
-                            </mat-form-field>
-
-                            <!-- Juros Aplicado -->
-                            <mat-form-field appearance="outline" style="min-width: 120px;">
-                                <mat-label>Juros Aplicado (%)</mat-label>
-                                <input matInput type="text" [value]="taxaJurosFormatada"
-                                    (input)="onTaxaJurosInput($event)" (focus)="onTaxaJurosFocus($event)"
-                                    (blur)="onTaxaJurosBlur($event)">
-                                <span matTextSuffix>%</span>
-                            </mat-form-field>
-
-                            <!-- Multa Aplicada -->
-                            <mat-form-field appearance="outline" style="min-width: 120px;">
-                                <mat-label>Multa (R$)</mat-label>
-                                <input matInput type="text" [value]="multaFormatada"
-                                    (input)="onMultaInput($event)" (focus)="onMultaFocus($event)"
-                                    (blur)="onMultaBlur($event)" placeholder="0,00" maxlength="15">
-                                <span matTextPrefix>R$ </span>
-                            </mat-form-field>
-
-                            <!-- Valor Total -->
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; min-width: 140px;">
-                                <span style="font-size: 0.95rem; color: #666;">Valor Total</span>
-                                <span style="font-weight: 500; font-size: 1.1rem;">{{ totalComJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
-                            </div>
-                        </div>
-                        <!-- Form Actions -->
-                        <div *ngIf="clienteSelecionado && valorEmprestimo > 0" style="display: flex; gap: 12px; margin-top: 16px;">
-                            <button mat-button routerLink="/cobrancas">
-                                <mat-icon>cancel</mat-icon>
-                                Cancelar
-                            </button>
-                            <button mat-raised-button color="primary" (click)="salvarEmprestimo()">
-                                <mat-icon>add</mat-icon>
-                                Adicionar Empréstimo
-                                <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"
-                                    color="accent" style="vertical-align: middle;"></mat-progress-spinner>
-                            </button>
-                        </div>
-                    </div>
-                </mat-card-content>
-            </mat-card>
-        </div>
-    </div>
+    <mat-card-actions *ngIf="clienteSelecionado && valorEmprestimo > 0">
+      <button mat-raised-button color="primary" (click)="salvarEmprestimo()" [disabled]="loading">
+        <mat-icon *ngIf="!loading">save</mat-icon>
+        <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-progress-spinner>
+        Adicionar Empréstimo
+      </button>
+      <button mat-button routerLink="/cobrancas" [disabled]="loading">
+        Cancelar
+      </button>
+    </mat-card-actions>
+  </mat-card>
 </div>

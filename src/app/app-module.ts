@@ -29,6 +29,7 @@ import { AuthService } from './services/auth.service';
 import { PessoaService } from './services/pessoa.service';
 import { CobrancaService } from './services/cobranca.service';
 import { ViaCepService } from './services/viacep.service';
+import { ParcelamentoService } from './services/parcelamento.service';
 
 // Componentes
 import { LoginComponent } from './components/login/login.component';
@@ -36,7 +37,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.component';
 import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.component';
 import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
-
+import { NovaCobrancaComponent } from './components/cobrancas/nova/nova-cobranca.component';
+import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
+import { CobrancaDetalhesComponent } from './components/cobrancas/detalhes/cobranca-detalhes.component';
+import { ParcelamentoListaComponent } from './components/parcelamento/lista/parcelamento-lista.component';
 import { TopBarComponent } from './components/top-bar/top-bar.component';
 
 
@@ -74,7 +78,8 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
     AuthService,
     PessoaService,
     CobrancaService,
-    ViaCepService
+    ViaCepService,
+    ParcelamentoService
   ],
   bootstrap: [App]
 })

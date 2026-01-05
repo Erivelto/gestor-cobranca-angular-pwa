@@ -1,411 +1,179 @@
-/* Forçar fundo branco no autocomplete usando ::ng-deep */
+.nova-cobranca-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.form-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px;
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #263238;
+  padding: 4px 0;
+}
+
+.subtitle {
+  margin: 0;
+  color: #607d8b;
+  font-size: 0.95rem;
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  color: #666;
+}
+
+.section-title h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.section-title mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.cliente-option {
+  display: flex;
+  flex-direction: column;
+}
+
+.cliente-nome {
+  font-weight: 500;
+}
+
+.cliente-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  border-left: 4px solid #4caf50;
+}
+
+.cliente-info mat-icon {
+  color: #4caf50;
+}
+
+.cliente-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cliente-info strong {
+  font-size: 1rem;
+}
+
+.cliente-info small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.valor-total {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border-left: 4px solid #2196f3;
+}
+
+.valor-total mat-icon {
+  color: #2196f3;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.valor-total div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.valor-total .label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.valor-total .value {
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: #2196f3;
+}
+
+mat-card-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+/* Forçar fundo branco no autocomplete */
 ::ng-deep .cdk-overlay-pane {
   background: #fff !important;
   border-radius: 6px !important;
   border: 1px solid #e0e0e0 !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
 }
-/* Garantir fundo branco e borda para o painel de autocomplete do Material */
-.cdk-overlay-pane {
-  background: #fff !important;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  width: auto !important;
-  top: auto !important;
-  left: auto !important;
-}
 
-/* Busca de clientes igual ao pessoas-lista */
-.search-field {
-  min-width: 300px;
-  max-width: 400px;
-}
-.search-field .mat-form-field-outline {
-  border-radius: 25px !important;
-}
-/* Padding interno para todos os inputs do formulário */
-
-/* Garantir fundo branco e borda para o painel de autocomplete */
-.cdk-overlay-pane {
-  background: #fff !important;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-}
-/* Container principal seguindo Material Design */
-.page-container {
-  padding: 16px;
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #fafafa;
-  min-height: 100vh;
-  font-family: 'Roboto', sans-serif;
-}
-
-/* Header seguindo Material Design */
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-  gap: 8px;
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.87);
-  line-height: 32px;
-  flex: 1;
-}
-
-.back-button {
-  margin-right: 8px;
-}
-
-.back-button mat-icon {
-  color: rgba(0, 0, 0, 0.54);
-}
-
-.back-button:hover mat-icon {
-  color: rgba(0, 0, 0, 0.87);
-}
-
-/* Loading state seguindo Material Design */
-.loading-card {
-  margin-bottom: 24px;
-  border-radius: 4px;
-  box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 
-              0px 1px 1px 0px rgba(0,0,0,0.14), 
-              0px 1px 3px 0px rgba(0,0,0,0.12);
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 16px;
-  text-align: center;
-}
-
-.loading-content p {
-  margin-top: 16px;
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
-}
-
-/* Form container seguindo Material Design */
-.form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-/* Removed custom button styles to maintain Angular Material native styles */
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 32px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-}
-
-.form-section mat-card-title mat-icon {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.form-section mat-card-subtitle {
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
-  line-height: 20px;
-  margin: 4px 0 0 0;
-}
-
-.form-section mat-card-content {
-  padding: 16px;
-  box-shadow: none !important;
-}
-
-.form-section {
-  box-shadow: none !important;
-  background-color: #fff;
-}
-
-/* Client search seguindo Material Design */
-.client-search {
-  margin-bottom: 24px;
-  display: block;
-}
-
-
-
-.client-info {
-  display: flex;
-  flex-direction: column;
-  margin-left: 8px;
-}
-
-.client-name {
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: 16px;
-  line-height: 24px;
-}
-
-  .client-info {
-    display: flex;
-    flex-direction: column;
-    margin-left: 8px;
-  }
-
-.new-client-option {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  margin-top: 8px;
-  padding-top: 8px;
-}
-
-.new-client-option mat-icon {
-  color: #1976d2;
-}
-
-/* Selected client display seguindo Material Design */
-
-/* Values section seguindo Material Design */
-/* .valores-row corrigido */
-.valores-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  align-items: start;
-  margin-bottom: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  padding: 16px 12px;
-  margin-bottom: 8px;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.campo-valor,
-.campo-juros {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-/* .campo-content corrigido */
-.campo-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-}
-
-.campo-content .info-label {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
-  font-weight: 400;
-  margin-bottom: 8px;
-  display: block;
-}
-
-
-
-.campo-valor .info-icon,
-.campo-juros .info-icon {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  margin-top: 28px;
-}
-
-/* Form actions seguindo Material Design */
-.form-actions {
-  margin-top: 32px;
-}
-
-.button-row {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  padding: 24px;
-  background: #f5f5f5;
-  border-radius: 4px;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.button-row button {
-  min-width: 88px;
-  height: 36px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  font-weight: 500;
-  letter-spacing: 0.0892857em;
-}
-
-/* Material Design button styles */
-button[mat-raised-button][color="primary"] {
-  background-color: #1976d2;
-  color: #ffffff;
-}
-
-button[mat-raised-button][color="primary"]:hover {
-  background-color: #1565c0;
-}
-
-button[mat-button] {
-  color: rgba(0, 0, 0, 0.87);
-}
-
-button[mat-button]:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-button[mat-button] mat-icon,
-button[mat-raised-button] mat-icon {
-  margin-right: 8px;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* Responsividade seguindo Material Design */
-@media (max-width: 768px) {
-  .page-container {
-    padding: 8px;
-  }
-
-  .dashboard-header {
-    margin-bottom: 16px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 20px;
-  }
-
-  .valores-row {
+@media (max-width: 600px) {
+  .form-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
 
-  .button-row {
-    flex-direction: column-reverse;
-    gap: 8px;
+  .nova-cobranca-container {
+    margin: 1rem;
   }
-
-  .button-row button {
-    width: 100%;
-  }
-
-  .form-section mat-card-header,
-  .form-section mat-card-content {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .page-container {
-    padding: 4px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 18px;
-  }
-
-  .form-section mat-card-header,
-  .form-section mat-card-content {
-    padding: 12px;
-  }
-
-  .button-row {
-    padding: 16px;
-  }
-
-  .campo-valor,
-  .campo-juros {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .campo-valor .info-icon,
-  .campo-juros .info-icon {
-    margin-top: 0;
-  }
-}
-
-/* Material Design form field customizations */
-mat-form-field.mat-mdc-form-field {
-  width: 100%;
-}
-
-
-
-/* Autocomplete panel Material Design */
-.mat-mdc-autocomplete-panel {
-  border-radius: 4px;
-  box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.2), 
-              0px 8px 10px 1px rgba(0,0,0,0.14), 
-              0px 3px 14px 2px rgba(0,0,0,0.12);
-}
-
-div.mat-mdc-autocomplete-panel {
-  width: 100% !important;
-  max-height: 256px !important;
-  visibility: visible !important;
-  transform-origin: center top !important;
-  overflow: auto !important;
-  /* padding: 8px 0; */
-  box-sizing: border-box !important;
-  position: relative !important;
-  border-radius: var(--mat-autocomplete-container-shape, var(--mat-sys-corner-extra-small)) !important;
-  box-shadow: none !important;
-  background-color: #fff !important;
-}
-
-.mat-mdc-option {
-  padding: 12px 16px;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.mat-mdc-option mat-icon {
-  margin-right: 12px;
-}
-
-/* Material Design dividers */
-mat-divider {
-  border-top-color: rgba(0, 0, 0, 0.12);
-}
-
-.container-branco {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 24px 20px;
-  margin-bottom: 24px;
-}
-
-.cdk-overlay-container,
-.cdk-global-overlay-wrapper {
-  pointer-events: none !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  /* height: 100%; */
 }
