@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { PessoaParcelamento, PessoaParcelamentoDetalhe } from '../models/api.models';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,27 +11,38 @@ import { environment } from '../../environments/environment';
 export class ParcelamentoService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
+
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.token;
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
 
   // Obter todos os parcelamentos
   getParcelamentos(): Observable<PessoaParcelamento[]> {
     const url = `${this.apiUrl}/PessoaParcelamento`;
     console.log('📋 ParcelamentoService.getParcelamentos() - URL:', url);
-    return this.http.get<PessoaParcelamento[]>(url);
+    return this.http.get<PessoaParcelamento[]>(url, { headers: this.getHeaders() });
   }
 
   // Obter parcelamento por ID
   getParcelamentoById(codigo: number): Observable<PessoaParcelamento> {
     const url = `${this.apiUrl}/PessoaParcelamento/${codigo}`;
     console.log('📋 ParcelamentoService.getParcelamentoById() - URL:', url);
-    return this.http.get<PessoaParcelamento>(url);
+    return this.http.get<PessoaParcelamento>(url, { headers: this.getHeaders() });
   }
 
   // Obter parcelamentos por pessoa
   getParcelamentosPorPessoa(codigoPessoa: number): Observable<PessoaParcelamento[]> {
     const url = `${this.apiUrl}/PessoaParcelamento/pessoa/${codigoPessoa}`;
     console.log('📋 ParcelamentoService.getParcelamentosPorPessoa() - URL:', url);
-    return this.http.get<PessoaParcelamento[]>(url);
+    return this.http.get<PessoaParcelamento[]>(url, { headers: this.getHeaders() });
   }
 
   // Criar novo parcelamento
@@ -38,7 +50,7 @@ export class ParcelamentoService {
     const url = `${this.apiUrl}/PessoaParcelamento`;
     console.log('✏️ ParcelamentoService.criarParcelamento() - URL:', url);
     console.log('📦 Dados:', parcelamento);
-    return this.http.post<PessoaParcelamento>(url, parcelamento);
+    return this.http.post<PessoaParcelamento>(url, parcelamento, { headers: this.getHeaders() });
   }
 
   // Atualizar parcelamento
@@ -46,26 +58,26 @@ export class ParcelamentoService {
     const url = `${this.apiUrl}/PessoaParcelamento/${codigo}`;
     console.log('✏️ ParcelamentoService.atualizarParcelamento() - URL:', url);
     console.log('📦 Dados:', parcelamento);
-    return this.http.put<PessoaParcelamento>(url, parcelamento);
+    return this.http.put<PessoaParcelamento>(url, parcelamento, { headers: this.getHeaders() });
   }
 
   // Excluir parcelamento
   excluirParcelamento(codigo: number): Observable<void> {
     const url = `${this.apiUrl}/PessoaParcelamento/${codigo}`;
     console.log('🗑️ ParcelamentoService.excluirParcelamento() - URL:', url);
-    return this.http.delete<void>(url);
+    return this.http.delete<void>(url, { headers: this.getHeaders() });
   }
 
   // Obter detalhes do parcelamento
   getDetalhesParcelamento(codigoParcelamento: number): Observable<PessoaParcelamentoDetalhe[]> {
     const url = `${this.apiUrl}/PessoaParcelamento/${codigoParcelamento}/detalhes`;
     console.log('📋 ParcelamentoService.getDetalhesParcelamento() - URL:', url);
-    return this.http.get<PessoaParcelamentoDetalhe[]>(url).pipe(
+    return this.http.get<PessoaParcelamentoDetalhe[]>(url, { headers: this.getHeaders() }).pipe(
       catchError((error) => {
         console.warn('⚠️ Erro ao buscar detalhes com /detalhes, tentando /detalhe...');
         // Tentar endpoint alternativo se o primeiro falhar
         const urlAlternativa = `${this.apiUrl}/PessoaParcelamento/detalhe/${codigoParcelamento}`;
-        return this.http.get<PessoaParcelamentoDetalhe[]>(urlAlternativa);
+        return this.http.get<PessoaParcelamentoDetalhe[]>(urlAlternativa, { headers: this.getHeaders() });
       })
     );
   }
@@ -75,7 +87,7 @@ export class ParcelamentoService {
     const url = `${this.apiUrl}/PessoaParcelamento/detalhes`;
     console.log('✏️ ParcelamentoService.criarDetalheParcelamento() - URL:', url);
     console.log('📦 Dados:', detalhe);
-    return this.http.post<PessoaParcelamentoDetalhe>(url, detalhe);
+    return this.http.post<PessoaParcelamentoDetalhe>(url, detalhe, { headers: this.getHeaders() });
   }
 
   // Atualizar detalhe de parcelamento
@@ -83,7 +95,7 @@ export class ParcelamentoService {
     const url = `${this.apiUrl}/PessoaParcelamento/detalhes`;
     console.log('✏️ ParcelamentoService.atualizarDetalheParcelamento() - URL:', url);
     console.log('📦 Dados:', detalhe);
-    return this.http.put<PessoaParcelamentoDetalhe>(url, detalhe);
+    return this.http.put<PessoaParcelamentoDetalhe>(url, detalhe, { headers: this.getHeaders() });
   }
 
   // Criar parcelamento com detalhes (duas etapas)
@@ -101,7 +113,7 @@ export class ParcelamentoService {
 
     // Primeiro: Criar o parcelamento principal
     return new Observable(observer => {
-      this.http.post<PessoaParcelamento>(url, parcelamento).subscribe({
+      this.http.post<PessoaParcelamento>(url, parcelamento, { headers: this.getHeaders() }).subscribe({
         next: (parcelamentoResult) => {
           console.log('✅ Parcelamento criado com sucesso!');
           console.log('📝 ID do Parcelamento:', parcelamentoResult.codigo);
@@ -203,7 +215,7 @@ export class ParcelamentoService {
 
     console.log(`🔄 Criando parcela ${detalhe.numeroParcela}/${detalhes.length}...`);
 
-    this.http.post<PessoaParcelamentoDetalhe>(url, detalhe).subscribe({
+    this.http.post<PessoaParcelamentoDetalhe>(url, detalhe, { headers: this.getHeaders() }).subscribe({
       next: (result) => {
         console.log(`  ✅ Parcela ${detalhe.numeroParcela} criada com sucesso!`);
         // Continuar com a próxima
