@@ -83,6 +83,14 @@
   align-items: center;
 }
 
+.actions-cell .money-btn .mat-icon {
+  color: #0d47a1;
+}
+
+.actions-cell .money-btn:hover .mat-icon {
+  color: #082f6a;
+}
+
 /* Remover todas as sombras do componente parcelamento */
 .parcelamento-lista-container * {
   box-shadow: none !important;
