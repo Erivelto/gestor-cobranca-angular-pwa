@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { SpinnerService, SpinnerState } from './services/spinner.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   standalone: false,
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   isAuthenticated: boolean = false;
   mobileMenuOpen: boolean = false;
   spinnerState$: Observable<SpinnerState>;
@@ -24,9 +26,14 @@ export class App implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.currentUser.subscribe(user => {
+    this.authService.currentUser.pipe(takeUntil(this.destroy$)).subscribe(user => {
       this.isAuthenticated = !!user;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleMenu(): void {

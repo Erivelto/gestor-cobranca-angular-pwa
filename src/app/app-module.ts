@@ -2,7 +2,7 @@ import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // Módulos do Material
 import { MatCardModule } from '@angular/material/card';
@@ -23,6 +23,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+
+// Interceptor
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 // Serviços
 import { AuthService } from './services/auth.service';
@@ -75,6 +78,7 @@ import { TopBarComponent } from './components/top-bar/top-bar.component';
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     AuthService,
     PessoaService,
     CobrancaService,

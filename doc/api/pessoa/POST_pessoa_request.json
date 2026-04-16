@@ -1,0 +1,10 @@
+{
+  "_endpoint": "POST /api/Pessoa",
+  "_description": "Cria uma nova pessoa/cliente",
+  "_auth": true,
+  "nome": "João da Silva",
+  "documento": "123.456.789-00",
+  "status": 1,
+  "destacado": false,
+  "usuarioId": 1
+}

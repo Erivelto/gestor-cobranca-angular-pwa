@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,12 +24,15 @@ import { PessoaService } from '../../../services/pessoa.service';
 import { SpinnerService } from '../../../services/spinner.service';
 import { NotificationService } from '../../../services/notification.service';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-parcelamento-lista',
   templateUrl: './parcelamento-lista.component.html',
-  styleUrls: ['./parcelamento-lista.component.css'],
+  styleUrls: ['./parcelamento-lista.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -50,7 +53,8 @@ import { DialogMessageComponent } from '../../shared/dialog-message.component';
     MatDialogModule
   ]
 })
-export class ParcelamentoListaComponent implements OnInit {
+export class ParcelamentoListaComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -60,6 +64,7 @@ export class ParcelamentoListaComponent implements OnInit {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private cdr = inject(ChangeDetectorRef);
 
   parcelamentos: PessoaParcelamento[] = [];
   dataSource = new MatTableDataSource<PessoaParcelamento>([]);
@@ -87,13 +92,12 @@ export class ParcelamentoListaComponent implements OnInit {
     this.loading = true;
     this.spinner.show();
 
-    // Primeiro obtém as pessoas do usuário logado; depois filtra os parcelamentos por elas
-    this.pessoaService.getPessoas().subscribe({
+    this.pessoaService.getPessoas().pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoas) => {
         const pessoaIdsPermitidos = new Set(pessoas.map((p) => p.codigo));
         pessoas.forEach((p) => (this.pessoasMap[p.codigo] = p.nome));
 
-        this.parcelamentoService.getParcelamentos().subscribe({
+        this.parcelamentoService.getParcelamentos().pipe(takeUntil(this.destroy$)).subscribe({
           next: (data) => {
             // Filtra parcelamentos do usuário logado (pessoa vinculada) e ativos
             this.parcelamentos = data.filter(
@@ -106,19 +110,20 @@ export class ParcelamentoListaComponent implements OnInit {
             this.applyFilter();
             this.carregarProximosVencimentos();
             this.loading = false;
+            this.cdr.markForCheck();
             this.spinner.hide();
           },
-          error: (error) => {
-            console.error('❌ Erro ao carregar parcelamentos:', error);
+          error: () => {
             this.loading = false;
+            this.cdr.markForCheck();
             this.spinner.hide();
             this.notificationService.errorToast('Falha ao carregar parcelamentos');
           }
         });
       },
-      error: (error) => {
-        console.error('❌ Erro ao carregar pessoas do usuário logado:', error);
+      error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.spinner.hide();
         this.notificationService.errorToast('Falha ao carregar pessoas do usuário');
       }
@@ -127,7 +132,7 @@ export class ParcelamentoListaComponent implements OnInit {
 
   private carregarProximosVencimentos(): void {
     this.parcelamentos.forEach((parcelamento) => {
-      this.parcelamentoService.getDetalhesParcelamento(parcelamento.codigo).subscribe({
+      this.parcelamentoService.getDetalhesParcelamento(parcelamento.codigo).pipe(takeUntil(this.destroy$)).subscribe({
         next: (detalhes) => {
           const parcelasAbertas = detalhes
             .filter((d) => !d.dataPagamento)
@@ -137,8 +142,7 @@ export class ParcelamentoListaComponent implements OnInit {
             ? parcelasAbertas[0].dataVencimento
             : null;
         },
-        error: (error) => {
-          console.error(`Erro ao carregar detalhes do parcelamento ${parcelamento.codigo}:`, error);
+        error: () => {
           this.proximosVencimentosMap[parcelamento.codigo] = null;
         }
       });
@@ -222,8 +226,7 @@ export class ParcelamentoListaComponent implements OnInit {
             this.carregarParcelamentos();
             this.spinner.hide();
           },
-          error: (error) => {
-            console.error('Erro ao excluir parcelamento:', error);
+          error: () => {
             this.notificationService.errorToast('Falha ao excluir parcelamento');
             this.spinner.hide();
           }
@@ -249,5 +252,10 @@ export class ParcelamentoListaComponent implements OnInit {
 
   showErrorToast(message: string): void {
     this.notificationService.errorToast(message);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

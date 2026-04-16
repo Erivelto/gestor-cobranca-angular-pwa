@@ -1,0 +1,11 @@
+{
+  "_endpoint": "PUT /api/PessoaParcelamento/{codigo}",
+  "_description": "Atualiza um parcelamento existente",
+  "_auth": true,
+  "codigo": 300,
+  "codigoPessoa": 1,
+  "quantidadeParcelas": 6,
+  "valorTotal": 3000.00,
+  "status": 2,
+  "excluido": false
+}

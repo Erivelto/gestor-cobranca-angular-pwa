@@ -10,7 +10,7 @@ import { SpinnerService } from '../../services/spinner.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
   animations: [
     trigger('fadeInOut', [
       transition(':enter', [
@@ -56,8 +56,6 @@ export class LoginComponent {
       return;
     }
 
-    console.log('Tentando login com:', { username: this.username });
-
     try {
       const response = await this.spinnerService.withSpinner(
         () => this.authService.login(this.username, this.senha).toPromise(),
@@ -66,11 +64,9 @@ export class LoginComponent {
           fullScreen: true 
         }
       );
-      console.log('Login bem-sucedido:', response);
       this.router.navigate(['/dashboard']);
       this.cdr.detectChanges();
     } catch (error: any) {
-      console.error('Detalhes do erro:', error);
       let errorMessage: string;
       if (error.status === 0) {
         errorMessage = 'Não foi possível conectar ao servidor. Por favor, verifique sua conexão com a internet e tente novamente.';

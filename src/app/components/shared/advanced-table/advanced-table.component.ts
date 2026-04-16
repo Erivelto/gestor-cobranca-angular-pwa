@@ -50,7 +50,7 @@ export interface TableAction {
     FormsModule
   ],
   templateUrl: './advanced-table.component.html',
-  styleUrls: ['./advanced-table.component.css'],
+  styleUrls: ['./advanced-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdvancedTableComponent implements OnInit {

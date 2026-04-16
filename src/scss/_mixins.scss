@@ -1,0 +1,227 @@
+// ================================
+// REUTILIZABLE MIXINS
+// ================================
+@use 'variables' as *;
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: $bp-mobile) { @content; }
+}
+
+@mixin tablet {
+  @media (max-width: $bp-tablet) { @content; }
+}
+
+@mixin desktop {
+  @media (min-width: $bp-desktop) { @content; }
+}
+
+// Flexbox helpers
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Page container
+@mixin page-container($max-width: $bp-wide) {
+  padding: $spacing-md;
+  max-width: $max-width;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Page header  
+@mixin page-header {
+  @include flex-between;
+  margin-bottom: $spacing-lg;
+  padding: 0 $spacing-xs;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  h1 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    font-weight: 600;
+    color: $color-text;
+
+    @include mobile {
+      font-size: $font-size-xl;
+    }
+  }
+}
+
+// Loading overlay
+@mixin loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  z-index: 20;
+}
+
+// Cards
+@mixin state-card {
+  text-align: center;
+  padding: $spacing-2xl $spacing-lg;
+  animation: fadeIn 0.3s ease-out;
+
+  .error-content,
+  .empty-content,
+  .loading-content {
+    @include flex-center;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: $spacing-xl;
+
+    p {
+      color: $color-text-secondary;
+      margin: 0;
+    }
+  }
+
+  .error-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $color-warn;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: $color-text-muted;
+  }
+}
+
+// Focus ring for accessibility
+@mixin focus-visible {
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+    box-shadow: $focus-ring;
+  }
+}
+
+@mixin focus-visible-warn {
+  &:focus-visible {
+    outline: 2px solid $color-warn;
+    outline-offset: 2px;
+    box-shadow: $focus-ring-warn;
+  }
+}
+
+// Skip-shadow (removes text-shadow only)
+@mixin no-text-shadow {
+  text-shadow: none;
+}
+
+// Enhanced table
+@mixin table-container {
+  .enhanced-table-card {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .table-header {
+    @include flex-between;
+    padding: $spacing-md;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  .search-field {
+    min-width: 250px;
+    max-width: 400px;
+
+    @include mobile {
+      min-width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .no-data-container {
+    @include flex-center;
+    flex-direction: column;
+    padding: $spacing-xl;
+    gap: $spacing-sm;
+  }
+
+  .no-data-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $color-text-muted;
+  }
+
+  .no-data-message {
+    color: $color-text-secondary;
+  }
+}
+
+// Add button consistent style
+@mixin add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  @include mobile {
+    min-width: unset;
+    padding: 0 $spacing-md;
+
+    span { display: none; }
+  }
+}
+
+// Form page layout
+@mixin form-page {
+  .form-card,
+  .form-section {
+    margin-bottom: $spacing-md;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $spacing-md;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+    padding-top: $spacing-md;
+  }
+}

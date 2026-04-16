@@ -1,0 +1,14 @@
+{
+  "_endpoint": "PUT /api/Pessoa/{id}",
+  "_description": "Atualiza dados de uma pessoa existente",
+  "_auth": true,
+  "_params": {
+    "id": "Código da pessoa"
+  },
+  "codigo": 1,
+  "nome": "João da Silva Atualizado",
+  "documento": "123.456.789-00",
+  "status": 1,
+  "destacado": true,
+  "usuarioId": 1
+}

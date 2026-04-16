@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PessoaService } from '../../../services/pessoa.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SpinnerService } from '../../../services/spinner.service';
@@ -23,8 +25,9 @@ import { CobrancaService } from '../../../services/cobranca.service';
 @Component({
   selector: 'app-pessoas-lista',
   templateUrl: './pessoas-lista.component.html',
-  styleUrls: ['./pessoas-lista.component.css'],
+  styleUrls: ['./pessoas-lista.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -42,7 +45,8 @@ import { CobrancaService } from '../../../services/cobranca.service';
     MatTooltipModule
   ]
 })
-export class PessoasListaComponent implements OnInit, AfterViewInit {
+export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -61,25 +65,6 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
     private cdr: ChangeDetectorRef,
     private cobrancaService: CobrancaService
   ) {}
-
-  // Método de teste para debug da API
-  testarAPI(): void {
-    console.log('=== TESTE DIRETO DA API ===');
-    this.pessoaService.getPessoas().subscribe({
-      next: (response) => {
-        console.log('Resposta direta da API:', response);
-        console.log('Tipo da resposta:', typeof response);
-        console.log('É array?', Array.isArray(response));
-        if (Array.isArray(response) && response.length > 0) {
-          console.log('Primeiro item:', response[0]);
-          console.log('Propriedades do primeiro item:', Object.keys(response[0]));
-        }
-      },
-      error: (error) => {
-        console.error('Erro no teste da API:', error);
-      }
-    });
-  }
 
   ngOnInit(): void {
     this.loadPessoas();
@@ -105,20 +90,11 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   }
 
   loadPessoas(): void {
-    console.log('🚀 Iniciando loadPessoas()');
     this.loading = true;
     this.error = '';
-    
-    // Comentando o spinner por enquanto para debug
-    // this.spinnerService.showOverlay('Carregando lista de clientes...');
 
-    console.log('📞 Chamando pessoaService.getPessoas()');
-    this.pessoaService.getPessoas().subscribe({
+    this.pessoaService.getPessoas().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        console.log('✅ Dados recebidos no componente:', response);
-        console.log('📊 Tipo da resposta:', typeof response);
-        console.log('📋 É array?', Array.isArray(response));
-        console.log('📈 Quantidade de itens:', Array.isArray(response) ? response.length : 'N/A');
         
         // Verificar se é array ou objeto
         let pessoas: Pessoa[] = [];
@@ -133,9 +109,6 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
           pessoas = [];
         }
         
-        console.log('🎯 Pessoas finais:', pessoas);
-        console.log('🔢 Total de pessoas processadas:', pessoas.length);
-        
         // Ordena por ordem de cadastro (menor código primeiro)
         const pessoasOrdenadas = pessoas.slice().sort((a, b) => {
           const codA = typeof a.codigo === 'string' ? parseInt(a.codigo) : a.codigo;
@@ -145,15 +118,12 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
         this.pessoas = pessoasOrdenadas;
         this.dataSource.data = pessoasOrdenadas;
         this.loading = false;
-        console.log('🏁 Loading definido como false');
-        
-        // this.spinnerService.hide();
+        this.cdr.markForCheck();
       },
       error: (error) => {
-        console.error('❌ Erro no subscribe do componente:', error);
         this.error = 'Erro ao carregar clientes. Tente novamente.';
         this.loading = false;
-        // this.spinnerService.hide();
+        this.cdr.markForCheck();
         this.notificationService.errorToast('Erro ao carregar lista de clientes');
       }
     });
@@ -164,59 +134,19 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   }
 
   editarPessoa(codigo: string | number | undefined): void {
-    console.log('=== MÉTODO EDITAR PESSOA SIMPLES CHAMADO ===');
-    console.log('Código recebido:', codigo);
-    console.log('Tipo do código:', typeof codigo);
-    console.log('Router disponível:', !!this.router);
-    
     if (!codigo) {
-      console.error('Código não fornecido ou inválido');
       this.notificationService.error('Erro de Sistema', 'Código da pessoa não encontrado. Recarregue a página e tente novamente.');
       return;
     }
-    
-    console.log('Navegando para:', ['/pessoas/editar', codigo]);
-    
-    try {
-      this.router.navigate(['/pessoas/editar', codigo]).then(
-        (success) => {
-          console.log('Navegação bem-sucedida:', success);
-        },
-        (error) => {
-          console.error('Erro na promise de navegação:', error);
-        }
-      );
-    } catch (error) {
-      console.error('Erro na navegação:', error);
-    }
+    this.router.navigate(['/pessoas/editar', codigo]);
   }
 
   editarPessoaAvancado(codigo: string | number | undefined): void {
-    console.log('=== MÉTODO EDITAR PESSOA AVANÇADO CHAMADO ===');
-    console.log('Código recebido:', codigo);
-    console.log('Tipo do código:', typeof codigo);
-    console.log('Router disponível:', !!this.router);
-    
     if (!codigo) {
-      console.error('Código não fornecido ou inválido');
       this.notificationService.error('Erro de Sistema', 'Código da pessoa não encontrado. Recarregue a página e tente novamente.');
       return;
     }
-    
-    console.log('Navegando para:', ['/pessoas/edit', codigo]);
-    
-    try {
-      this.router.navigate(['/pessoas/edit', codigo]).then(
-        (success) => {
-          console.log('Navegação bem-sucedida:', success);
-        },
-        (error) => {
-          console.error('Erro na promise de navegação:', error);
-        }
-      );
-    } catch (error) {
-      console.error('Erro na navegação:', error);
-    }
+    this.router.navigate(['/pessoas/edit', codigo]);
   }
 
   deletarPessoa(codigo: string | number | undefined): void {
@@ -226,8 +156,7 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
     }
     const id = typeof codigo === 'string' ? parseInt(codigo) : codigo;
     this.spinnerService.showFullScreen('Verificando cobranças...');
-    // Verifica cobranças ativas antes de excluir
-    this.cobrancaService.getCobrancas().subscribe({
+    this.cobrancaService.getCobrancas().pipe(takeUntil(this.destroy$)).subscribe({
       next: (cobrancas: any[]) => {
         const cobrancasAtivas = cobrancas.filter((c: any) => c.codigoPessoa === id && c.status === 1);
         if (cobrancasAtivas.length > 0) {
@@ -235,15 +164,13 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
           this.notificationService.error('Exclusão bloqueada', 'Este cliente possui cobranças ativas e não pode ser excluído.');
           return;
         }
-        // Se não houver cobranças ativas, pode excluir
-        this.pessoaService.deletePessoa(id).subscribe({
+        this.pessoaService.deletePessoa(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.spinnerService.hide();
             this.notificationService.successToast('Cliente excluído com sucesso!');
             this.loadPessoas();
           },
           error: (error: any) => {
-            console.error('Erro ao excluir pessoa:', error);
             this.spinnerService.hide();
             this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
           }
@@ -266,10 +193,7 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
 
   // Métodos para a tabela avançada
   applyFilter(): void {
-    console.log('[applyFilter] searchTerm:', this.searchTerm);
     this.dataSource.filter = this.searchTerm.trim().toLowerCase();
-    console.log('[applyFilter] dataSource.data:', this.dataSource.data);
-    console.log('[applyFilter] dataSource.filteredData:', this.dataSource.filteredData);
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -308,6 +232,11 @@ export class PessoasListaComponent implements OnInit, AfterViewInit {
   formatarNome(nome: string): string {
     if (!nome) return '';
     return nome.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 

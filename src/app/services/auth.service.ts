@@ -138,7 +138,21 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.token;
+    const token = this.token;
+    if (!token) return false;
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+    return true;
+  }
+
+  private isTokenExpired(token: string): boolean {
+    const payload = this.parseJwt(token);
+    if (!payload) return true; // malformed token = expired
+    if (!payload.exp) return false; // no exp claim = trust backend
+    const expirationMs = payload.exp * 1000;
+    return Date.now() >= expirationMs;
   }
 
   // Extrai o payload do JWT e tenta obter o ID do usuário a partir de claims comuns

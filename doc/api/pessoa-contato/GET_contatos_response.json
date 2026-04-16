@@ -1,0 +1,20 @@
+{
+  "_endpoint": "GET /api/PessoaContato/pessoa/{pessoaId}",
+  "_description": "Lista todos os contatos de uma pessoa",
+  "_auth": true,
+  "_response": [
+    {
+      "codigo": 10,
+      "codigoPessoa": 1,
+      "email": "joao@email.com",
+      "site": "www.joao.com.br",
+      "ddd": "11",
+      "celular": "999999999",
+      "excluido": false,
+      "tipo": "P",
+      "dddAdic": "11",
+      "celularAdic": "888888888",
+      "descricaoAdic": "Comercial"
+    }
+  ]
+}

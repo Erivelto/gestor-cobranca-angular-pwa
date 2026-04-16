@@ -1,0 +1,17 @@
+{
+  "_endpoint": "POST /api/PessoaCobranca",
+  "_description": "Cria uma nova cobrança",
+  "_auth": true,
+  "codigoPessoa": 1,
+  "tipoCobranca": "M",
+  "valor": 1500.00,
+  "juros": 2.5,
+  "multa": 50.00,
+  "valorTotal": 1587.50,
+  "dataInicio": "2026-01-01T00:00:00",
+  "diaVencimento": 15,
+  "dataVencimento": "2026-04-15T00:00:00",
+  "dataPagamento": null,
+  "status": 1,
+  "excluido": false
+}

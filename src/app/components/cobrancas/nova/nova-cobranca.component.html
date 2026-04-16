@@ -5,7 +5,7 @@
         <h2 class="title">Nova Cobrança</h2>
         <p class="subtitle">Preencha os dados da cobrança</p>
       </div>
-      <button mat-icon-button color="primary" routerLink="/cobrancas" matTooltip="Voltar">
+      <button mat-icon-button color="primary" routerLink="/cobrancas" matTooltip="Voltar" aria-label="Voltar">
         <mat-icon>arrow_back</mat-icon>
       </button>
     </div>
@@ -14,7 +14,7 @@
 
     <mat-card-content>
       <!-- Loading State -->
-      <div *ngIf="loading" class="loading-overlay">
+      <div *ngIf="loading" class="loading-overlay" role="status" aria-live="polite">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
         <p>Carregando formulário...</p>
       </div>

@@ -1,0 +1,8 @@
+{
+  "_endpoint": "DELETE /api/PessoaCobranca/{id}",
+  "_description": "Exclui uma cobrança",
+  "_auth": true,
+  "_params": {
+    "id": "Código da cobrança"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "_endpoint": "GET /api/PessoaParcelamento/pessoa/{codigoPessoa}",
+  "_description": "Lista parcelamentos de uma pessoa específica",
+  "_auth": true,
+  "_params": {
+    "codigoPessoa": "Código da pessoa"
+  },
+  "_response": [
+    {
+      "codigo": 300,
+      "codigoPessoa": 1,
+      "quantidadeParcelas": 6,
+      "valorTotal": 3000.00,
+      "status": 1,
+      "excluido": false
+    }
+  ]
+}

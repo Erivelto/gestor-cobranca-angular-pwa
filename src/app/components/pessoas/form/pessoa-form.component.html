@@ -1,18 +1,18 @@
 <div class="page-container">
   <div class="dashboard-header">
     <h1>{{ isEditMode ? 'Editar Cliente' : 'Novo Cliente' }}</h1>
-    <button mat-icon-button (click)="voltar()" matTooltip="Voltar" class="back-button">
+    <button mat-icon-button (click)="voltar()" matTooltip="Voltar" aria-label="Voltar" class="back-button">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </div>
 
-  <div *ngIf="success" class="alert alert-success">
-    <mat-icon>check_circle</mat-icon>
+  <div *ngIf="success" class="alert alert-success" role="alert" aria-live="polite">
+    <mat-icon aria-hidden="true">check_circle</mat-icon>
     {{ success }}
   </div>
 
-  <div *ngIf="error" class="alert alert-error">
-    <mat-icon>error</mat-icon>
+  <div *ngIf="error" class="alert alert-error" role="alert" aria-live="assertive">
+    <mat-icon aria-hidden="true">error</mat-icon>
     {{ error }}
   </div>
 
@@ -105,7 +105,7 @@
             <input matInput type="text" name="cep" [(ngModel)]="endereco.cep" placeholder="00000000"
               [disabled]="loading" (input)="onlyNumbers($event, 'cep')" />
           </mat-form-field>
-          <button style="height: 54px; margin: 0 0 18px 0;" type="button" mat-raised-button color="primary"
+          <button class="cep-btn" type="button" mat-raised-button color="primary"
             (click)="buscarCep()" [disabled]="loading || loadingCep || !endereco.cep">
             <mat-icon *ngIf="loadingCep">refresh</mat-icon>
             {{ loadingCep ? 'Buscando...' : 'Buscar CEP' }}
@@ -163,7 +163,7 @@
         <div class="form-row">
           <div class="file-upload-container form-group">
             <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png"
-              style="display: none" [disabled]="loading" />
+              class="file-input-hidden" [disabled]="loading" />
             <button type="button" mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="loading">
               <mat-icon>attach_file</mat-icon>
               Selecionar Arquivo
@@ -171,14 +171,14 @@
             <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
           </div>
         </div>
-        <mat-hint style="margin-top: 10px; float: left;">Formatos aceitos: PDF, JPG, JPEG, PNG</mat-hint>
+        <mat-hint class="file-hint">Formatos aceitos: PDF, JPG, JPEG, PNG</mat-hint>
       </mat-card-content>
     </mat-card>
 
     <!-- Botões -->
     <mat-card class="form-actions">
       <mat-card-content>
-        <div class="button-row" style="display: flex; justify-content: flex-end; gap: 12px;">
+        <div class="button-row button-row-end">
           <button type="button" mat-stroked-button (click)="voltar()" [disabled]="loading">
             <mat-icon>cancel</mat-icon>
             Cancelar

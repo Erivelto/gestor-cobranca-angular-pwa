@@ -1,0 +1,19 @@
+{
+  "_endpoint": "PUT /api/PessoaCobranca",
+  "_description": "Atualiza uma cobrança existente (ex: marcar como paga)",
+  "_auth": true,
+  "_nota": "O PUT usa o path sem ID - envia o objeto completo",
+  "codigo": 100,
+  "codigoPessoa": 1,
+  "tipoCobranca": "M",
+  "valor": 1500.00,
+  "juros": 2.5,
+  "multa": 50.00,
+  "valorTotal": 1587.50,
+  "dataInicio": "2026-01-01T00:00:00",
+  "diaVencimento": 15,
+  "dataVencimento": "2026-04-15T00:00:00",
+  "dataPagamento": "2026-04-15T00:00:00",
+  "status": 2,
+  "excluido": false
+}

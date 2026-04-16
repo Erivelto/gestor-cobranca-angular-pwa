@@ -1,0 +1,38 @@
+{
+  "_endpoint": "GET /api/PessoaParcelamento/{codigoParcelamento}/detalhes",
+  "_description": "Lista os detalhes/parcelas de um parcelamento",
+  "_auth": true,
+  "_fallback": "Se retornar array vazio, tenta GET /api/PessoaParcelamentoDetalhe/parcelamento/{codigoParcelamento}",
+  "_response": [
+    {
+      "codigo": 400,
+      "codigoParcelamento": 300,
+      "numeroParcela": 1,
+      "valorParcela": 500.00,
+      "dataVencimento": "2026-02-15T00:00:00",
+      "dataPagamento": "2026-02-14T00:00:00",
+      "status": 2,
+      "excluido": false
+    },
+    {
+      "codigo": 401,
+      "codigoParcelamento": 300,
+      "numeroParcela": 2,
+      "valorParcela": 500.00,
+      "dataVencimento": "2026-03-17T00:00:00",
+      "dataPagamento": null,
+      "status": 1,
+      "excluido": false
+    },
+    {
+      "codigo": 402,
+      "codigoParcelamento": 300,
+      "numeroParcela": 3,
+      "valorParcela": 500.00,
+      "dataVencimento": "2026-04-16T00:00:00",
+      "dataPagamento": null,
+      "status": 1,
+      "excluido": false
+    }
+  ]
+}

@@ -8,12 +8,13 @@
       mat-icon-button 
       (click)="voltar()" 
       matTooltip="Voltar"
+      aria-label="Voltar"
       class="back-button">
       <mat-icon>arrow_back</mat-icon>
     </button>
   </div>
 
-  <div *ngIf="loading" class="loading-container">
+  <div *ngIf="loading" class="loading-container" role="status" aria-live="polite">
     <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
     <p>Carregando dados da pessoa...</p>
   </div>
@@ -108,10 +109,10 @@
                 </div>
               </div>
               <div class="item-actions">
-                <button mat-icon-button color="primary" (click)="editContato(contatos.indexOf(contato))">
+                <button mat-icon-button color="primary" aria-label="Editar contato" (click)="editContato(contatos.indexOf(contato))">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteContato(contato.codigo!, contatos.indexOf(contato))">
+                <button mat-icon-button color="warn" aria-label="Excluir contato" (click)="deleteContato(contato.codigo!, contatos.indexOf(contato))">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -270,10 +271,10 @@
                 </div>
               </div>
               <div class="item-actions">
-                <button mat-icon-button color="primary" (click)="editingContatoAdic = contatos.indexOf(contato)">
+                <button mat-icon-button color="primary" aria-label="Editar contato adicional" (click)="editingContatoAdic = contatos.indexOf(contato)">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteContatoAdic(contato)">
+                <button mat-icon-button color="warn" aria-label="Excluir contato adicional" (click)="deleteContatoAdic(contato)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -393,10 +394,10 @@
                 <div class="address-cep">CEP: {{ endereco.cep }}</div>
               </div>
               <div class="item-actions">
-                <button mat-icon-button color="primary" (click)="editEndereco(i)">
+                <button mat-icon-button color="primary" aria-label="Editar endereço" (click)="editEndereco(i)">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteEndereco(endereco.codigo!, i)">
+                <button mat-icon-button color="warn" aria-label="Excluir endereço" (click)="deleteEndereco(endereco.codigo!, i)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

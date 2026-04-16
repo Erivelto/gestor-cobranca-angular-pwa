@@ -1,0 +1,12 @@
+{
+  "_endpoint": "POST /api/PessoaParcelamento/detalhes",
+  "_description": "Cria um detalhe/parcela individual de um parcelamento",
+  "_auth": true,
+  "codigoParcelamento": 300,
+  "numeroParcela": 1,
+  "valorParcela": 500.00,
+  "dataVencimento": "2026-02-15T00:00:00",
+  "dataPagamento": null,
+  "status": 1,
+  "excluido": false
+}

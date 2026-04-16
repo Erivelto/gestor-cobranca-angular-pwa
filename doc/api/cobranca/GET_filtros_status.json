@@ -1,0 +1,48 @@
+{
+  "_description": "Endpoints de filtro de cobranças por status - todos são GET sem body",
+  "_auth": true,
+
+  "endpoints_lista": {
+    "_nota": "Retornam arrays de Cobranca[] para exibição em lista (componente CobrancasLista)",
+    "em_dia": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllEmDiaLista/{usuarioId}",
+      "descricao": "Cobranças em dia (status = 5)"
+    },
+    "atrasadas": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllAtrasadoLista/{usuarioId}",
+      "descricao": "Cobranças atrasadas/vencidas (status = 3)"
+    },
+    "vence_hoje": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllVenceHojeLista/{usuarioId}",
+      "descricao": "Cobranças que vencem hoje (status = 1)"
+    }
+  },
+
+  "endpoints_dashboard": {
+    "_nota": "Retornam arrays de Cobranca[] para cálculo de totais no Dashboard",
+    "em_dia": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllEmDia/{usuarioId}",
+      "descricao": "Soma de valores em dia"
+    },
+    "atrasadas": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllAtrasado/{usuarioId}",
+      "descricao": "Soma de valores atrasados"
+    },
+    "vence_hoje": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllVenceHoje/{usuarioId}",
+      "descricao": "Soma de valores que vencem hoje"
+    },
+    "juros": {
+      "endpoint": "GET /api/PessoaCobranca/GetAllJuros/{usuarioId}",
+      "descricao": "Total de juros acumulados",
+      "response_type": "number"
+    }
+  },
+
+  "status_codes": {
+    "1": "Pendente (Vence Hoje)",
+    "2": "Pago",
+    "3": "Vencido (Atrasado)",
+    "5": "Em Dia"
+  }
+}

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-alert',
   templateUrl: './alert.component.html',
-  styleUrls: ['./alert.component.css'],
+  styleUrls: ['./alert.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })

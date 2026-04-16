@@ -1,10 +1,10 @@
-﻿<div class="cobrancas-lista-container">
+<div class="cobrancas-lista-container">
   <!-- Header -->
   <div class="dashboard-header">
-    <h1>Cobranças</h1>
+    <h1>Cobran�as</h1>
     <button mat-raised-button color="primary" class="add-new-btn" (click)="novaCobranca()">
-      <mat-icon>add</mat-icon>
-      Nova Cobrança
+      <mat-icon aria-hidden="true">add</mat-icon>
+      Nova Cobran�a
     </button>
   </div>
 
@@ -13,17 +13,17 @@
     <mat-card class="enhanced-table-card">
       
 
-      <!-- Não há mais loading/error/cobrancas globais. Estados são por status abaixo. -->
+      <!-- N�o h� mais loading/error/cobrancas globais. Estados s�o por status abaixo. -->
 
 
       <!-- Estados globais -->
-      <div *ngIf="loading" class="loading-overlay">
+      <div *ngIf="loading" class="loading-overlay" role="status" aria-live="polite">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-        <p>Carregando cobranças...</p>
+        <p>Carregando cobran�as...</p>
       </div>
-      <mat-card *ngIf="error && !loading" class="error-card">
+      <mat-card *ngIf="error && !loading" class="error-card" role="alert" aria-live="assertive">
         <mat-card-content class="error-content">
-          <mat-icon class="error-icon">error_outline</mat-icon>
+          <mat-icon class="error-icon" aria-hidden="true">error_outline</mat-icon>
           <p>{{ error }}</p>
         </mat-card-content>
       </mat-card>
@@ -36,22 +36,22 @@
             <span class="tab-label">Em Dia</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="emDiaCobrancas.length === 0" class="empty-message">Nenhuma cobrança em dia encontrada.</div>
+            <div *ngIf="emDiaCobrancas.length === 0" class="empty-message">Nenhuma cobran�a em dia encontrada.</div>
             <table *ngIf="emDiaCobrancas.length > 0" mat-table [dataSource]="emDiaCobrancas" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
                 <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
-                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente n�o informado' }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="acoes">
-                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <th mat-header-cell *matHeaderCellDef class="actions-column">A��es</th>
                 <td mat-cell *matCellDef="let cobranca" class="actions-column">
                   <a mat-icon-button 
                      class="actions-btn"
                      [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
-                     matTooltip="Ver detalhes">
+                     matTooltip="Ver detalhes" aria-label="Ver detalhes da cobran�a">
                     <mat-icon>edit</mat-icon>
                   </a>
                 </td>
@@ -69,22 +69,22 @@
             <span class="tab-label">Atrasadas</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="atrasadasCobrancas.length === 0" class="empty-message">Nenhuma cobrança atrasada encontrada.</div>
+            <div *ngIf="atrasadasCobrancas.length === 0" class="empty-message">Nenhuma cobran�a atrasada encontrada.</div>
             <table *ngIf="atrasadasCobrancas.length > 0" mat-table [dataSource]="atrasadasCobrancas" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
                 <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
-                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente n�o informado' }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="acoes">
-                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <th mat-header-cell *matHeaderCellDef class="actions-column">A��es</th>
                 <td mat-cell *matCellDef="let cobranca" class="actions-column">
                   <a mat-icon-button 
                      class="actions-btn"
                      [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
-                     matTooltip="Ver detalhes">
+                     matTooltip="Ver detalhes" aria-label="Ver detalhes da cobran�a">
                     <mat-icon>edit</mat-icon>
                   </a>
                 </td>
@@ -102,22 +102,22 @@
             <span class="tab-label">Vence Hoje</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="venceHojeCobrancas.length === 0" class="empty-message">Nenhuma cobrança vencendo hoje encontrada.</div>
+            <div *ngIf="venceHojeCobrancas.length === 0" class="empty-message">Nenhuma cobran�a vencendo hoje encontrada.</div>
             <table *ngIf="venceHojeCobrancas.length > 0" mat-table [dataSource]="venceHojeCobrancas" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
                 <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
-                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente não informado' }}</span>
+                  <span class="nome-text">{{ cobranca.pessoa?.nome || 'Cliente n�o informado' }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="acoes">
-                <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
+                <th mat-header-cell *matHeaderCellDef class="actions-column">A��es</th>
                 <td mat-cell *matCellDef="let cobranca" class="actions-column">
                   <a mat-icon-button 
                      class="actions-btn"
                      [routerLink]="['/cobrancas/detalhes', cobranca.codigo]"
-                     matTooltip="Ver detalhes">
+                     matTooltip="Ver detalhes" aria-label="Ver detalhes da cobran�a">
                     <mat-icon>edit</mat-icon>
                   </a>
                 </td>

@@ -1,0 +1,13 @@
+{
+  "_endpoint": "GET /api/PessoaParcelamento/{codigo}",
+  "_description": "Retorna um parcelamento específico",
+  "_auth": true,
+  "_response": {
+    "codigo": 300,
+    "codigoPessoa": 1,
+    "quantidadeParcelas": 6,
+    "valorTotal": 3000.00,
+    "status": 1,
+    "excluido": false
+  }
+}

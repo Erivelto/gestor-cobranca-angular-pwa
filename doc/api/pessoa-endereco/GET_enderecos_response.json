@@ -1,0 +1,21 @@
+{
+  "_endpoint": "GET /api/PessoaEndereco/pessoa/{pessoaId}",
+  "_description": "Lista todos os endereços de uma pessoa",
+  "_auth": true,
+  "_fallback": "Em caso de 404, faz GET /api/PessoaEndereco (todos) e filtra por codigoPessoa no frontend",
+  "_response": [
+    {
+      "codigo": 20,
+      "codigoPessoa": 1,
+      "tipo": "R",
+      "logradouro": "Rua das Flores",
+      "numrero": "123",
+      "complemento": "Apto 45",
+      "bairro": "Centro",
+      "cidade": "São Paulo",
+      "uf": "SP",
+      "cep": "01000-000",
+      "excluido": false
+    }
+  ]
+}

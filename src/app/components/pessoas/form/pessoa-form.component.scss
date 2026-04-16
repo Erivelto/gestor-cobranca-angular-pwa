@@ -1,0 +1,94 @@
+@use '../../../../scss/variables' as *;
+@use '../../../../scss/mixins' as *;
+
+.page-container {
+  @include page-container(900px);
+}
+
+.cep-btn {
+  height: 54px;
+  margin: 0 0 18px 0;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-hint {
+  margin-top: 10px;
+  float: left;
+}
+
+.button-row-end {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.2;
+}
+
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+
+
+
+  /* Removed specific rules affecting inputs, labels, and other elements */
+
+  @media (max-width: 768px) {
+    .page-container {
+      padding: 16px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .button-row {
+      flex-direction: column-reverse;
+    }
+
+    .button-row button {
+      width: 100%;
+    }
+  }
+}

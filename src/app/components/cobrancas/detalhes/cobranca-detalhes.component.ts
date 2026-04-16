@@ -1,7 +1,7 @@
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { NotificationService } from '../../../services/notification.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,14 +18,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PessoaCobrancaHistorico } from '../../../models/api.models';
 import { SpinnerService } from '../../../services/spinner.service';
 
 @Component({
   selector: 'app-cobranca-detalhes',
   templateUrl: './cobranca-detalhes.component.html',
-  styleUrls: ['./cobranca-detalhes.component.css'],
+  styleUrls: ['./cobranca-detalhes.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -42,7 +45,8 @@ import { SpinnerService } from '../../../services/spinner.service';
     MatListModule
   ]
 })
-export class CobrancaDetalhesComponent implements OnInit {
+export class CobrancaDetalhesComponent implements OnInit, OnDestroy {
+      private destroy$ = new Subject<void>();
       // Função utilitária para garantir formato yyyy-MM-dd
       private formatDate(dateStr?: string): string {
         if (!dateStr) return new Date().toISOString().split('T')[0];
@@ -64,7 +68,7 @@ export class CobrancaDetalhesComponent implements OnInit {
       // Atualiza status para Pago e define dataPagamento
       this.cobrancaDetalhes.status = 2;
       this.cobrancaDetalhes.dataPagamento = new Date().toISOString().split('T')[0];
-        this.cobrancaService.updateCobranca(this.cobrancaDetalhes).subscribe({
+        this.cobrancaService.updateCobranca(this.cobrancaDetalhes).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.dialog.open(DialogMessageComponent, {
             data: {
@@ -74,8 +78,7 @@ export class CobrancaDetalhesComponent implements OnInit {
           });
           this.carregarDetalhes();
         },
-        error: (error: any) => {
-          console.error('Erro ao finalizar cobrança:', error);
+        error: () => {
           this.dialog.open(DialogMessageComponent, {
             data: {
               title: 'Erro',
@@ -146,12 +149,12 @@ export class CobrancaDetalhesComponent implements OnInit {
   private pessoaService: PessoaService,
   private notificationService: NotificationService,
   private dialog: MatDialog,
-  private spinnerService: SpinnerService
+  private spinnerService: SpinnerService,
+  private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // Simular carregamento
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const novoId = +params['id'] || 1;
       
       // Resetar histórico apenas se mudou de cobrança
@@ -168,10 +171,9 @@ export class CobrancaDetalhesComponent implements OnInit {
 
 carregarDetalhes(): void {
   this.loading = true;
-  this.cobrancaService.getCobrancaById(this.cobrancaId).subscribe({
+  this.cobrancaService.getCobrancaById(this.cobrancaId).pipe(takeUntil(this.destroy$)).subscribe({
     next: (cobranca) => {
       this.cobrancaDetalhes = cobranca;
-      console.log('[COBRANCA] Detalhes recebidos:', cobranca);
       // Preencher histórico de pagamentos se existir
          let historicoArray: { valor: number, data: Date }[] = [];
          if (cobranca.historicos && Array.isArray(cobranca.historicos)) {
@@ -197,26 +199,25 @@ carregarDetalhes(): void {
       this.historicoPagamentos = historicoPagamentosFiltrados;
       this.dataSource.data = historicoPagamentosFiltrados;
       if (cobranca && cobranca.codigoPessoa) {
-        console.log('[COBRANCA] codigoPessoa:', cobranca.codigoPessoa);
-        this.pessoaService.getPessoaById(cobranca.codigoPessoa).subscribe({
+        this.pessoaService.getPessoaById(cobranca.codigoPessoa).pipe(takeUntil(this.destroy$)).subscribe({
           next: (pessoa) => {
-            console.log('[PESSOA] Detalhes recebidos:', pessoa);
             this.pessoaDetalhes = pessoa;
             this.loading = false;
+            this.cdr.markForCheck();
           },
-          error: (error) => {
-            console.error('[PESSOA] Erro ao buscar detalhes da pessoa:', error);
+          error: () => {
             this.loading = false;
+            this.cdr.markForCheck();
           }
         });
       } else {
-        console.warn('[COBRANCA] codigoPessoa não encontrado ou nulo:', cobranca);
         this.loading = false;
+        this.cdr.markForCheck();
       }
     },
-    error: (error) => {
-      console.error('[COBRANCA] Erro ao buscar detalhes da cobrança:', error);
+    error: () => {
       this.loading = false;
+      this.cdr.markForCheck();
     }
   });
 }
@@ -235,22 +236,20 @@ carregarDetalhes(): void {
     this.notificationService.confirmDelete('Excluir Cobrança', 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.')
       .then((confirmed) => {
         if (confirmed) {
-          this.cobrancaService.deleteCobranca(this.cobrancaDetalhes.codigo).subscribe({
+          this.cobrancaService.deleteCobranca(this.cobrancaDetalhes.codigo).pipe(takeUntil(this.destroy$)).subscribe({
             next: () => {
               this.notificationService.success('Cobrança excluída!', 'Cobrança removida com sucesso.');
               setTimeout(() => {
                 this.router.navigate(['/cobrancas']);
               }, 1000);
             },
-            error: (error: any) => {
-              console.error('Erro ao excluir cobrança:', error);
+            error: () => {
               this.notificationService.error('Erro', 'Não foi possível excluir a cobrança. Tente novamente.');
             }
           });
         }
       })
-      .catch((error) => {
-        console.error('Erro na confirmação:', error);
+      .catch(() => {
       });
   }
 
@@ -336,7 +335,7 @@ carregarDetalhes(): void {
         message: `Deseja abater R$ ${this.formatarMoeda(this.cobrancaDetalhes.valorPagamento)} do empréstimo?`
       }
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       // Se o usuário clicar em OK, processa o pagamento
       if (result) {
         this.processarPagamento();
@@ -476,5 +475,10 @@ carregarDetalhes(): void {
         }
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

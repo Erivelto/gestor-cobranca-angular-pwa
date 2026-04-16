@@ -1,0 +1,31 @@
+{
+  "_endpoint": "GET /api/Pessoa/usuario/{usuarioId}?includeDeleted=false",
+  "_description": "Lista todas as pessoas/clientes do usuário logado",
+  "_auth": true,
+  "_params": {
+    "usuarioId": "ID do usuário logado (extraído do JWT ou localStorage)",
+    "includeDeleted": "false (padrão) | true"
+  },
+  "_response": [
+    {
+      "codigo": 1,
+      "nome": "João da Silva",
+      "documento": "123.456.789-00",
+      "status": 1,
+      "destacado": false,
+      "usuarioId": 1,
+      "contatos": [],
+      "enderecos": []
+    },
+    {
+      "codigo": 2,
+      "nome": "Maria Souza",
+      "documento": "987.654.321-00",
+      "status": 1,
+      "destacado": true,
+      "usuarioId": 1,
+      "contatos": [],
+      "enderecos": []
+    }
+  ]
+}

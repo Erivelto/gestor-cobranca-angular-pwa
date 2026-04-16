@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Cobranca } from '../models/api.models';
 import { PessoaCobranca } from '../models/api.models';
@@ -17,103 +17,85 @@ export class CobrancaService {
     private authService: AuthService
   ) {}
 
-  private getHeaders(): HttpHeaders {
-    const token = this.authService.token;
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+  private getUsuarioId(): number {
+    const id = this.authService.currentUserValue?.id
+      ?? Number(localStorage.getItem('userId'));
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Usuário não autenticado. Faça login novamente.');
+    }
+    return id;
   }
 
   // GET: Buscar todas as cobranças
-getCobrancas(): Observable<Cobranca[]> {
-  const usuarioId = this.authService.currentUserValue?.id ?? 
-                    Number(localStorage.getItem('userId')) ?? 1;
-  const url = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
-  
-  console.log('🔍 CobrancaService.getCobrancas() - usuarioId:', usuarioId);
-  console.log('📡 URL:', url);
-  
-  return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
-}
+  getCobrancas(): Observable<Cobranca[]> {
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(
+      `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`
+    );
+  }
 
   // GET: Buscar cobrança por ID
   getCobrancaById(id: number): Observable<Cobranca> {
-    return this.http.get<Cobranca>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<Cobranca>(`${this.apiUrl}/${id}`);
   }
 
   // POST: Criar nova cobrança
   createCobranca(payload: PessoaCobranca): Observable<any> {
-    return this.http.post<any>(this.apiUrl, payload, { headers: this.getHeaders() });
+    return this.http.post<any>(this.apiUrl, payload);
   }
 
   // PUT: Atualizar cobrança existente
-  updateCobranca( cobranca: PessoaCobranca): Observable<any> {
-    return this.http.put(`${this.apiUrl}`, cobranca, { headers: this.getHeaders() });
+  updateCobranca(cobranca: PessoaCobranca): Observable<any> {
+    return this.http.put(`${this.apiUrl}`, cobranca);
   }
 
   // DELETE: Remover cobrança
   deleteCobranca(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  // Método para buscar todas as cobranças (usa o endpoint existente)
-  // O backend fará a filtragem por status quando os endpoints específicos estiverem disponíveis
   getAllCobrancas(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`;
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(
+      `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`
+    );
   }
 
-  // Métodos para buscar cobranças por status específicos (agora disponíveis no backend)
+  // Métodos para buscar cobranças por status
   getAllAtrasadaLista(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllAtrasadoLista/${usuarioId}`;
-    console.log('📡 Chamando endpoint de atrasados:', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllAtrasadoLista/${usuarioId}`);
   }
 
   getAllEmDiaLista(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllEmDiaLista/${usuarioId}`;
-    console.log('📡 Chamando endpoint em dia:', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllEmDiaLista/${usuarioId}`);
   }
 
   getAllVenceHojeLista(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllVenceHojeLista/${usuarioId}`;
-    console.log('📡 Chamando endpoint vence hoje:', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllVenceHojeLista/${usuarioId}`);
   }
 
-  // Endpoints para Dashboard (sem "Lista")
+  // Endpoints para Dashboard
   getAllEmDia(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllEmDia/${usuarioId}`;
-    console.log('📡 Chamando endpoint em dia (dashboard):', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllEmDia/${usuarioId}`);
   }
 
   getAllAtrasado(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllAtrasado/${usuarioId}`;
-    console.log('📡 Chamando endpoint atrasado (dashboard):', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllAtrasado/${usuarioId}`);
   }
 
   getAllVenceHoje(): Observable<Cobranca[]> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllVenceHoje/${usuarioId}`;
-    console.log('📡 Chamando endpoint vence hoje (dashboard):', url);
-    return this.http.get<Cobranca[]>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<Cobranca[]>(`${this.apiUrl}/GetAllVenceHoje/${usuarioId}`);
   }
 
   getAllJuros(): Observable<number> {
-    const usuarioId = this.authService.currentUserValue?.id ?? Number(localStorage.getItem('userId')) ?? 1;
-    const url = `${this.apiUrl}/GetAllJuros/${usuarioId}`;
-    console.log('📡 Chamando endpoint juros (dashboard):', url);
-    return this.http.get<number>(url, { headers: this.getHeaders() });
+    const usuarioId = this.getUsuarioId();
+    return this.http.get<number>(`${this.apiUrl}/GetAllJuros/${usuarioId}`);
   }
 }
 

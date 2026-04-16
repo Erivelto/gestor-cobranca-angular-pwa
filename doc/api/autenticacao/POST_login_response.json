@@ -1,0 +1,11 @@
+{
+  "_endpoint": "POST /api/Autenticacao/login",
+  "_description": "Resposta de login com token JWT e objeto do usuário",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "usuario": {
+    "id": 1,
+    "username": "nome_usuario",
+    "senha": null,
+    "tipo": 1
+  }
+}

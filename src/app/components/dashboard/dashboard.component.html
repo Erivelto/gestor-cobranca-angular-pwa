@@ -9,6 +9,9 @@
   <mat-grid-list [cols]="statsCols" [rowHeight]="rowHeight" [gutterSize]="statsCols > 2 ? '16px' : '12px'" class="stats-grid">
     <mat-grid-tile *ngFor="let card of statCards">
       <mat-card class="enhanced-stat-card" [class]="'card-' + card.color" [class.loading]="loading"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="card.title + ': ' + card.value"
         (click)="card.title === 'Em Dia'
           ? navegarParaStatus('em-dia')
           : card.title === 'Vence Hoje'
@@ -18,7 +21,15 @@
               : card.title === 'Total de Clientes'
                 ? navegarPara('/pessoas')
                 : null"
-        style="cursor: pointer;">
+        (keydown.enter)="card.title === 'Em Dia'
+          ? navegarParaStatus('em-dia')
+          : card.title === 'Vence Hoje'
+            ? navegarParaStatus('vence-hoje')
+            : card.title === 'Devedor'
+              ? navegarParaStatus('devedor')
+              : card.title === 'Total de Clientes'
+                ? navegarPara('/pessoas')
+                : null">
         <!-- Card Header -->
         <div class="card-header">
           <div class="icon-container">
@@ -47,8 +58,8 @@
         </mat-card-content>
 
         <!-- Loading Overlay -->
-        <div class="loading-overlay" *ngIf="loading">
-          <mat-icon class="loading-spinner">refresh</mat-icon>
+        <div class="loading-overlay" *ngIf="loading" role="status" aria-label="Carregando">
+          <mat-icon class="loading-spinner" aria-hidden="true">refresh</mat-icon>
         </div>
       </mat-card>
     </mat-grid-tile>
@@ -57,10 +68,10 @@
   <div class="quick-actions">
     <h2>Ações Rápidas</h2>
     <div class="actions-grid-grid">
-      <mat-card class="action-card" (click)="navegarPara('/pessoas/nova')">
+      <mat-card class="action-card" role="button" tabindex="0" aria-label="Novo Cliente" (click)="navegarPara('/pessoas/nova')" (keydown.enter)="navegarPara('/pessoas/nova')">
           <mat-card-content>
             <div class="action-icon-container">
-              <mat-icon class="action-icon">person_add</mat-icon>
+              <mat-icon class="action-icon" aria-hidden="true">person_add</mat-icon>
             </div>
             <div class="action-text-container">
               <h3>Novo Cliente </h3>
@@ -69,10 +80,10 @@
           </mat-card-content>
         </mat-card>
 
-      <mat-card class="action-card" (click)="navegarPara('/cobrancas/nova')">
+      <mat-card class="action-card" role="button" tabindex="0" aria-label="Nova Cobrança" (click)="navegarPara('/cobrancas/nova')" (keydown.enter)="navegarPara('/cobrancas/nova')">
           <mat-card-content>
             <div class="action-icon-container">
-              <mat-icon class="action-icon">credit_card</mat-icon>
+              <mat-icon class="action-icon" aria-hidden="true">credit_card</mat-icon>
             </div>
             <div class="action-text-container">
               <h3>Nova Cobrança</h3>
@@ -81,10 +92,10 @@
           </mat-card-content>
         </mat-card>
 
-      <mat-card class="action-card" (click)="navegarPara('/pessoas')">
+      <mat-card class="action-card" role="button" tabindex="0" aria-label="Ver Clientes" (click)="navegarPara('/pessoas')" (keydown.enter)="navegarPara('/pessoas')">
           <mat-card-content>
             <div class="action-icon-container">
-              <mat-icon class="action-icon">people</mat-icon>
+              <mat-icon class="action-icon" aria-hidden="true">people</mat-icon>
             </div>
             <div class="action-text-container">
               <h3>Ver Clientes</h3>
@@ -93,10 +104,10 @@
           </mat-card-content>
         </mat-card>
 
-      <mat-card class="action-card" (click)="navegarPara('/cobrancas')">
+      <mat-card class="action-card" role="button" tabindex="0" aria-label="Ver Cobranças" (click)="navegarPara('/cobrancas')" (keydown.enter)="navegarPara('/cobrancas')">
           <mat-card-content>
             <div class="action-icon-container">
-              <mat-icon class="action-icon">list</mat-icon>
+              <mat-icon class="action-icon" aria-hidden="true">list</mat-icon>
             </div>
             <div class="action-text-container">
               <h3>Ver Cobranças</h3>
@@ -105,10 +116,10 @@
           </mat-card-content>
         </mat-card>
 
-      <mat-card class="action-card" (click)="navegarPara('/parcelamento')">
+      <mat-card class="action-card" role="button" tabindex="0" aria-label="Parcelamentos" (click)="navegarPara('/parcelamento')" (keydown.enter)="navegarPara('/parcelamento')">
           <mat-card-content>
             <div class="action-icon-container">
-              <mat-icon class="action-icon">payments</mat-icon>
+              <mat-icon class="action-icon" aria-hidden="true">payments</mat-icon>
             </div>
             <div class="action-text-container">
               <h3>Parcelamentos</h3>

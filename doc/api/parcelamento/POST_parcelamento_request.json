@@ -1,0 +1,10 @@
+{
+  "_endpoint": "POST /api/PessoaParcelamento",
+  "_description": "Cria um novo parcelamento",
+  "_auth": true,
+  "codigoPessoa": 1,
+  "quantidadeParcelas": 6,
+  "valorTotal": 3000.00,
+  "status": 1,
+  "excluido": false
+}

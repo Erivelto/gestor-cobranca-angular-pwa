@@ -1,0 +1,17 @@
+{
+  "_endpoint": "POST /api/PessoaEndereco",
+  "_description": "Cria um novo endereço para uma pessoa",
+  "_auth": true,
+  "_base_url_nota": "Usa URL hardcoded: https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaEndereco",
+  "_campo_typo": "Campo 'numrero' é um typo da API - deveria ser 'numero'",
+  "codigoPessoa": 1,
+  "tipo": "R",
+  "logradouro": "Rua das Flores",
+  "numrero": "123",
+  "complemento": "Apto 45",
+  "bairro": "Centro",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01000-000",
+  "excluido": false
+}

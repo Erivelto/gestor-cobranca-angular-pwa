@@ -34,7 +34,7 @@ export interface StatCardData {
     MatChipsModule
   ],
   templateUrl: './stat-card.component.html',
-  styleUrls: ['./stat-card.component.css'],
+  styleUrls: ['./stat-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatCardComponent {

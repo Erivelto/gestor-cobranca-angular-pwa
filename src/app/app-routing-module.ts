@@ -2,35 +2,27 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 
 import { LoginComponent } from './components/login/login.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { PessoasListaComponent } from './components/pessoas/lista/pessoas-lista.component';
 import { PessoaFormComponent } from './components/pessoas/form/pessoa-form.component';
-import { PessoaEditComponent } from './components/pessoas/edit/pessoa-edit.component';
-import { CobrancasListaComponent } from './components/cobrancas/lista/cobrancas-lista.component';
-import { NovaCobrancaComponent } from './components/cobrancas/nova/nova-cobranca.component';
-import { CobrancaDetalhesComponent } from './components/cobrancas/detalhes/cobranca-detalhes.component';
-import { ParcelamentoListaComponent } from './components/parcelamento/lista/parcelamento-lista.component';
-import { NovoParcelamentoComponent } from './components/parcelamento/novo/novo-parcelamento.component';
-import { ParcelamentoDetalhesComponent } from './components/parcelamento/detalhes/parcelamento-detalhes.component';
+import { authGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'pessoas', component: PessoasListaComponent },
-  { path: 'pessoas/nova', component: PessoaFormComponent },
-  { path: 'pessoas/editar/:id', component: PessoaFormComponent },
-  { path: 'pessoas/edit/:id', component: PessoaEditComponent },
-  { path: 'cobrancas', component: CobrancasListaComponent },
-  { path: 'cobrancas/em-dia', component: CobrancasListaComponent, data: { tab: 'em-dia' } },
-  { path: 'cobrancas/vence-hoje', component: CobrancasListaComponent, data: { tab: 'vence-hoje' } },
-  { path: 'cobrancas/devedor', component: CobrancasListaComponent, data: { tab: 'devedor' } },
-  { path: 'cobrancas/nova', component: NovaCobrancaComponent },
-  { path: 'cobrancas/detalhes/:id', component: CobrancaDetalhesComponent },
-  { path: 'parcelamento', component: ParcelamentoListaComponent },
-  { path: 'parcelamento/novo', component: NovoParcelamentoComponent },
-  { path: 'parcelamento/editar/:id', component: NovoParcelamentoComponent },
-  { path: 'parcelamento/detalhes/:id', component: ParcelamentoDetalhesComponent },
+  { path: 'dashboard', canActivate: [authGuard], loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+  { path: 'pessoas', canActivate: [authGuard], loadComponent: () => import('./components/pessoas/lista/pessoas-lista.component').then(m => m.PessoasListaComponent) },
+  { path: 'pessoas/nova', canActivate: [authGuard], component: PessoaFormComponent },
+  { path: 'pessoas/editar/:id', canActivate: [authGuard], component: PessoaFormComponent },
+  { path: 'pessoas/edit/:id', canActivate: [authGuard], loadComponent: () => import('./components/pessoas/edit/pessoa-edit.component').then(m => m.PessoaEditComponent) },
+  { path: 'cobrancas', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/lista/cobrancas-lista.component').then(m => m.CobrancasListaComponent) },
+  { path: 'cobrancas/em-dia', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/lista/cobrancas-lista.component').then(m => m.CobrancasListaComponent), data: { tab: 'em-dia' } },
+  { path: 'cobrancas/vence-hoje', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/lista/cobrancas-lista.component').then(m => m.CobrancasListaComponent), data: { tab: 'vence-hoje' } },
+  { path: 'cobrancas/devedor', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/lista/cobrancas-lista.component').then(m => m.CobrancasListaComponent), data: { tab: 'devedor' } },
+  { path: 'cobrancas/nova', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/nova/nova-cobranca.component').then(m => m.NovaCobrancaComponent) },
+  { path: 'cobrancas/detalhes/:id', canActivate: [authGuard], loadComponent: () => import('./components/cobrancas/detalhes/cobranca-detalhes.component').then(m => m.CobrancaDetalhesComponent) },
+  { path: 'parcelamento', canActivate: [authGuard], loadComponent: () => import('./components/parcelamento/lista/parcelamento-lista.component').then(m => m.ParcelamentoListaComponent) },
+  { path: 'parcelamento/novo', canActivate: [authGuard], loadComponent: () => import('./components/parcelamento/novo/novo-parcelamento.component').then(m => m.NovoParcelamentoComponent) },
+  { path: 'parcelamento/editar/:id', canActivate: [authGuard], loadComponent: () => import('./components/parcelamento/novo/novo-parcelamento.component').then(m => m.NovoParcelamentoComponent) },
+  { path: 'parcelamento/detalhes/:id', canActivate: [authGuard], loadComponent: () => import('./components/parcelamento/detalhes/parcelamento-detalhes.component').then(m => m.ParcelamentoDetalhesComponent) },
   { path: '**', redirectTo: '/login' }
 ];
 

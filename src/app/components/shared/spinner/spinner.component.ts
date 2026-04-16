@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-spinner',
   templateUrl: './spinner.component.html',
-  styleUrls: ['./spinner.component.css'],
+  styleUrls: ['./spinner.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })

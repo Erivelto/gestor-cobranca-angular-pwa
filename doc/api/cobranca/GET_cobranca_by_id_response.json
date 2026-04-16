@@ -1,0 +1,36 @@
+{
+  "_endpoint": "GET /api/PessoaCobranca/{id}",
+  "_description": "Retorna uma cobrança específica com histórico de pagamentos",
+  "_auth": true,
+  "_response": {
+    "codigo": 100,
+    "codigoPessoa": 1,
+    "tipoCobranca": "M",
+    "valor": 1500.00,
+    "juros": 2.5,
+    "multa": 50.00,
+    "valorTotal": 1587.50,
+    "dataInicio": "2026-01-01T00:00:00",
+    "diaVencimento": 15,
+    "dataVencimento": "2026-04-15T00:00:00",
+    "dataPagamento": null,
+    "status": 3,
+    "excluido": false,
+    "historicos": [
+      {
+        "codigo": 200,
+        "codigoCobranca": 100,
+        "dataVencimento": "2026-02-15T00:00:00",
+        "dataPagamento": "2026-02-15T00:00:00",
+        "valorPagamento": 1537.50
+      }
+    ],
+    "pessoaCobrancaHistorico": {
+      "codigo": 201,
+      "codigoCobranca": 100,
+      "dataVencimento": "2026-03-15T00:00:00",
+      "dataPagamento": "2026-03-14T00:00:00",
+      "valorPagamento": 1537.50
+    }
+  }
+}

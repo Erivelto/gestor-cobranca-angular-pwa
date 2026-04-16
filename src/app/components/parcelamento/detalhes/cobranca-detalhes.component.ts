@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-cobranca-detalhes',
   templateUrl: './cobranca-detalhes.component.html',
-  styleUrls: ['./cobranca-detalhes.component.css'],
+  styleUrls: ['./cobranca-detalhes.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -71,8 +71,7 @@ export class CobrancaDetalhesComponent implements OnInit {
             this.carregarPessoa(parcelamento.codigoPessoa);
             this.carregarDetalhesParcelamento(parcelamento.codigo);
           },
-          error: (error) => {
-            console.error('Erro ao carregar parcelamento:', error);
+          error: () => {
             this.spinner.hide();
             this.loading = false;
           }
@@ -86,8 +85,7 @@ export class CobrancaDetalhesComponent implements OnInit {
       next: (pessoa) => {
         this.pessoa = pessoa;
       },
-      error: (error) => {
-        console.error('Erro ao carregar pessoa:', error);
+      error: () => {
       }
     });
   }
@@ -101,8 +99,7 @@ export class CobrancaDetalhesComponent implements OnInit {
         this.loading = false;
         this.spinner.hide();
       },
-      error: (error) => {
-        console.error('Erro ao carregar detalhes:', error);
+      error: () => {
         this.loading = false;
         this.spinner.hide();
       }
@@ -152,8 +149,7 @@ export class CobrancaDetalhesComponent implements OnInit {
             Swal.fire('Sucesso!', 'Pagamento registrado com sucesso', 'success');
             this.carregarDetalhesParcelamento(this.parcelamento!.codigo);
           },
-          error: (error) => {
-            console.error('Erro ao registrar pagamento:', error);
+          error: () => {
             this.spinner.hide();
             Swal.fire('Erro!', 'Falha ao registrar pagamento', 'error');
           }

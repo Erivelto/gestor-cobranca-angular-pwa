@@ -2,14 +2,14 @@
   <!-- Header Section -->
   <div class="dashboard-header">
     <h1>Clientes</h1>
-    <button mat-raised-button color="primary" (click)="novaPessoa()" class="add-new-btn" style="margin-left:auto;">
-      <mat-icon>add</mat-icon>
+    <button mat-raised-button color="primary" (click)="novaPessoa()" class="add-new-btn ml-auto">
+      <mat-icon aria-hidden="true">add</mat-icon>
       Novo Clientes
     </button>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
+  <div *ngIf="loading" class="loading-container" role="status" aria-live="polite">
     <mat-card class="loading-card">
       <mat-card-content class="loading-content">
         <mat-spinner diameter="40"></mat-spinner>
@@ -19,25 +19,25 @@
   </div>
 
   <!-- Error State -->
-  <mat-card *ngIf="error && !loading" class="error-card">
+  <mat-card *ngIf="error && !loading" class="error-card" role="alert" aria-live="assertive">
     <mat-card-content class="error-content">
-      <mat-icon class="error-icon">error_outline</mat-icon>
+      <mat-icon class="error-icon" aria-hidden="true">error_outline</mat-icon>
       <p>{{ error }}</p>
       <button mat-button color="primary" (click)="loadPessoas()">
-        <mat-icon>refresh</mat-icon>
+        <mat-icon aria-hidden="true">refresh</mat-icon>
         Tentar Novamente
       </button>
     </mat-card-content>
   </mat-card>
 
   <!-- Empty State -->
-  <mat-card *ngIf="!loading && !error && pessoas.length === 0" class="empty-card">
+  <mat-card *ngIf="!loading && !error && pessoas.length === 0" class="empty-card" aria-live="polite">
     <mat-card-content class="empty-content">
-      <mat-icon class="empty-icon">person_add</mat-icon>
+      <mat-icon class="empty-icon" aria-hidden="true">person_add</mat-icon>
       <h2>Nenhum cliente cadastrado</h2>
       <p>Comece adicionando seu primeiro cliente</p>
       <button mat-raised-button color="primary" (click)="novaPessoa()">
-        <mat-icon>add</mat-icon>
+        <mat-icon aria-hidden="true">add</mat-icon>
         Cadastrar Primeiro Cliente
       </button>
     </mat-card-content>
@@ -82,7 +82,7 @@
           <ng-container matColumnDef="nome">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
             <td mat-cell *matCellDef="let pessoa">
-              <div class="nome-cell" style="cursor:pointer;" (click)="editarPessoaAvancado(pessoa.codigo)">
+              <div class="nome-cell clickable" (click)="editarPessoaAvancado(pessoa.codigo)">
                 <mat-icon class="person-icon">person</mat-icon>
                 <span class="nome-text">{{ formatarNome(pessoa.nome) }}</span>
               </div>
@@ -106,8 +106,16 @@
               <button mat-icon-button
                       color="primary"
                       matTooltip="Editar"
+                      aria-label="Editar cliente"
                       (click)="editarPessoaAvancado(pessoa.codigo)">
                 <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button
+                      color="warn"
+                      matTooltip="Excluir"
+                      aria-label="Excluir cliente"
+                      (click)="deletarPessoa(pessoa.codigo)">
+                <mat-icon>delete</mat-icon>
               </button>
             </td>
           </ng-container>

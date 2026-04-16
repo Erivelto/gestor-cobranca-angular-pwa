@@ -1,0 +1,110 @@
+{
+  "_titulo": "Mapa Completo de APIs - Gestor Cobrança",
+  "_data_geracao": "2026-04-16",
+  "_base_url": "https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net",
+  "_proxy_dev": "http://127.0.0.1:8080/api/* → Azure",
+
+  "autenticacao": {
+    "headers_publicos": { "Content-Type": "application/json", "Accept": "application/json" },
+    "headers_autenticados": { "Content-Type": "application/json", "Authorization": "Bearer {token}" },
+    "endpoints": [
+      { "method": "POST", "path": "/api/Autenticacao/login", "auth": false, "arquivo_doc": "autenticacao/" }
+    ]
+  },
+
+  "pessoa": {
+    "controller": "/api/Pessoa",
+    "endpoints": [
+      { "method": "GET",    "path": "/api/Pessoa/usuario/{usuarioId}?includeDeleted=false", "auth": true },
+      { "method": "GET",    "path": "/api/Pessoa/{id}", "auth": true },
+      { "method": "POST",   "path": "/api/Pessoa", "auth": true },
+      { "method": "PUT",    "path": "/api/Pessoa/{id}", "auth": true },
+      { "method": "DELETE", "path": "/api/Pessoa/{id}", "auth": true }
+    ]
+  },
+
+  "pessoa_contato": {
+    "controller": "/api/PessoaContato",
+    "_alerta": "Usa URL hardcoded no service em vez de environment.apiUrl",
+    "endpoints": [
+      { "method": "POST",   "path": "/api/PessoaContato", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaContato/pessoa/{pessoaId}", "auth": true },
+      { "method": "PUT",    "path": "/api/PessoaContato/{id}", "auth": true },
+      { "method": "DELETE", "path": "/api/PessoaContato/{id}", "auth": true }
+    ]
+  },
+
+  "pessoa_endereco": {
+    "controller": "/api/PessoaEndereco",
+    "_alerta": "Usa URL hardcoded no service + campo 'numrero' (typo da API)",
+    "endpoints": [
+      { "method": "POST",   "path": "/api/PessoaEndereco", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaEndereco/pessoa/{pessoaId}", "auth": true, "fallback": "GET /api/PessoaEndereco + filter" },
+      { "method": "PUT",    "path": "/api/PessoaEndereco/{id}", "auth": true },
+      { "method": "DELETE", "path": "/api/PessoaEndereco/{id}", "auth": true }
+    ]
+  },
+
+  "pessoa_upload": {
+    "controller": "/api/PessoaUpload",
+    "_alerta": "Usa URL hardcoded no service",
+    "endpoints": [
+      { "method": "POST", "path": "/api/PessoaUpload", "auth": true }
+    ]
+  },
+
+  "cobranca": {
+    "controller": "/api/PessoaCobranca",
+    "status_codes": { "1": "Pendente", "2": "Pago", "3": "Vencido", "5": "Em Dia" },
+    "endpoints": [
+      { "method": "GET",    "path": "/api/PessoaCobranca/usuario/{usuarioId}?includeDeleted=false", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaCobranca/{id}", "auth": true },
+      { "method": "POST",   "path": "/api/PessoaCobranca", "auth": true },
+      { "method": "PUT",    "path": "/api/PessoaCobranca", "auth": true },
+      { "method": "DELETE", "path": "/api/PessoaCobranca/{id}", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllEmDiaLista/{usuarioId}", "auth": true, "uso": "lista" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllAtrasadoLista/{usuarioId}", "auth": true, "uso": "lista" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllVenceHojeLista/{usuarioId}", "auth": true, "uso": "lista" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllEmDia/{usuarioId}", "auth": true, "uso": "dashboard" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllAtrasado/{usuarioId}", "auth": true, "uso": "dashboard" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllVenceHoje/{usuarioId}", "auth": true, "uso": "dashboard" },
+      { "method": "GET",    "path": "/api/PessoaCobranca/GetAllJuros/{usuarioId}", "auth": true, "uso": "dashboard" }
+    ]
+  },
+
+  "parcelamento": {
+    "controller": "/api/PessoaParcelamento",
+    "status_codes": { "1": "Ativo", "2": "Finalizado", "3": "Cancelado" },
+    "endpoints": [
+      { "method": "GET",    "path": "/api/PessoaParcelamento", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaParcelamento/{codigo}", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaParcelamento/pessoa/{codigoPessoa}", "auth": true },
+      { "method": "POST",   "path": "/api/PessoaParcelamento", "auth": true },
+      { "method": "PUT",    "path": "/api/PessoaParcelamento/{codigo}", "auth": true },
+      { "method": "DELETE", "path": "/api/PessoaParcelamento/{codigo}", "auth": true },
+      { "method": "GET",    "path": "/api/PessoaParcelamento/{codigoParcelamento}/detalhes", "auth": true },
+      { "method": "POST",   "path": "/api/PessoaParcelamento/detalhes", "auth": true },
+      { "method": "PUT",    "path": "/api/PessoaParcelamento/detalhes", "auth": true }
+    ]
+  },
+
+  "externo": {
+    "viacep": {
+      "base_url": "https://viacep.com.br/ws",
+      "endpoints": [
+        { "method": "GET", "path": "/{cep}/json/", "auth": false }
+      ]
+    }
+  },
+
+  "alertas": [
+    "PessoaContato, PessoaEndereco e PessoaUpload usam URL hardcoded em vez de environment.apiUrl",
+    "Campo 'numrero' no PessoaEndereco é um typo da API (deveria ser 'numero')",
+    "Fallback de userId para '1' quando não encontra no JWT ou localStorage",
+    "PUT /api/PessoaCobranca não usa ID no path - envia objeto completo no body",
+    "Endpoint de endereço por pessoa tem fallback: busca todos e filtra no frontend em caso de 404",
+    "Detalhes de parcelamento tenta endpoint alternativo se array vazio"
+  ],
+
+  "total_endpoints": 35
+}

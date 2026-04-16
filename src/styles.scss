@@ -1,0 +1,195 @@
+// ================================
+// GLOBAL STYLES - Gestor Cobrança
+// ================================
+@use 'scss/variables' as *;
+@use 'scss/animations';
+@use 'scss/accessibility';
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+// ================================
+// RESET & BASE
+// ================================
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body {
+  font-family: $font-family;
+  background-color: $color-bg;
+  color: $color-text;
+}
+
+* {
+  text-shadow: none;
+}
+
+// ================================
+// FORM LAYOUT
+// ================================
+.form-row {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.form-row .form-group {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+mat-form-field.form-group {
+  width: 100%;
+}
+
+// ================================
+// MATERIAL OVERRIDES
+// ================================
+.mat-mdc-card-title,
+.mat-mdc-card-subtitle {
+  margin: 10px 0 12px 20px;
+}
+
+.mat-mdc-card {
+  margin-bottom: 3px;
+}
+
+// ================================
+// BADGES DE STATUS
+// ================================
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-secondary {
+  min-width: 80px;
+  max-width: 140px;
+  height: 28px;
+  line-height: 28px;
+  background: $badge-success-bg;
+  color: #fff;
+  border: none;
+  border-radius: $radius-xl;
+  padding: 2px 12px;
+  font-weight: 300;
+  font-size: $font-size-sm;
+  display: inline-block;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.badge-warning {
+  background: $badge-warning-bg;
+}
+
+.badge-danger {
+  background: $badge-danger-bg;
+}
+
+.badge-secondary {
+  background: $badge-secondary-bg;
+  color: #757575;
+  border: 1px solid #bdbdbd;
+}
+
+// ================================
+// SWEETALERT2 OVERRIDES
+// ================================
+.swal2-backdrop,
+.swal2-backdrop-show,
+.swal2-backdrop-hide {
+  display: none;
+  background: none;
+}
+
+.swal2-container {
+  background: none;
+}
+
+.swal2-popup {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+// ================================
+// BUTTON OVERRIDES
+// ================================
+.mat-raised-button.mat-primary,
+.mat-flat-button.mat-primary {
+  background-color: $color-primary;
+  color: #ffffff;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $color-primary-dark;
+  }
+}
+
+.mat-raised-button.mat-accent,
+.mat-flat-button.mat-accent {
+  background-color: $color-accent;
+  color: $color-accent-light;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $color-accent-dark;
+    color: $color-accent-light;
+  }
+}
+
+.mat-raised-button.mat-warn,
+.mat-flat-button.mat-warn {
+  background-color: $color-warn;
+  color: $color-warn-light;
+  font-weight: 600;
+
+  &:hover {
+    background-color: $color-warn-dark;
+    color: $color-warn-light;
+  }
+}
+
+// ================================
+// RESPONSIVE
+// ================================
+
+// ================================
+// DIALOG UTILITIES
+// ================================
+.dialog-content-center {
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .form-group,
+  .form-group-full {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+  }
+
+  .file-upload-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-sm;
+  }
+
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-sm;
+  }
+}

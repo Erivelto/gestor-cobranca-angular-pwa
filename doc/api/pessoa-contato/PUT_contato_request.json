@@ -1,0 +1,16 @@
+{
+  "_endpoint": "PUT /api/PessoaContato/{id}",
+  "_description": "Atualiza um contato existente",
+  "_auth": true,
+  "codigo": 10,
+  "codigoPessoa": 1,
+  "email": "joao_novo@email.com",
+  "site": "www.joao.com.br",
+  "ddd": "11",
+  "celular": "999999999",
+  "excluido": false,
+  "tipo": "P",
+  "dddAdic": "",
+  "celularAdic": "",
+  "descricaoAdic": ""
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,12 +21,15 @@ import { ParcelamentoService } from '../../../services/parcelamento.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { SpinnerService } from '../../../services/spinner.service';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-parcelamento-detalhes',
   templateUrl: './parcelamento-detalhes.component.html',
-  styleUrls: ['./parcelamento-detalhes.component.css'],
+  styleUrls: ['./parcelamento-detalhes.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -46,7 +49,8 @@ import { DialogMessageComponent } from '../../shared/dialog-message.component';
     MatSnackBarModule
   ]
 })
-export class ParcelamentoDetalhesComponent implements OnInit {
+export class ParcelamentoDetalhesComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   private parcelamentoService = inject(ParcelamentoService);
   private pessoaService = inject(PessoaService);
   private spinner = inject(SpinnerService);
@@ -54,6 +58,7 @@ export class ParcelamentoDetalhesComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   parcelamento?: PessoaParcelamento;
   detalhes: PessoaParcelamentoDetalhe[] = [];
@@ -77,19 +82,19 @@ export class ParcelamentoDetalhesComponent implements OnInit {
     this.loading = true;
     this.spinner.show();
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.parcelamentoService.getParcelamentoById(Number(id)).subscribe({
+        this.parcelamentoService.getParcelamentoById(Number(id)).pipe(takeUntil(this.destroy$)).subscribe({
           next: (parcelamento) => {
             this.parcelamento = parcelamento;
             this.carregarPessoa(parcelamento.codigoPessoa);
             this.carregarDetalhesParcelamento(parcelamento.codigo);
           },
-          error: (error) => {
-            console.error('Erro ao carregar parcelamento:', error);
+          error: () => {
             this.spinner.hide();
             this.loading = false;
+            this.cdr.markForCheck();
           }
         });
       }
@@ -97,28 +102,28 @@ export class ParcelamentoDetalhesComponent implements OnInit {
   }
 
   carregarPessoa(codigoPessoa: number): void {
-    this.pessoaService.getPessoaById(codigoPessoa).subscribe({
+    this.pessoaService.getPessoaById(codigoPessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoa) => {
         this.pessoa = pessoa;
       },
-      error: (error) => {
-        console.error('Erro ao carregar pessoa:', error);
+      error: () => {
       }
     });
   }
 
   carregarDetalhesParcelamento(codigoParcelamento: number): void {
-    this.parcelamentoService.getDetalhesParcelamento(codigoParcelamento).subscribe({
+    this.parcelamentoService.getDetalhesParcelamento(codigoParcelamento).pipe(takeUntil(this.destroy$)).subscribe({
       next: (detalhes) => {
         this.detalhes = detalhes;
         this.dataSource.data = detalhes;
         this.calcularMetricasResumo();
         this.loading = false;
+        this.cdr.markForCheck();
         this.spinner.hide();
       },
-      error: (error) => {
-        console.error('Erro ao carregar detalhes:', error);
+      error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.spinner.hide();
       }
     });
@@ -138,13 +143,6 @@ export class ParcelamentoDetalhesComponent implements OnInit {
     this.valorTotalAberto = this.detalhes
       .filter(d => !d.dataPagamento)
       .reduce((sum, d) => sum + (d.valorParcela || 0), 0);
-
-    console.log('📊 Métricas do Parcelamento:');
-    console.log('  - Total de Parcelas:', this.totalParcelas);
-    console.log('  - Parcelas Pagas:', this.parcelasPagas);
-    console.log('  - Parcelas Abertas:', this.parcelasAbertas);
-    console.log('  - Valor Total Pago:', this.valorTotalPago);
-    console.log('  - Valor Total Aberto:', this.valorTotalAberto);
   }
 
   getStatusLabel(detalhe: PessoaParcelamentoDetalhe): string {
@@ -183,7 +181,7 @@ export class ParcelamentoDetalhesComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
         const today = new Date().toISOString().split('T')[0];
         const detalhePago = {
@@ -193,7 +191,7 @@ export class ParcelamentoDetalhesComponent implements OnInit {
         };
 
         this.spinner.show();
-        this.parcelamentoService.atualizarDetalheParcelamento(detalhe.codigo, detalhePago).subscribe({
+        this.parcelamentoService.atualizarDetalheParcelamento(detalhe.codigo, detalhePago).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.spinner.hide();
             this.snackBar.open('Pagamento registrado com sucesso', 'Fechar', {
@@ -204,8 +202,7 @@ export class ParcelamentoDetalhesComponent implements OnInit {
             });
             this.carregarDetalhesParcelamento(this.parcelamento!.codigo);
           },
-          error: (error) => {
-            console.error('Erro ao registrar pagamento:', error);
+          error: () => {
             this.spinner.hide();
             this.snackBar.open('Falha ao registrar pagamento', 'Fechar', {
               duration: 4000,
@@ -252,5 +249,10 @@ export class ParcelamentoDetalhesComponent implements OnInit {
   get percentualConclusao(): number {
     if (this.totalParcelas === 0) return 0;
     return Math.round((this.parcelasPagas / this.totalParcelas) * 100);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

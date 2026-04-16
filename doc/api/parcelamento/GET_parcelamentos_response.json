@@ -1,0 +1,23 @@
+{
+  "_endpoint": "GET /api/PessoaParcelamento",
+  "_description": "Lista todos os parcelamentos",
+  "_auth": true,
+  "_response": [
+    {
+      "codigo": 300,
+      "codigoPessoa": 1,
+      "quantidadeParcelas": 6,
+      "valorTotal": 3000.00,
+      "status": 1,
+      "excluido": false
+    },
+    {
+      "codigo": 301,
+      "codigoPessoa": 2,
+      "quantidadeParcelas": 12,
+      "valorTotal": 12000.00,
+      "status": 2,
+      "excluido": false
+    }
+  ]
+}

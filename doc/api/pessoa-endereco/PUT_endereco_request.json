@@ -1,0 +1,16 @@
+{
+  "_endpoint": "PUT /api/PessoaEndereco/{id}",
+  "_description": "Atualiza um endereço existente",
+  "_auth": true,
+  "codigo": 20,
+  "codigoPessoa": 1,
+  "tipo": "R",
+  "logradouro": "Rua das Flores Atualizada",
+  "numrero": "456",
+  "complemento": "Bloco B",
+  "bairro": "Centro",
+  "cidade": "São Paulo",
+  "uf": "SP",
+  "cep": "01000-000",
+  "excluido": false
+}

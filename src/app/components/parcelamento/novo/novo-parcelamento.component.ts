@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -15,13 +15,16 @@ import { ParcelamentoService } from '../../../services/parcelamento.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { SpinnerService } from '../../../services/spinner.service';
 import { Pessoa } from '../../../models/api.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-novo-parcelamento',
   templateUrl: './novo-parcelamento.component.html',
-  styleUrls: ['./novo-parcelamento.component.css'],
+  styleUrls: ['./novo-parcelamento.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -36,13 +39,15 @@ import Swal from 'sweetalert2';
     MatDividerModule
   ]
 })
-export class NovoParcelamentoComponent implements OnInit {
+export class NovoParcelamentoComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   private parcelamentoService = inject(ParcelamentoService);
   private pessoaService = inject(PessoaService);
   private spinner = inject(SpinnerService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
 
   form!: FormGroup;
   loading = false;
@@ -67,13 +72,12 @@ export class NovoParcelamentoComponent implements OnInit {
 
   carregarPessoas(): void {
     this.spinner.show();
-    this.pessoaService.getPessoas().subscribe({
+    this.pessoaService.getPessoas().pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.pessoas = data.filter(p => !p.status || p.status === 1);
         this.spinner.hide();
       },
-      error: (error) => {
-        console.error('Erro ao carregar pessoas:', error);
+      error: () => {
         Swal.fire('Erro', 'Falha ao carregar pessoas', 'error');
         this.spinner.hide();
       }
@@ -81,7 +85,7 @@ export class NovoParcelamentoComponent implements OnInit {
   }
 
   verificarEdicao(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isEditing = true;
@@ -95,7 +99,7 @@ export class NovoParcelamentoComponent implements OnInit {
     if (!this.parcelamentoId) return;
 
     this.spinner.show();
-    this.parcelamentoService.getParcelamentoById(this.parcelamentoId).subscribe({
+    this.parcelamentoService.getParcelamentoById(this.parcelamentoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.form.patchValue({
           codigoPessoa: data.codigoPessoa,
@@ -105,8 +109,7 @@ export class NovoParcelamentoComponent implements OnInit {
         });
         this.spinner.hide();
       },
-      error: (error) => {
-        console.error('Erro ao carregar parcelamento:', error);
+      error: () => {
         Swal.fire('Erro', 'Falha ao carregar parcelamento', 'error');
         this.spinner.hide();
       }
@@ -133,37 +136,38 @@ export class NovoParcelamentoComponent implements OnInit {
 
     if (this.isEditing) {
       // Se editando, usa o método de atualização padrão
-      this.parcelamentoService.atualizarParcelamento(this.parcelamentoId!, dados).subscribe({
+      this.parcelamentoService.atualizarParcelamento(this.parcelamentoId!, dados).pipe(takeUntil(this.destroy$)).subscribe({
         next: (result) => {
           Swal.fire('Sucesso!', 'Parcelamento atualizado com sucesso', 'success');
           this.loading = false;
+          this.cdr.markForCheck();
           this.spinner.hide();
           this.router.navigate(['/parcelamento']);
         },
-        error: (error) => {
-          console.error('Erro ao atualizar parcelamento:', error);
+        error: () => {
           Swal.fire('Erro!', 'Falha ao atualizar parcelamento', 'error');
           this.loading = false;
+          this.cdr.markForCheck();
           this.spinner.hide();
         }
       });
     } else {
       // Se criando, usa o novo método que cria parcelamento + detalhes das parcelas
       const dataCadastroAgora = this.obterDataAtualFormatada();
-      console.log('📅 Data de cadastro para cálculo de parcelas:', dataCadastroAgora);
 
-      this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataCadastroAgora).subscribe({
+      this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataCadastroAgora).pipe(takeUntil(this.destroy$)).subscribe({
         next: (result) => {
           Swal.fire('Sucesso!', 'Parcelamento criado com sucesso com todas as parcelas', 'success');
           this.loading = false;
+          this.cdr.markForCheck();
           this.spinner.hide();
           // 🎯 Redirecionar para a tela de DETALHES do parcelamento criado
           this.router.navigate(['/parcelamento/detalhes', result.codigo]);
         },
-        error: (error) => {
-          console.error('Erro ao criar parcelamento:', error);
+        error: () => {
           Swal.fire('Erro!', 'Falha ao criar parcelamento', 'error');
           this.loading = false;
+          this.cdr.markForCheck();
           this.spinner.hide();
         }
       });
@@ -222,5 +226,10 @@ export class NovoParcelamentoComponent implements OnInit {
     const num = typeof value === 'string' ? this.parseCurrency(value) : value;
     if (num === 0) return '0,00';
     return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

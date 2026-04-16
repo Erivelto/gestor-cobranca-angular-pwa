@@ -1,0 +1,16 @@
+{
+  "_endpoint": "POST /api/PessoaContato",
+  "_description": "Cria um novo contato para uma pessoa",
+  "_auth": true,
+  "_base_url_nota": "Usa URL hardcoded: https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaContato",
+  "codigoPessoa": 1,
+  "email": "joao@email.com",
+  "site": "www.joao.com.br",
+  "ddd": "11",
+  "celular": "999999999",
+  "excluido": false,
+  "tipo": "P",
+  "dddAdic": "11",
+  "celularAdic": "888888888",
+  "descricaoAdic": "Comercial"
+}

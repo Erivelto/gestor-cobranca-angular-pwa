@@ -5,7 +5,7 @@
       <h1>Parcelamentos</h1>
     </div>
     <button mat-raised-button color="primary" class="add-new-btn" (click)="novoParcelamento()">
-      <mat-icon>add</mat-icon>
+      <mat-icon aria-hidden="true">add</mat-icon>
       Novo Parcelamento
     </button>
   </div>
@@ -14,14 +14,14 @@
   <div class="table-container">
     <mat-card class="table-card">
       <!-- Loading State -->
-      <div *ngIf="loading" class="loading-overlay">
+      <div *ngIf="loading" class="loading-overlay" role="status" aria-live="polite">
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
         <p>Carregando parcelamentos...</p>
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="!loading && parcelamentos.length === 0" class="empty-message">
-        <mat-icon class="empty-icon">inbox</mat-icon>
+      <div *ngIf="!loading && parcelamentos.length === 0" class="empty-message" aria-live="polite">
+        <mat-icon class="empty-icon" aria-hidden="true">inbox</mat-icon>
         <p>Nenhum parcelamento ativo encontrado</p>
         <button mat-button color="primary" (click)="novoParcelamento()">
           Criar primeiro parcelamento
@@ -35,7 +35,7 @@
             <mat-label>Buscar parcelamentos...</mat-label>
             <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Digite para buscar">
             <mat-icon matSuffix>search</mat-icon>
-            <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm=''; applyFilter()" matTooltip="Limpar busca">
+            <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm=''; applyFilter()" matTooltip="Limpar busca" aria-label="Limpar busca">
               <mat-icon>clear</mat-icon>
             </button>
           </mat-form-field>
@@ -71,10 +71,10 @@
             <ng-container matColumnDef="acoes">
               <th mat-header-cell *matHeaderCellDef class="actions-column">Ações</th>
               <td mat-cell *matCellDef="let element" class="actions-cell">
-                <button mat-icon-button color="accent" class="money-btn" (click)="visualizarDetalhes(element)" matTooltip="Visualizar Detalhes">
+                <button mat-icon-button color="accent" class="money-btn" (click)="visualizarDetalhes(element)" matTooltip="Visualizar Detalhes" aria-label="Visualizar detalhes do parcelamento">
                   <mat-icon>attach_money</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="excluirParcelamento(element)" matTooltip="Excluir">
+                <button mat-icon-button color="warn" (click)="excluirParcelamento(element)" matTooltip="Excluir" aria-label="Excluir parcelamento">
                   <mat-icon>delete</mat-icon>
                 </button>
               </td>

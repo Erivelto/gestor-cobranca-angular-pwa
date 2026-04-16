@@ -1,0 +1,8 @@
+{
+  "_endpoint": "DELETE /api/PessoaContato/{id}",
+  "_description": "Exclui um contato",
+  "_auth": true,
+  "_params": {
+    "id": "Código do contato"
+  }
+}

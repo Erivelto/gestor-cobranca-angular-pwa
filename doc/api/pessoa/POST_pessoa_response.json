@@ -1,0 +1,14 @@
+{
+  "_endpoint": "POST /api/Pessoa",
+  "_description": "Resposta da criação de pessoa - retorna objeto completo com codigo gerado",
+  "_response": {
+    "codigo": 1,
+    "nome": "João da Silva",
+    "documento": "123.456.789-00",
+    "status": 1,
+    "destacado": false,
+    "usuarioId": 1,
+    "contatos": [],
+    "enderecos": []
+  }
+}

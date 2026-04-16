@@ -1,6 +1,7 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,8 +19,9 @@ import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.model
 @Component({
   selector: 'app-pessoa-edit',
   templateUrl: './pessoa-edit.component.html',
-  styleUrls: ['./pessoa-edit.component.css'],
+  styleUrls: ['./pessoa-edit.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -32,7 +34,8 @@ import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.model
     MatProgressSpinnerModule
   ]
 })
-export class PessoaEditComponent implements OnInit {
+export class PessoaEditComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   pessoaId: string | null = null;
   pessoa: Pessoa = {
     codigo: 0,
@@ -120,7 +123,8 @@ export class PessoaEditComponent implements OnInit {
     private viaCepService: ViaCepService,
     private router: Router,
     private route: ActivatedRoute,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -139,7 +143,7 @@ export class PessoaEditComponent implements OnInit {
       pessoa: this.pessoaService.getPessoaById(pessoaId),
       contatos: this.pessoaService.getContatosByPessoaId(pessoaId),
       enderecos: this.pessoaService.getEnderecosByPessoaId(pessoaId)
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: ({ pessoa, contatos, enderecos }) => {
         this.pessoa = pessoa;
         
@@ -158,38 +162,35 @@ export class PessoaEditComponent implements OnInit {
         this.hasUnsavedChanges = false;
         
         this.loading = false;
+        this.cdr.markForCheck();
       },
-      error: (error) => {
-        console.error('Erro ao carregar dados:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao carregar os dados do cliente. Tente novamente.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   // === MÉTODOS DE PESSOA ===
   updatePessoa(): void {
-    console.log('updatePessoa() chamado');
-    
     if (!this.validatePessoa()) {
-      console.log('Validação falhou');
       return;
     }
 
-    console.log('Iniciando atualização...');
     this.loading = true;
     this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
       next: () => {
-        console.log('Sucesso na atualização, chamando notificação...');
         this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
         this.originalPessoa = JSON.stringify(this.pessoa);
         this.hasUnsavedChanges = false;
         this.loading = false;
+        this.cdr.markForCheck();
       },
-      error: (error) => {
-        console.error('Erro ao atualizar pessoa:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao atualizar o cliente. Verifique os dados e tente novamente.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -208,8 +209,7 @@ export class PessoaEditComponent implements OnInit {
         this.showAddContato = false;
         this.notificationService.success('Sucesso!', 'Contato adicionado com sucesso!');
       },
-      error: (error) => {
-        console.error('Erro ao adicionar contato:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao adicionar contato. Tente novamente.');
       }
     });
@@ -225,8 +225,7 @@ export class PessoaEditComponent implements OnInit {
         this.editingContato = null;
         this.notificationService.success('Sucesso!', 'Contato atualizado com sucesso!');
       },
-      error: (error) => {
-        console.error('Erro ao atualizar contato:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao atualizar contato. Tente novamente.');
       }
     });
@@ -240,8 +239,7 @@ export class PessoaEditComponent implements OnInit {
             this.contatos.splice(index, 1);
             this.notificationService.success('Excluído!', 'Contato excluído com sucesso!');
           },
-          error: (error) => {
-            console.error('Erro ao excluir contato:', error);
+          error: () => {
             this.notificationService.error('Erro do Servidor', 'Erro ao excluir contato. Tente novamente.');
           }
         });
@@ -269,8 +267,7 @@ export class PessoaEditComponent implements OnInit {
         this.showAddContatoAdic = false;
         this.notificationService.success('Sucesso!', 'Contato adicional adicionado com sucesso!');
       },
-      error: (error) => {
-        console.error('Erro ao adicionar contato adicional:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao adicionar contato adicional. Tente novamente.');
       }
     });
@@ -290,8 +287,7 @@ export class PessoaEditComponent implements OnInit {
             this.editingContatoAdic = null;
             this.notificationService.success('Excluído!', 'Contato adicional excluído com sucesso!');
           },
-          error: (error) => {
-            console.error('Erro ao excluir contato adicional:', error);
+          error: () => {
             this.notificationService.error('Erro do Servidor', 'Erro ao excluir contato adicional. Tente novamente.');
           }
         });
@@ -313,8 +309,7 @@ export class PessoaEditComponent implements OnInit {
         this.showAddEndereco = false;
         this.notificationService.success('Sucesso!', 'Endereço adicionado com sucesso!');
       },
-      error: (error) => {
-        console.error('Erro ao adicionar endereço:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao adicionar endereço. Tente novamente.');
       }
     });
@@ -330,8 +325,7 @@ export class PessoaEditComponent implements OnInit {
         this.editingEndereco = null;
         this.notificationService.success('Sucesso!', 'Endereço atualizado com sucesso!');
       },
-      error: (error) => {
-        console.error('Erro ao atualizar endereço:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao atualizar endereço. Tente novamente.');
       }
     });
@@ -345,8 +339,7 @@ export class PessoaEditComponent implements OnInit {
             this.enderecos.splice(index, 1);
             this.notificationService.success('Excluído!', 'Endereço excluído com sucesso!');
           },
-          error: (error) => {
-            console.error('Erro ao excluir endereço:', error);
+          error: () => {
             this.notificationService.error('Erro do Servidor', 'Erro ao excluir endereço. Tente novamente.');
           }
         });
@@ -372,10 +365,10 @@ export class PessoaEditComponent implements OnInit {
         this.loadingCep = false;
         this.clearMessages();
       },
-      error: (error) => {
-        console.error('Erro ao buscar CEP:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao buscar CEP. Verifique o CEP e tente novamente.');
         this.loadingCep = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -582,12 +575,13 @@ export class PessoaEditComponent implements OnInit {
                 this.originalPessoa = JSON.stringify(this.pessoa);
                 this.hasUnsavedChanges = false;
                 this.loading = false;
+                this.cdr.markForCheck();
                 resolve(true);
               },
-              error: (error) => {
-                console.error('Erro ao salvar:', error);
+              error: () => {
                 this.notificationService.error('Erro do Servidor', 'Erro ao salvar. Tente novamente.');
                 this.loading = false;
+                this.cdr.markForCheck();
                 resolve(false);
               }
             });
@@ -607,5 +601,10 @@ export class PessoaEditComponent implements OnInit {
     if (canLeave) {
       this.router.navigate(['/pessoas']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

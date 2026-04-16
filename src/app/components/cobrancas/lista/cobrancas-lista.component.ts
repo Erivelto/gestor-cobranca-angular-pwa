@@ -1,5 +1,5 @@
 // ...existing code...
-import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,8 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Cobranca, Pessoa } from '../../../models/api.models';
@@ -25,8 +27,9 @@ import { NotificationService } from '../../../services/notification.service';
 @Component({
   selector: 'app-cobrancas-lista',
   templateUrl: './cobrancas-lista.component.html',
-  styleUrls: ['./cobrancas-lista.component.css'],
+  styleUrls: ['./cobrancas-lista.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -47,7 +50,8 @@ import { NotificationService } from '../../../services/notification.service';
     MatTabsModule
   ]
 })
-export class CobrancasListaComponent implements OnInit, AfterViewInit {
+export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   selectedTabIndex = 0;
       get emDiaCobrancas(): Cobranca[] {
         return this.cobrancas.filter(c => c.status === 5);
@@ -137,7 +141,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
       const tab = (data['tab'] as string) || '';
       if (tab === 'em-dia') this.selectedTabIndex = 0;
       else if (tab === 'devedor' || tab === 'atrasadas') this.selectedTabIndex = 1;
@@ -165,26 +169,23 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   }
 
   carregarPessoas(): void {
-    console.log('🚀 Iniciando carregarPessoas()');
     this.loading = true;
     this.error = '';
 
-    this.pessoaService.getPessoas().subscribe({
+    this.pessoaService.getPessoas().pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoas) => {
-        console.log('✅ Pessoas carregadas da API:', pessoas);
         this.pessoas = pessoas;
         this.carregarCobrancas();
       },
-      error: (error) => {
-        console.error('❌ Erro ao carregar pessoas:', error);
+      error: () => {
         this.error = 'Erro ao carregar dados das pessoas';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   carregarCobrancas(): void {
-    console.log('🚀 Iniciando carregarCobrancas() - usando endpoints específicos por status');
     this.loading = true;
     this.error = '';
 
@@ -199,11 +200,6 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       let atrasadasArray = Array.isArray(atrasadas) ? atrasadas : (atrasadas ? [atrasadas] : []);
       let venceHojeArray = Array.isArray(venceHoje) ? venceHoje : (venceHoje ? [venceHoje] : []);
 
-      console.log('✅ Respostas recebidas do backend');
-      console.log('   - Em Dia:', emDiaArray.length, 'cobranças');
-      console.log('   - Atrasadas:', atrasadasArray.length, 'cobranças');
-      console.log('   - Vence Hoje:', venceHojeArray.length, 'cobranças');
-      
       const isActive = (c: any) => c && c.excluido !== true && c.status !== 0;
 
       // Combinar todas as cobranças com seus respectivos status e filtrar excluídas
@@ -239,12 +235,9 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       if (this.sort) {
         this.dataSource.sort = this.sort;
       }
-      this.cdr.detectChanges();
       this.loading = false;
-      
-      console.log('✅ Total de cobranças processadas:', todasCobrancas.length);
+      this.cdr.markForCheck();
     }).catch(error => {
-      console.error('❌ Erro ao carregar cobranças:', error);
       
       // Mensagem de erro mais detalhada
       let mensagemErro = 'Erro ao carregar dados das cobranças';
@@ -258,6 +251,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
       
       this.error = mensagemErro;
       this.loading = false;
+      this.cdr.markForCheck();
     });
   }
 
@@ -305,16 +299,11 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
   }
 
   editarCobranca(cobranca: Cobranca): void {
-    console.log('=== MÉTODO EDITAR COBRANÇA CHAMADO ===');
-    console.log('Cobrança recebida:', cobranca);
-    
     if (!cobranca || !cobranca.codigo) {
-      console.error('Cobrança não fornecida ou inválida');
       this.showErrorToast('Dados da cobrança não encontrados. Recarregue a página e tente novamente.');
       return;
     }
     
-    console.log('Navegando para detalhes da cobrança:', cobranca.codigo);
     this.router.navigate(['/cobrancas/detalhes', cobranca.codigo]);
   }
 
@@ -332,8 +321,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
               this.notification.successToast('Cobrança excluída com sucesso!');
               this.carregarCobrancas();
             },
-            error: (error: any) => {
-              console.error('Erro ao excluir cobrança:', error);
+            error: () => {
               this.notification.errorToast('Não foi possível excluir a cobrança. Tente novamente.');
             }
           });
@@ -408,6 +396,11 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit {
 
   private showErrorToast(message: string): void {
     this.notification.errorToast(message);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 

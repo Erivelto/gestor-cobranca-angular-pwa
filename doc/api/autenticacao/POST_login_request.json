@@ -1,0 +1,11 @@
+{
+  "_endpoint": "POST /api/Autenticacao/login",
+  "_description": "Autenticação do usuário - retorna token JWT e dados do usuário",
+  "_auth": false,
+  "_headers": {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  },
+  "user": "nome_usuario",
+  "password": "senha_usuario"
+}

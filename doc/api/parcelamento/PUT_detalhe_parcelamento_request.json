@@ -1,0 +1,14 @@
+{
+  "_endpoint": "PUT /api/PessoaParcelamento/detalhes",
+  "_description": "Atualiza um detalhe/parcela (ex: registrar pagamento)",
+  "_auth": true,
+  "_nota": "PUT sem ID no path - envia o objeto completo",
+  "codigo": 400,
+  "codigoParcelamento": 300,
+  "numeroParcela": 1,
+  "valorParcela": 500.00,
+  "dataVencimento": "2026-02-15T00:00:00",
+  "dataPagamento": "2026-02-14T00:00:00",
+  "status": 2,
+  "excluido": false
+}

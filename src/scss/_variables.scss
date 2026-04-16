@@ -1,0 +1,68 @@
+// ================================
+// DESIGN TOKENS & CSS VARIABLES
+// ================================
+
+// Colors
+$color-primary: #2196f3;
+$color-primary-dark: #1976d2;
+$color-primary-light: #bbdefb;
+
+$color-accent: #4caf50;
+$color-accent-dark: #388e3c;
+$color-accent-light: #c8e6c9;
+
+$color-warn: #f44336;
+$color-warn-dark: #d32f2f;
+$color-warn-light: #ffcdd2;
+
+$color-text: #374151;
+$color-text-secondary: #6b7280;
+$color-text-muted: #9ca3af;
+
+$color-bg: #ffffff;
+$color-bg-subtle: #f3f4f6;
+$color-bg-muted: #f9fafb;
+
+$color-border: rgba(0, 0, 0, 0.08);
+$color-border-light: rgba(0, 0, 0, 0.06);
+
+// Badges
+$badge-success-bg: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+$badge-warning-bg: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+$badge-danger-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+$badge-secondary-bg: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+
+// Typography
+$font-family: Roboto, 'Helvetica Neue', sans-serif;
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 20px;
+$font-size-xl: 24px;
+$font-size-2xl: 28px;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+
+// Border radius
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-pill: 50px;
+
+// Breakpoints
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop: 1024px;
+$bp-wide: 1400px;
+
+// Focus
+$focus-ring: 0 0 0 3px rgba($color-primary, 0.35);
+$focus-ring-warn: 0 0 0 3px rgba($color-warn, 0.35);

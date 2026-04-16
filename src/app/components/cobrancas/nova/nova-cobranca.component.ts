@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +22,8 @@ import { PessoaCobranca } from '../../../models/api.models';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
 import { SpinnerService } from '../../../services/spinner.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 const BR_DATE_FORMATS = {
     parse: {
@@ -38,8 +40,9 @@ const BR_DATE_FORMATS = {
 @Component({
     selector: 'app-nova-cobranca',
     templateUrl: './nova-cobranca.component.html',
-    styleUrls: ['./nova-cobranca.component.css'],
+    styleUrls: ['./nova-cobranca.component.scss'],
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
         FormsModule,
@@ -63,7 +66,8 @@ const BR_DATE_FORMATS = {
         { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS }
     ]
 })
-export class NovaCobrancaComponent implements OnInit {
+export class NovaCobrancaComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
     tipoCobranca: string = 'semanal';
     private calcularParcelasTimeout: any;
     // Função para tratar entrada do campo de juros aplicado (% sobre valor do empréstimo)
@@ -161,13 +165,11 @@ export class NovaCobrancaComponent implements OnInit {
     }
 
     carregarPessoas(): void {
-        this.pessoaService.getPessoas().subscribe({
+        this.pessoaService.getPessoas().pipe(takeUntil(this.destroy$)).subscribe({
             next: (pessoas) => {
                 this.todasPessoas = pessoas;
-                console.log('✅ Pessoas carregadas:', pessoas);
             },
-            error: (error) => {
-                console.error('❌ Erro ao carregar pessoas:', error);
+            error: () => {
                 this.dialog.open(DialogMessageComponent, {
                     data: {
                         title: 'Erro!',
@@ -180,8 +182,6 @@ export class NovaCobrancaComponent implements OnInit {
 
     buscarClientes(): void {
         if (this.clienteSearch.trim().length >= 2) {
-            console.log('🔍 Buscando clientes para:', this.clienteSearch);
-
             // Filtra nas pessoas carregadas
             this.clientesEncontrados = this.todasPessoas.filter(pessoa =>
                 pessoa.nome.toLowerCase().includes(this.clienteSearch.toLowerCase()) ||
@@ -190,8 +190,6 @@ export class NovaCobrancaComponent implements OnInit {
                     contato.email?.toLowerCase().includes(this.clienteSearch.toLowerCase())
                 ))
             ).filter(pessoa => pessoa.status === 1); // Apenas pessoas ativas
-
-            console.log('✅ Clientes encontrados:', this.clientesEncontrados);
         } else {
             this.clientesEncontrados = [];
         }
@@ -201,14 +199,12 @@ export class NovaCobrancaComponent implements OnInit {
         this.clienteSelecionado = cliente;
         this.clienteSearch = cliente.nome;
         this.clientesEncontrados = [];
-        console.log('✅ Cliente selecionado:', cliente);
     }
 
     onClienteSelected(event: any): void {
         const cliente: Pessoa = event.option.value;
         this.clienteSelecionado = cliente;
         this.clienteSearch = cliente.nome;
-        console.log('✅ Cliente selecionado via autocomplete:', cliente);
 
         // Toast de confirmação
     }
@@ -306,19 +302,12 @@ export class NovaCobrancaComponent implements OnInit {
     calcularValorTotalComJuros(): void {
         if (this.valorEmprestimo > 0 && this.taxaJuros >= 0) {
             this.totalComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
-            console.log('💰 Calculando valor total com juros:', {
-                valorEmprestimo: this.valorEmprestimo,
-                taxaJuros: this.taxaJuros,
-                totalComJuros: this.totalComJuros
-            });
         }
     }
 
     // Gerar cronograma de pagamentos
     gerarCronograma(): void {
         if (!this.dataInicio || !this.periodicidade || this.numeroParcelas <= 0 || this.valorEmprestimo <= 0) {
-            // Aqui pode ser implementado Material Dialog futuramente
-            console.warn('Preencha todos os campos antes de gerar o cronograma!');
             return;
         }
 
@@ -345,10 +334,6 @@ export class NovaCobrancaComponent implements OnInit {
         }
 
         this.mostrarCronograma = true;
-        console.log('📅 Cronograma gerado:', this.cronogramaParcelas);
-
-        // Aqui pode ser implementado Material Dialog futuramente
-        console.log(`Cronograma de ${this.numeroParcelas} parcelas criado com sucesso.`);
     }
 
     // Obter incremento de dias baseado na periodicidade
@@ -368,18 +353,7 @@ export class NovaCobrancaComponent implements OnInit {
 
     // Salvar empréstimo
     async salvarEmprestimo(): Promise<void> {
-        console.log('Botão salvar clicado');
-        console.log('Dados do formulário:', {
-            clienteSelecionado: this.clienteSelecionado,
-            dataInicio: this.dataInicio,
-            periodicidade: this.periodicidade,
-            numeroParcelas: this.numeroParcelas,
-            valorEmprestimo: this.valorEmprestimo,
-            taxaJuros: this.taxaJuros,
-            tipoCobranca: this.tipoCobranca
-        });
         if (!this.clienteSelecionado || !this.dataInicio) {
-            console.warn('Campos obrigatórios não preenchidos');
             return;
         }
         // Declarar e inicializar novaCobranca conforme formato da API
@@ -398,17 +372,12 @@ export class NovaCobrancaComponent implements OnInit {
             excluido: false
         };
         const payload = novaCobranca;
-        console.log('Payload enviado para API:', JSON.stringify(payload, null, 2));
-        console.log('Criando objeto novaCobranca...');
-        console.log('Objeto novaCobranca:', novaCobranca);
-        console.log('Chamando cobrancaService.createCobranca...');
 
         try {
             const res = await this.spinnerService.withSpinner(
                 () => this.cobrancaService.createCobranca(payload).toPromise(),
                 { message: 'Adicionando empréstimo...', overlay: true }
             );
-            console.log('Cobrança criada com sucesso na API:', res);
             const dialogRef = this.dialog.open(DialogMessageComponent, {
                 data: {
                     title: 'Empréstimo criado!',
@@ -419,7 +388,6 @@ export class NovaCobrancaComponent implements OnInit {
                 this.router.navigate(['/cobrancas']);
             });
         } catch (error: any) {
-            console.error('Erro ao criar cobrança na API:', error);
             this.dialog.open(DialogMessageComponent, {
                 data: {
                     title: 'Erro!',
@@ -451,6 +419,14 @@ export class NovaCobrancaComponent implements OnInit {
         if (this.clienteSelecionado || this.valorEmprestimo > 0) {
             // Se desejar, pode implementar Material Dialog para confirmação aqui
             this.voltarListaCobrancas();
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+        if (this.calcularParcelasTimeout) {
+            clearTimeout(this.calcularParcelasTimeout);
         }
     }
 }

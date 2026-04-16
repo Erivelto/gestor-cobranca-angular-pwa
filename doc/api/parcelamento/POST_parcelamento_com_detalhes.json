@@ -1,0 +1,50 @@
+{
+  "_endpoint": "POST /api/PessoaParcelamento (com detalhes automáticos)",
+  "_description": "Cria parcelamento E gera automaticamente as parcelas com intervalos de 30 dias",
+  "_auth": true,
+  "_metodo_service": "criarParcelamentoComDetalhes(parcelamento, dataCadastro)",
+  "_fluxo": [
+    "1. POST /api/PessoaParcelamento (cria o plano)",
+    "2. Para cada parcela: POST /api/PessoaParcelamento/detalhes (cria detalhe sequencialmente)"
+  ],
+
+  "request_parcelamento": {
+    "codigoPessoa": 1,
+    "quantidadeParcelas": 3,
+    "valorTotal": 900.00,
+    "status": 1,
+    "excluido": false
+  },
+
+  "detalhes_gerados_automaticamente": [
+    {
+      "_nota": "valorParcela = valorTotal / quantidadeParcelas = 300.00",
+      "_nota2": "dataVencimento = dataCadastro + (30 * numeroParcela) dias",
+      "codigoParcelamento": 300,
+      "numeroParcela": 1,
+      "valorParcela": 300.00,
+      "dataVencimento": "2026-05-16T00:00:00",
+      "dataPagamento": null,
+      "status": 1,
+      "excluido": false
+    },
+    {
+      "codigoParcelamento": 300,
+      "numeroParcela": 2,
+      "valorParcela": 300.00,
+      "dataVencimento": "2026-06-15T00:00:00",
+      "dataPagamento": null,
+      "status": 1,
+      "excluido": false
+    },
+    {
+      "codigoParcelamento": 300,
+      "numeroParcela": 3,
+      "valorParcela": 300.00,
+      "dataVencimento": "2026-07-15T00:00:00",
+      "dataPagamento": null,
+      "status": 1,
+      "excluido": false
+    }
+  ]
+}

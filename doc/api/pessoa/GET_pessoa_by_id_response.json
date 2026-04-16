@@ -1,0 +1,43 @@
+{
+  "_endpoint": "GET /api/Pessoa/{id}",
+  "_description": "Retorna uma pessoa específica com contatos e endereços",
+  "_auth": true,
+  "_response": {
+    "codigo": 1,
+    "nome": "João da Silva",
+    "documento": "123.456.789-00",
+    "status": 1,
+    "destacado": false,
+    "usuarioId": 1,
+    "contatos": [
+      {
+        "codigo": 10,
+        "codigoPessoa": 1,
+        "email": "joao@email.com",
+        "site": "www.joao.com.br",
+        "ddd": "11",
+        "celular": "999999999",
+        "excluido": false,
+        "tipo": "P",
+        "dddAdic": "11",
+        "celularAdic": "888888888",
+        "descricaoAdic": "Trabalho"
+      }
+    ],
+    "enderecos": [
+      {
+        "codigo": 20,
+        "codigoPessoa": 1,
+        "tipo": "R",
+        "logradouro": "Rua das Flores",
+        "numrero": "123",
+        "complemento": "Apto 45",
+        "bairro": "Centro",
+        "cidade": "São Paulo",
+        "uf": "SP",
+        "cep": "01000-000",
+        "excluido": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "_endpoint": "DELETE /api/Pessoa/{id}",
+  "_description": "Exclui (soft delete) uma pessoa - altera status para 0",
+  "_auth": true,
+  "_params": {
+    "id": "Código da pessoa"
+  },
+  "_nota": "Soft delete - altera status para 0 (inativo), não remove fisicamente"
+}

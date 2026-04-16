@@ -1,20 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
 import { NotificationService } from '../../../services/notification.service';
 import { Pessoa, PessoaContato, PessoaEndereco, PessoaFile, ArquivoImagem } from '../../../models/api.models';
 import { AuthService } from '../../../services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 
 @Component({
   selector: 'app-pessoa-form',
   templateUrl: './pessoa-form.component.html',
-  styleUrls: ['./pessoa-form.component.css'],
+  styleUrls: ['./pessoa-form.component.scss'],
   standalone: false
 })
-export class PessoaFormComponent implements OnInit {
+export class PessoaFormComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   pessoa: Pessoa = {
     codigo: 0,
     nome: '',
@@ -79,13 +83,12 @@ export class PessoaFormComponent implements OnInit {
 
   loadPessoa(id: number): void {
     this.loading = true;
-    this.pessoaService.getPessoaById(id).subscribe({
+    this.pessoaService.getPessoaById(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoa) => {
         this.pessoa = pessoa;
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Erro ao carregar pessoa:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao carregar dados do cliente. Tente novamente.');
         this.loading = false;
       }
@@ -98,7 +101,7 @@ export class PessoaFormComponent implements OnInit {
     }
 
     this.loadingCep = true;
-    this.viaCepService.buscarCep(this.endereco.cep).subscribe({
+    this.viaCepService.buscarCep(this.endereco.cep).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         if (response.erro) {
           this.notificationService.warning('CEP não encontrado', 'Verifique o CEP informado e tente novamente.');
@@ -113,8 +116,7 @@ export class PessoaFormComponent implements OnInit {
         }
         this.loadingCep = false;
       },
-      error: (error) => {
-        console.error('Erro ao buscar CEP:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao buscar CEP. Verifique sua conexão e tente novamente.');
         this.loadingCep = false;
       }
@@ -122,17 +124,10 @@ export class PessoaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log('onSubmit chamado!');
-    console.log('Pessoa:', this.pessoa);
-    console.log('Contato:', this.contato);
-    console.log('Endereco:', this.endereco);
-
     if (!this.validateForm()) {
-      console.log('Validação falhou');
       return;
     }
 
-    console.log('Validação passou, iniciando gravação...');
     this.loading = true;
     this.error = '';
     this.success = '';
@@ -145,9 +140,7 @@ export class PessoaFormComponent implements OnInit {
   }
 
   createPessoa(): void {
-    console.log('🆕 Iniciando criação de pessoa...');
-    console.log('📋 Dados da pessoa:', this.pessoa);  
-      // Resolve o id do usuário da sessão (AuthService) ou do localStorage
+    // Resolve o id do usuário da sessão (AuthService) ou do localStorage
   const uidFromAuth = this.authService.currentUserValue?.id;
   const uidFromStorage = Number(localStorage.getItem('userId') ?? NaN);
   const resolvedUserId = uidFromAuth && uidFromAuth > 0
@@ -155,27 +148,20 @@ export class PessoaFormComponent implements OnInit {
     : (Number.isFinite(uidFromStorage) && uidFromStorage > 0 ? uidFromStorage : undefined);
 
   this.pessoa.usuarioId = resolvedUserId;
-  console.log('🆔 idUsuario resolvido:', this.pessoa.usuarioId); 
     this.pessoaService.createPessoa(this.pessoa).subscribe({
       next: (pessoaCriada) => {
-        console.log('✅ Pessoa criada com sucesso:', pessoaCriada);
-        
         const promises: Promise<any>[] = [];
 
         // Criar contato se preenchido
         if (this.contato.celular || this.contato.email) {
-          console.log('📞 Criando contato...');
           this.contato.codigoPessoa = pessoaCriada.codigo;
-          console.log('📋 Dados do contato:', this.contato);
           const jsonString = JSON.stringify(this.contato);
           const contatoPromise = new Promise((resolve, reject) => {
             this.pessoaService.createContato(this.contato).subscribe({
               next: (contatoCriado) => {
-                console.log('✅ Contato criado:', contatoCriado);
                 resolve(contatoCriado);
               },
               error: (error) => {
-                console.error('❌ Erro ao criar contato:', error);
                 this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o contato.');
                 reject(error);
               }
@@ -186,18 +172,14 @@ export class PessoaFormComponent implements OnInit {
 
         // Criar endereço se preenchido
         if (this.endereco.cep || this.endereco.logradouro) {
-          console.log('📍 Criando endereço...');
           this.endereco.codigoPessoa = pessoaCriada.codigo;
-          console.log('📋 Dados do endereço:', this.endereco);
           const jsonString = JSON.stringify(this.endereco);
           const enderecoPromise = new Promise((resolve, reject) => {
             this.pessoaService.createEndereco(this.endereco).subscribe({
               next: (enderecoCriado) => {
-                console.log('✅ Endereço criado:', enderecoCriado);
                 resolve(enderecoCriado);
               },
               error: (error) => {
-                console.error('❌ Erro ao criar endereço:', error);
                 this.notificationService.warning('Aviso', 'Cliente criado, mas houve erro ao salvar o endereço.');
                 reject(error);
               }
@@ -212,7 +194,6 @@ export class PessoaFormComponent implements OnInit {
        // }
         // Aguardar todas as operações
         Promise.allSettled(promises).then(() => {
-          console.log('✅ Todas as operações concluídas');
           this.notificationService.success('Sucesso!', 'Cliente cadastrado com sucesso!');
           this.loading = false;
           
@@ -221,11 +202,7 @@ export class PessoaFormComponent implements OnInit {
           }, 1500);
         });
       },
-      error: (error) => {
-        console.error('❌ Erro ao criar pessoa:', error);
-        console.error('Status:', error.status);
-        console.error('Mensagem:', error.message);
-        console.error('Erro completo:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao cadastrar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
@@ -242,8 +219,7 @@ export class PessoaFormComponent implements OnInit {
           this.router.navigate(['/pessoas']);
         }, 1500);
       },
-      error: (error) => {
-        console.error('Erro ao atualizar pessoa:', error);
+      error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao atualizar cliente. Verifique os dados e tente novamente.');
         this.loading = false;
       }
@@ -289,7 +265,7 @@ export class PessoaFormComponent implements OnInit {
       };
 
       // Enviar para o serviço de armazenamento
-      this.http.post('http://armazemantodearquivocontfy.azurewebsites.net/ArmazenamentoDeObjeto', arquivoImagem)
+      this.http.post(`${environment.storageUrl}/ArmazenamentoDeObjeto`, arquivoImagem)
         .subscribe({
           next: () => {
             // Salvar referência do arquivo
@@ -301,22 +277,18 @@ export class PessoaFormComponent implements OnInit {
             // Persistir PessoaFile na API
             this.pessoaService.createPessoaUpload(this.pessoaFile).subscribe({
               next: (resp) => {
-                console.log('PessoaFile gravado com sucesso:', resp);
                 this.notificationService.success('Sucesso', 'Arquivo anexado e registrado!');
               },
-              error: (err) => {
-                console.error('Erro ao gravar PessoaFile:', err);
+              error: () => {
                 this.notificationService.warning('Aviso', 'Arquivo armazenado, mas falhou ao registrar no sistema.');
               }
             });
           },
-          error: (error) => {
-            console.error('Erro ao enviar arquivo:', error);
+          error: () => {
             this.notificationService.error('Erro', 'Falha ao anexar arquivo.');
           }
         });
     } catch (error) {
-      console.error('Erro ao processar arquivo:', error);
       this.notificationService.error('Erro', 'Falha ao processar arquivo.');
     }
   }
@@ -380,6 +352,11 @@ export class PessoaFormComponent implements OnInit {
     }
     
     event.target.value = value;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 

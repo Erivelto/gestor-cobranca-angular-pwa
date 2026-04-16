@@ -1,0 +1,10 @@
+{
+  "_endpoint": "POST /api/PessoaUpload",
+  "_description": "Upload de arquivo/imagem para uma pessoa",
+  "_auth": true,
+  "_base_url_nota": "Usa URL hardcoded: https://controlepesssoalapi-d8g6bbhedcd3cvfk.eastus-01.azurewebsites.net/api/PessoaUpload",
+  "Arquivo": "base64_encoded_string_ou_nome_arquivo",
+  "Pasta": 1,
+  "DataCriacao": "2026-04-16T00:00:00",
+  "CodigoPessoa": 1
+}

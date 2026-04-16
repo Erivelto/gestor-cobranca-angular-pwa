@@ -31,7 +31,7 @@ export interface StatCardData {
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+  styleUrls: ['./dashboard.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -172,13 +172,6 @@ export class DashboardComponent implements OnInit {
         // Sem contagem individual de cobranças nesses endpoints
         this.totalCobrancas = 0;
 
-        console.log('📊 Dados do Dashboard carregados da API (totais):');
-        console.log('   - Em Dia (R$):', this.valorEmDia);
-        console.log('   - Vence Hoje (R$):', this.valorAVencer);
-        console.log('   - Devedor (Atrasadas) (R$):', this.valorDevedor);
-        console.log('   - Juros (R$):', this.valorJuros);
-        console.log('   - Total (R$):', this.valorTotal);
-
         // Configurar cards de estatísticas
         this.setupStatCards();
       }
@@ -187,7 +180,6 @@ export class DashboardComponent implements OnInit {
       this.cdr.markForCheck();
 
     } catch (error) {
-      console.error('❌ Erro ao carregar dados do dashboard:', error);
       this.notificationService.error(
         'Erro de Carregamento', 
         'Não foi possível carregar os dados do dashboard. Tente recarregar a página.'
