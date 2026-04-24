@@ -148,7 +148,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
     : (Number.isFinite(uidFromStorage) && uidFromStorage > 0 ? uidFromStorage : undefined);
 
   this.pessoa.usuarioId = resolvedUserId;
-    this.pessoaService.createPessoa(this.pessoa).subscribe({
+    this.pessoaService.createPessoa(this.pessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoaCriada) => {
         const promises: Promise<any>[] = [];
 
@@ -157,7 +157,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
           this.contato.codigoPessoa = pessoaCriada.codigo;
           const jsonString = JSON.stringify(this.contato);
           const contatoPromise = new Promise((resolve, reject) => {
-            this.pessoaService.createContato(this.contato).subscribe({
+            this.pessoaService.createContato(this.contato).pipe(takeUntil(this.destroy$)).subscribe({
               next: (contatoCriado) => {
                 resolve(contatoCriado);
               },
@@ -175,7 +175,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
           this.endereco.codigoPessoa = pessoaCriada.codigo;
           const jsonString = JSON.stringify(this.endereco);
           const enderecoPromise = new Promise((resolve, reject) => {
-            this.pessoaService.createEndereco(this.endereco).subscribe({
+            this.pessoaService.createEndereco(this.endereco).pipe(takeUntil(this.destroy$)).subscribe({
               next: (enderecoCriado) => {
                 resolve(enderecoCriado);
               },
@@ -210,7 +210,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
   }
 
   updatePessoa(): void {
-    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
+    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
         this.loading = false;
@@ -266,7 +266,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
 
       // Enviar para o serviço de armazenamento
       this.http.post(`${environment.storageUrl}/ArmazenamentoDeObjeto`, arquivoImagem)
-        .subscribe({
+        .pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             // Salvar referência do arquivo
             this.pessoaFile.Arquivo = arquivoGuid;
@@ -275,7 +275,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
             this.pessoaFile.CodigoPessoa = codigoPessoa;
             
             // Persistir PessoaFile na API
-            this.pessoaService.createPessoaUpload(this.pessoaFile).subscribe({
+            this.pessoaService.createPessoaUpload(this.pessoaFile).pipe(takeUntil(this.destroy$)).subscribe({
               next: (resp) => {
                 this.notificationService.success('Sucesso', 'Arquivo anexado e registrado!');
               },

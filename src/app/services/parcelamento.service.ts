@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, switchMap, concatMap, from, toArray, map } from 'rxjs';
 import { PessoaParcelamento, PessoaParcelamentoDetalhe } from '../models/api.models';
 import { environment } from '../../environments/environment';
 
@@ -72,31 +72,22 @@ export class ParcelamentoService {
   ): Observable<PessoaParcelamento> {
     const url = `${this.apiUrl}/PessoaParcelamento`;
 
-    return new Observable(observer => {
-      this.http.post<PessoaParcelamento>(url, parcelamento).subscribe({
-        next: (parcelamentoResult) => {
-          const codigoParcelamento = parcelamentoResult.codigo;
-          const quantidadeParcelas = parcelamento.quantidadeParcelas;
-          const valorTotal = parcelamento.valorTotal;
-          const valorParcela = Number((valorTotal / quantidadeParcelas).toFixed(2));
+    return this.http.post<PessoaParcelamento>(url, parcelamento).pipe(
+      switchMap(parcelamentoResult => {
+        const codigoParcelamento = parcelamentoResult.codigo;
+        const quantidadeParcelas = parcelamento.quantidadeParcelas;
+        const valorTotal = parcelamento.valorTotal;
+        const valorParcela = Number((valorTotal / quantidadeParcelas).toFixed(2));
 
-          this.criarDetalhesParceladasSequencial(
-            codigoParcelamento,
-            parcelamento.codigoPessoa,
-            quantidadeParcelas,
-            valorParcela,
-            dataCadastro
-          ).subscribe({
-            next: () => {
-              observer.next(parcelamentoResult);
-              observer.complete();
-            },
-            error: (error) => observer.error(error)
-          });
-        },
-        error: (error) => observer.error(error)
-      });
-    });
+        return this.criarDetalhesParceladasSequencial(
+          codigoParcelamento,
+          parcelamento.codigoPessoa,
+          quantidadeParcelas,
+          valorParcela,
+          dataCadastro
+        ).pipe(map(() => parcelamentoResult));
+      })
+    );
   }
 
   // Método auxiliar para criar os detalhes das parcelas sequencialmente
@@ -106,50 +97,35 @@ export class ParcelamentoService {
     quantidadeParcelas: number,
     valorParcela: number,
     dataCadastro: string
-  ): Observable<void> {
-    return new Observable(observer => {
-      const dataCadastroObj = new Date(dataCadastro);
-      const parcelas: PessoaParcelamentoDetalhe[] = [];
+  ): Observable<PessoaParcelamentoDetalhe[]> {
+    const dataCadastroObj = new Date(dataCadastro);
+    const parcelas: PessoaParcelamentoDetalhe[] = [];
 
-      for (let i = 1; i <= quantidadeParcelas; i++) {
-        const dataVencimento = new Date(dataCadastroObj);
-        dataVencimento.setDate(dataVencimento.getDate() + (30 * i));
+    for (let i = 1; i <= quantidadeParcelas; i++) {
+      const dataVencimento = new Date(dataCadastroObj);
+      dataVencimento.setDate(dataVencimento.getDate() + (30 * i));
 
-        parcelas.push({
-          codigo: 0,
-          codigoParcelamento,
-          numeroParcela: i,
-          valorParcela,
-          dataVencimento: this.formatDateToString(dataVencimento),
-          dataPagamento: null,
-          status: 1,
-          excluido: false
-        });
-      }
-
-      this.criarDetalhesPorSequencia(parcelas, 0, observer);
-    });
-  }
-
-  // Método auxiliar para fazer POST um por um
-  private criarDetalhesPorSequencia(
-    detalhes: PessoaParcelamentoDetalhe[],
-    index: number,
-    observer: any
-  ): void {
-    if (index >= detalhes.length) {
-      observer.next();
-      observer.complete();
-      return;
+      parcelas.push({
+        codigo: 0,
+        codigoParcelamento,
+        numeroParcela: i,
+        valorParcela,
+        dataVencimento: this.formatDateToString(dataVencimento),
+        dataPagamento: null,
+        status: 1,
+        excluido: false
+      });
     }
 
-    const detalhe = detalhes[index];
-    const url = `${this.apiUrl}/PessoaParcelamento/detalhes`;
-
-    this.http.post<PessoaParcelamentoDetalhe>(url, detalhe).subscribe({
-      next: () => this.criarDetalhesPorSequencia(detalhes, index + 1, observer),
-      error: (error) => observer.error(error)
-    });
+    // POST sequencial usando concatMap (respeita a ordem)
+    return from(parcelas).pipe(
+      concatMap(detalhe =>
+        this.http.post<PessoaParcelamentoDetalhe>(
+          `${this.apiUrl}/PessoaParcelamento/detalhes`, detalhe
+        )
+      ),
+      toArray()
+    );
   }
 
   private formatDateToString(date: Date): string {

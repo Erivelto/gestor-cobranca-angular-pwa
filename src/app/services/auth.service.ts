@@ -54,12 +54,6 @@ export class AuthService {
     const loginRequest: LoginRequest = { user: username, password: senha };
     const loginUrl = `${this.apiUrl}/Autenticacao/login`;
     
-    console.log('🔐 AuthService.login() - Iniciando login');
-    console.log('👤 Username:', username);
-    console.log('🌐 URL completa:', loginUrl);
-    console.log('📦 Payload:', JSON.stringify(loginRequest));
-    console.log('🔧 Environment apiUrl:', this.apiUrl);
-    
     return this.http.post<LoginResponse>(
       loginUrl, 
       loginRequest,
@@ -72,58 +66,31 @@ export class AuthService {
     ).pipe(
       tap({
         next: (response) => {
-          console.log('✅ Login bem-sucedido!');
-          console.log('📩 Resposta completa:', response);
           if (response && response.token) {
-            // Sempre guardar o token
             localStorage.setItem('token', response.token);
 
-            // Tentar obter o usuário tanto em 'usuario' (pt-BR) quanto em 'user' (en)
             const anyResp: any = response as any;
             const rawUser = anyResp?.usuario ?? anyResp?.user ?? null;
-            
-            console.log('👤 rawUser extraído:', rawUser);
 
-            // Tentar identificar o ID do usuário via objeto de usuário ou via JWT
             const userIdFromObject: number | null = rawUser?.id ?? null;
             const userIdFromToken: number | null = this.tryDecodeUserIdFromToken(response.token);
             const resolvedUserId = userIdFromObject ?? userIdFromToken;
-            
-            console.log('🆔 userIdFromObject:', userIdFromObject);
-            console.log('🔐 userIdFromToken:', userIdFromToken);
-            console.log('✅ resolvedUserId final:', resolvedUserId);
 
-            // Normalizar o usuário para o formato do app
             const normalizedUser: Usuario = {
               id: resolvedUserId ?? undefined,
               username: rawUser?.username ?? rawUser?.user ?? username,
-              // tipo pode vir como número ou string do backend; manter sem transformação
               tipo: rawUser?.tipo as any
             };
-            
-            console.log('📝 normalizedUser:', normalizedUser);
 
-            // Persistir usuário e ID para uso em toda a aplicação
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
             if (resolvedUserId != null && resolvedUserId > 0) {
               localStorage.setItem('userId', String(resolvedUserId));
-              console.log('💾 userId salvo no localStorage:', resolvedUserId);
-            } else {
-              console.warn('⚠️ AVISO: userId não foi salvo (valor inválido):', resolvedUserId);
             }
 
-            // Atualizar o estado reativo
             this.currentUserSubject.next(normalizedUser);
-            console.log('🔄 currentUserSubject atualizado');
           }
         },
         error: (error) => {
-          console.error('❌ Erro no login!');
-          console.error('Status:', error.status);
-          console.error('StatusText:', error.statusText);
-          console.error('URL:', error.url);
-          console.error('Mensagem:', error.message);
-          console.error('Erro completo:', error);
           throw error;
         }
       })
@@ -199,5 +166,18 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Retorna o ID do usuário autenticado ou lança erro.
+   * Centraliza a lógica que antes era duplicada em CobrancaService e PessoaService.
+   */
+  getRequiredUserId(): number {
+    const id = this.currentUserValue?.id
+      ?? Number(localStorage.getItem('userId'));
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Usuário não autenticado. Faça login novamente.');
+    }
+    return id;
   }
 }

@@ -18,12 +18,7 @@ export class CobrancaService {
   ) {}
 
   private getUsuarioId(): number {
-    const id = this.authService.currentUserValue?.id
-      ?? Number(localStorage.getItem('userId'));
-    if (!id || isNaN(id) || id <= 0) {
-      throw new Error('Usuário não autenticado. Faça login novamente.');
-    }
-    return id;
+    return this.authService.getRequiredUserId();
   }
 
   // GET: Buscar todas as cobranças
@@ -52,13 +47,6 @@ export class CobrancaService {
   // DELETE: Remover cobrança
   deleteCobranca(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
-  }
-
-  getAllCobrancas(): Observable<Cobranca[]> {
-    const usuarioId = this.getUsuarioId();
-    return this.http.get<Cobranca[]>(
-      `${this.apiUrl}/usuario/${usuarioId}?includeDeleted=false`
-    );
   }
 
   // Métodos para buscar cobranças por status

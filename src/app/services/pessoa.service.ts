@@ -20,12 +20,7 @@ export class PessoaService {
   ) {}
 
   private getUsuarioId(): number {
-    const id = this.authService.currentUserValue?.id
-      ?? Number(localStorage.getItem('userId'));
-    if (!id || isNaN(id) || id <= 0) {
-      throw new Error('Usuário não autenticado. Faça login novamente.');
-    }
-    return id;
+    return this.authService.getRequiredUserId();
   }
 
   // === MÉTODOS DE PESSOA ===

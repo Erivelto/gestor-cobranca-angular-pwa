@@ -13,8 +13,7 @@
     "build:dev": "ng build",
     "serve:local": "ng serve --host=127.0.0.1 --proxy-config=proxy.conf.json",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "postinstall": "ng build --configuration production"
+    "test": "ng test"
   },
   "prettier": {
     "printWidth": 100,

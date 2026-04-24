@@ -179,7 +179,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     }
 
     this.loading = true;
-    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
+    this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.notificationService.success('Sucesso!', 'Cliente atualizado com sucesso!');
         this.originalPessoa = JSON.stringify(this.pessoa);
@@ -202,7 +202,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     }
 
     this.novoContato.codigoPessoa = this.pessoa.codigo;
-    this.pessoaService.createContato(this.novoContato).subscribe({
+    this.pessoaService.createContato(this.novoContato).pipe(takeUntil(this.destroy$)).subscribe({
       next: (contato) => {
         this.contatos.push(contato);
         this.resetNovoContato();
@@ -220,7 +220,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
   }
 
   saveContato(contato: PessoaContato): void {
-    this.pessoaService.updateContato(contato.codigo!, contato).subscribe({
+    this.pessoaService.updateContato(contato.codigo!, contato).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.editingContato = null;
         this.notificationService.success('Sucesso!', 'Contato atualizado com sucesso!');
@@ -234,7 +234,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
   deleteContato(id: number, index: number): void {
     this.notificationService.confirmDelete('Excluir contato', 'Deseja realmente excluir este contato?').then((result) => {
       if (result) {
-        this.pessoaService.deleteContato(id).subscribe({
+        this.pessoaService.deleteContato(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.contatos.splice(index, 1);
             this.notificationService.success('Excluído!', 'Contato excluído com sucesso!');
@@ -260,7 +260,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     this.novoContatoAdic.email = '';
     this.novoContatoAdic.site = '';
     
-    this.pessoaService.createContato(this.novoContatoAdic).subscribe({
+    this.pessoaService.createContato(this.novoContatoAdic).pipe(takeUntil(this.destroy$)).subscribe({
       next: (contato) => {
         this.contatos.push(contato);
         this.resetNovoContatoAdic();
@@ -282,7 +282,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
         contato.descricaoAdic = '';
 
         // Atualizar o contato no servidor
-        this.pessoaService.updateContato(contato.codigo!, contato).subscribe({
+        this.pessoaService.updateContato(contato.codigo!, contato).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.editingContatoAdic = null;
             this.notificationService.success('Excluído!', 'Contato adicional excluído com sucesso!');
@@ -302,7 +302,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     }
 
     this.novoEndereco.codigoPessoa = this.pessoa.codigo;
-    this.pessoaService.createEndereco(this.novoEndereco).subscribe({
+    this.pessoaService.createEndereco(this.novoEndereco).pipe(takeUntil(this.destroy$)).subscribe({
       next: (endereco) => {
         this.enderecos.push(endereco);
         this.resetNovoEndereco();
@@ -320,7 +320,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
   }
 
   saveEndereco(endereco: PessoaEndereco): void {
-    this.pessoaService.updateEndereco(endereco.codigo!, endereco).subscribe({
+    this.pessoaService.updateEndereco(endereco.codigo!, endereco).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.editingEndereco = null;
         this.notificationService.success('Sucesso!', 'Endereço atualizado com sucesso!');
@@ -334,7 +334,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
   deleteEndereco(id: number, index: number): void {
     this.notificationService.confirmDelete('Excluir endereço', 'Deseja realmente excluir este endereço?').then((result) => {
       if (result) {
-        this.pessoaService.deleteEndereco(id).subscribe({
+        this.pessoaService.deleteEndereco(id).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.enderecos.splice(index, 1);
             this.notificationService.success('Excluído!', 'Endereço excluído com sucesso!');
@@ -352,7 +352,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     if (!endereco.cep) return;
 
     this.loadingCep = true;
-    this.viaCepService.buscarCep(endereco.cep).subscribe({
+    this.viaCepService.buscarCep(endereco.cep).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         if (response.erro) {
           this.error = 'CEP não encontrado';
@@ -569,7 +569,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
           // Usuário escolheu salvar
           if (this.validatePessoa()) {
             this.loading = true;
-            this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).subscribe({
+            this.pessoaService.updatePessoa(this.pessoa.codigo, this.pessoa).pipe(takeUntil(this.destroy$)).subscribe({
               next: () => {
                 this.notificationService.success('Sucesso!', 'Cliente salvo com sucesso!');
                 this.originalPessoa = JSON.stringify(this.pessoa);

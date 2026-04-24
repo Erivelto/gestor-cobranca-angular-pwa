@@ -27,12 +27,14 @@ export class AuthInterceptor implements HttpInterceptor {
 
     let authReq = req;
     if (token && !isExternalPublic) {
-      authReq = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const headers: { [key: string]: string } = {
+        Authorization: `Bearer ${token}`
+      };
+      // Não sobrescrever Content-Type em requisições multipart (uploads)
+      if (!req.body || !(req.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+      authReq = req.clone({ setHeaders: headers });
     }
 
     return next.handle(authReq).pipe(
