@@ -189,70 +189,63 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
     this.loading = true;
     this.error = '';
 
-    // Buscar cobranças de cada status em paralelo usando os endpoints do backend
+    // Estratégia: 4 chamadas em paralelo.
+    // - getCobrancas() traz dados completos incluindo proximoVencimento, valorTotal, etc.
+    // - Os 3 endpoints especializados calculam o status dinâmico no backend (baseado em datas).
+    // Mescla por codigo: dados completos do getCobrancas() + status dinâmico dos especializados.
     Promise.all([
+      this.cobrancaService.getCobrancas().toPromise(),
       this.cobrancaService.getAllEmDiaLista().toPromise(),
       this.cobrancaService.getAllAtrasadaLista().toPromise(),
       this.cobrancaService.getAllVenceHojeLista().toPromise()
-    ]).then(([emDia, atrasadas, venceHoje]) => {
-      // Garantir que são arrays
-      let emDiaArray = Array.isArray(emDia) ? emDia : (emDia ? [emDia] : []);
-      let atrasadasArray = Array.isArray(atrasadas) ? atrasadas : (atrasadas ? [atrasadas] : []);
-      let venceHojeArray = Array.isArray(venceHoje) ? venceHoje : (venceHoje ? [venceHoje] : []);
+    ]).then(([todas, emDia, atrasadas, venceHoje]) => {
+      const toArr = (v: any) => Array.isArray(v) ? v : (v ? [v] : []);
 
-      const isActive = (c: any) => c && c.excluido !== true && c.status !== 0;
+      // Mapa de status dinâmico: codigo -> status (5, 3 ou 1)
+      const statusMap = new Map<number, number>();
+      toArr(emDia).forEach((c: any) => statusMap.set(c.codigo, 5));
+      toArr(atrasadas).forEach((c: any) => statusMap.set(c.codigo, 3));
+      toArr(venceHoje).forEach((c: any) => statusMap.set(c.codigo, 1));
 
-      // Combinar todas as cobranças com seus respectivos status e filtrar excluídas
-      const todasCobrancas = [
-        ...emDiaArray
-          .filter(isActive)
-          .map(c => ({ 
-            ...c, 
-            status: 5, // Em dia
-            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-          })),
-        ...atrasadasArray
-          .filter(isActive)
-          .map(c => ({ 
-            ...c, 
-            status: 3, // Atrasadas
-            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-          })),
-        ...venceHojeArray
-          .filter(isActive)
-          .map(c => ({ 
-            ...c, 
-            status: 1, // Vence hoje
-            pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa) 
-          }))
-      ];
-      
+      // Usa dados completos de getCobrancas(), filtra apenas os que têm status dinâmico
+      const todasArray = toArr(todas);
+      const todasCobrancas = todasArray
+        .filter((c: any) => c && c.excluido !== true && statusMap.has(c.codigo))
+        .map((c: any) => ({
+          ...c,
+          status: statusMap.get(c.codigo),
+          pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
+        }));
+
       this.cobrancas = todasCobrancas;
       this.dataSource.data = todasCobrancas;
-      if (this.paginator) {
-        this.dataSource.paginator = this.paginator;
-      }
-      if (this.sort) {
-        this.dataSource.sort = this.sort;
-      }
+      if (this.paginator) this.dataSource.paginator = this.paginator;
+      if (this.sort) this.dataSource.sort = this.sort;
       this.loading = false;
       this.cdr.markForCheck();
     }).catch(error => {
-      
-      // Mensagem de erro mais detalhada
       let mensagemErro = 'Erro ao carregar dados das cobranças';
-      if (error?.status === 404) {
-        mensagemErro = 'Endpoint não encontrado. Verifique a configuração do servidor.';
-      } else if (error?.status === 401) {
-        mensagemErro = 'Não autorizado. Faça login novamente.';
-      } else if (error?.status === 500) {
-        mensagemErro = 'Erro no servidor. Tente novamente mais tarde.';
-      }
-      
+      if (error?.status === 404) mensagemErro = 'Endpoint não encontrado. Verifique a configuração do servidor.';
+      else if (error?.status === 401) mensagemErro = 'Não autorizado. Faça login novamente.';
+      else if (error?.status === 500) mensagemErro = 'Erro no servidor. Tente novamente mais tarde.';
       this.error = mensagemErro;
       this.loading = false;
       this.cdr.markForCheck();
     });
+  }
+
+  private resolverDataVencimento(c: any): string {
+    // Campo principal retornado pelos endpoints de lista
+    const proximo = c.proximoVencimento as string | null | undefined;
+    if (proximo && !proximo.startsWith('0001-01-01')) return proximo;
+    // Fallback: dataVencimento quando presente
+    const raw = c.dataVencimento as string | null | undefined;
+    if (raw && !raw.startsWith('0001-01-01')) return raw;
+    // Último recurso: calcular pelo diaVencimento
+    if (!c.diaVencimento) return '';
+    const hoje = new Date();
+    const data = new Date(hoje.getFullYear(), hoje.getMonth(), c.diaVencimento);
+    return data.toISOString().split('T')[0];
   }
 
   private gerarDescricaoAleatoria(index: number): string {

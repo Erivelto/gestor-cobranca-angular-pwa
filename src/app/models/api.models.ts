@@ -90,12 +90,15 @@ export interface Cobranca {
   valorTotal?: number;
   dataInicio?: string;
   diaVencimento?: number;
-  dataVencimento: string;
-  dataPagamento: string | null;
+  dataVencimento?: string;
+  proximoVencimento?: string;
+  dataQuitacao?: string | null;
+  dataPagamento?: string | null;
   status: number;
   excluido: boolean;
   historicos?: PessoaCobrancaHistorico[];
   pessoaCobrancaHistorico?: PessoaCobrancaHistorico;
+  pessoa?: any;
 }
 
 export interface ViaCepResponse {

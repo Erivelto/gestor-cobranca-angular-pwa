@@ -242,12 +242,21 @@
 
 /* Coluna de ações */
 .actions-column {
-  text-align: center;
-  width: 60px;
+  text-align: left;
+  width: 100px;
+  white-space: nowrap;
+}
+
+.actions-column td {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
 
 .actions-btn {
   color: #667eea;
+  flex-shrink: 0;
 }
 
 .actions-btn mat-icon {
@@ -258,6 +267,15 @@
 
 .actions-btn:hover {
   color: #764ba2;
+}
+
+.actions-btn[color="warn"] mat-icon,
+button.actions-btn[color="warn"] mat-icon {
+  color: #e53935;
+}
+
+button.actions-btn[color="warn"]:hover mat-icon {
+  color: #b71c1c;
 }
 
 /* Hover das linhas */
