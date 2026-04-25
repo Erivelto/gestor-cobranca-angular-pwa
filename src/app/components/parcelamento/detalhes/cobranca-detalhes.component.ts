@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,10 +12,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { PessoaParcelamento, PessoaParcelamentoDetalhe, Pessoa } from '../../../models/api.models';
 import { ParcelamentoService } from '../../../services/parcelamento.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { SpinnerService } from '../../../services/spinner.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,6 +27,7 @@ import Swal from 'sweetalert2';
   templateUrl: './cobranca-detalhes.component.html',
   styleUrls: ['./cobranca-detalhes.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -35,17 +40,21 @@ import Swal from 'sweetalert2';
     MatTabsModule,
     MatPaginatorModule,
     MatChipsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule,
+    TitleCasePtPipe
   ]
 })
-export class CobrancaDetalhesComponent implements OnInit {
+export class CobrancaDetalhesComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  private destroy$ = new Subject<void>();
   private parcelamentoService = inject(ParcelamentoService);
   private pessoaService = inject(PessoaService);
   private spinner = inject(SpinnerService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   parcelamento?: PessoaParcelamento;
   detalhes: PessoaParcelamentoDetalhe[] = [];
@@ -62,10 +71,10 @@ export class CobrancaDetalhesComponent implements OnInit {
     this.loading = true;
     this.spinner.show();
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.parcelamentoService.getParcelamentoById(Number(id)).subscribe({
+        this.parcelamentoService.getParcelamentoById(Number(id)).pipe(takeUntil(this.destroy$)).subscribe({
           next: (parcelamento) => {
             this.parcelamento = parcelamento;
             this.carregarPessoa(parcelamento.codigoPessoa);
@@ -74,6 +83,7 @@ export class CobrancaDetalhesComponent implements OnInit {
           error: () => {
             this.spinner.hide();
             this.loading = false;
+            this.cdr.markForCheck();
           }
         });
       }
@@ -81,27 +91,29 @@ export class CobrancaDetalhesComponent implements OnInit {
   }
 
   carregarPessoa(codigoPessoa: number): void {
-    this.pessoaService.getPessoaById(codigoPessoa).subscribe({
+    this.pessoaService.getPessoaById(codigoPessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoa) => {
         this.pessoa = pessoa;
+        this.cdr.markForCheck();
       },
-      error: () => {
-      }
+      error: () => {}
     });
   }
 
   carregarDetalhesParcelamento(codigoParcelamento: number): void {
-    this.parcelamentoService.getDetalhesParcelamento(codigoParcelamento).subscribe({
+    this.parcelamentoService.getDetalhesParcelamento(codigoParcelamento).pipe(takeUntil(this.destroy$)).subscribe({
       next: (detalhes) => {
         this.detalhes = detalhes;
         this.dataSource.data = detalhes;
         this.dataSource.paginator = this.paginator;
         this.loading = false;
         this.spinner.hide();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
         this.spinner.hide();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -143,7 +155,7 @@ export class CobrancaDetalhesComponent implements OnInit {
         };
 
         this.spinner.show();
-        this.parcelamentoService.atualizarDetalheParcelamento(detalhe.codigo, detalhePago).subscribe({
+        this.parcelamentoService.atualizarDetalheParcelamento(detalhe.codigo, detalhePago).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.spinner.hide();
             Swal.fire('Sucesso!', 'Pagamento registrado com sucesso', 'success');
@@ -186,5 +198,10 @@ export class CobrancaDetalhesComponent implements OnInit {
   get valorParcelaMensal(): number {
     if (!this.parcelamento) return 0;
     return this.parcelamento.valorTotal / this.parcelamento.quantidadeParcelas;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

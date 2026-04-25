@@ -15,10 +15,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatDividerModule } from '@angular/material/divider';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { BrlCurrencyPipe } from '../../../pipes/brl-currency.pipe';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
-import { Pessoa } from '../../../models/api.models';
-import { PessoaCobranca } from '../../../models/api.models';
+import { Pessoa, PessoaCobranca, CronogramaParcela } from '../../../models/api.models';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
 import { SpinnerService } from '../../../services/spinner.service';
@@ -59,36 +61,25 @@ const BR_DATE_FORMATS = {
         MatNativeDateModule,
         MatSelectModule,
         MatTableModule,
-        MatDividerModule
+        MatDividerModule,
+        NgxMaskDirective,
+        BrlCurrencyPipe,
+        TitleCasePtPipe
     ],
     providers: [
         { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
-        { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS }
+        { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS },
+        provideNgxMask()
     ]
 })
 export class NovaCobrancaComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
     tipoCobranca: string = 'semanal';
-    private calcularParcelasTimeout: any;
-    // Função para tratar entrada do campo de juros aplicado (% sobre valor do empréstimo)
-    onTaxaJurosInput(event: any): void {
-        let valor = event.target.value.replace(',', '.');
-        valor = valor.replace(/[^\d\.]/g, '');
-        if (!valor) {
-            this.taxaJuros = 0;
-            this.taxaJurosFormatada = '';
-            return;
-        }
-        const valorNumerico = parseFloat(valor);
-        this.taxaJuros = isNaN(valorNumerico) ? 0 : valorNumerico;
-        this.taxaJurosFormatada = valor;
-        event.target.value = valor;
+    private calcularParcelasTimeout: ReturnType<typeof setTimeout> | null = null;
+    // Chamado quando a taxa de juros muda via ngx-mask
+    onTaxaJurosChange(): void {
         if (this.valorEmprestimo > 0) {
-            if (this.taxaJuros > 0) {
-                this.totalComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
-            } else {
-                this.totalComJuros = this.valorEmprestimo;
-            }
+            this.totalComJuros = this.valorEmprestimo * (1 + (this.taxaJuros / 100));
         }
     }
     loading: boolean = false;
@@ -101,40 +92,9 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
 
     // Propriedades para valores do empréstimo
     valorEmprestimo: number = 0;
-    valorEmprestimoFormatado: string = '';
     taxaJuros: number = 0;
-    taxaJurosFormatada: string = '';
     multa: number = 0;
-    multaFormatada: string = '';
 
-    // Função para tratar entrada do campo de multa (valor monetário)
-    onMultaInput(event: any): void {
-        let valor = event.target.value.replace(/\D/g, '');
-        if (!valor) {
-            this.multa = 0;
-            this.multaFormatada = '';
-            return;
-        }
-        const valorNumerico = parseFloat(valor) / 100;
-        this.multa = valorNumerico;
-        this.multaFormatada = this.formatarValorMoeda(valorNumerico);
-        event.target.value = this.multaFormatada;
-    }
-
-    onMultaFocus(event: any): void {
-        if (this.multa === 0) {
-            event.target.value = '';
-        }
-    }
-
-    onMultaBlur(event: any): void {
-        if (!event.target.value || event.target.value === '') {
-            this.multa = 0;
-            this.multaFormatada = '';
-        } else {
-            event.target.value = this.multaFormatada;
-        }
-    }
     dataInicio: Date | null = null;
     periodicidade: string = '';
 
@@ -142,7 +102,7 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
     numeroParcelas: number = 1;
     valorParcela: number = 0;
     mostrarCronograma: boolean = false;
-    cronogramaParcelas: any[] = [];
+    cronogramaParcelas: CronogramaParcela[] = [];
     totalComJuros: number = 0;
 
     // Propriedades para tabela
@@ -201,7 +161,7 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
         this.clientesEncontrados = [];
     }
 
-    onClienteSelected(event: any): void {
+    onClienteSelected(event: { option: { value: Pessoa } }): void {
         const cliente: Pessoa = event.option.value;
         this.clienteSelecionado = cliente;
         this.clienteSearch = cliente.nome;
@@ -217,39 +177,20 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
         this.router.navigate(['/pessoas/nova']);
     }
 
+    // Chamado quando o valor do empréstimo muda via ngx-mask
+    onValorEmprestimoChange(): void {
+        if (this.numeroParcelas > 0 && this.valorEmprestimo > 0) {
+            this.debounceCalcularParcelas();
+        }
+    }
+
     voltarListaCobrancas(): void {
         this.router.navigate(['/cobrancas']);
     }
 
     // Getter para valor da parcela formatado
     get valorParcelaFormatado(): string {
-        return this.valorParcela.toFixed(2).replace('.', ',');
-    }
-
-    // Função para formatar valor como moeda
-    formatarValorMoeda(valor: number): string {
-        return new Intl.NumberFormat('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(valor);
-    }
-
-    // Função para aplicar mascara no campo de valor
-    onValorEmprestimoInput(event: any): void {
-	let valor = event.target.value;
-	valor = valor.replace(/\D/g, '');
-	if (!valor) {
-		this.valorEmprestimo = 0;
-		this.valorEmprestimoFormatado = '';
-		return;
-	}
-	const valorNumerico = parseFloat(valor) / 100;
-	this.valorEmprestimo = valorNumerico;
-	this.valorEmprestimoFormatado = this.formatarValorMoeda(valorNumerico);
-	event.target.value = this.valorEmprestimoFormatado;
-	if (this.numeroParcelas > 0 && this.valorEmprestimo > 0) {
-		this.debounceCalcularParcelas();
-	}
+        return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(this.valorParcela);
     }
 
     // Função debounce para cálculo de parcelas
@@ -260,42 +201,6 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
         this.calcularParcelasTimeout = setTimeout(() => {
             this.calcularValorTotalComJuros();
         }, 400);
-    }
-
-    // Função para tratar o foco no campo
-    onValorEmprestimoFocus(event: any): void {
-        if (this.valorEmprestimo === 0) {
-            event.target.value = '';
-        }
-    }
-
-    // Função para tratar quando sai do campo
-    onValorEmprestimoBlur(event: any): void {
-        if (!event.target.value || event.target.value === '') {
-            this.valorEmprestimo = 0;
-            this.valorEmprestimoFormatado = '';
-        } else {
-            event.target.value = this.valorEmprestimoFormatado;
-        }
-    }
-
-    // Função para aplicar mascara no campo de juros aplicado (valor)
-
-    // Função para tratar o foco no campo de juros
-    onTaxaJurosFocus(event: any): void {
-        if (this.taxaJuros === 0) {
-            event.target.value = '';
-        }
-    }
-
-    // Função para tratar quando sai do campo de juros
-    onTaxaJurosBlur(event: any): void {
-        if (!event.target.value || event.target.value === '') {
-            this.taxaJuros = 0;
-            this.taxaJurosFormatada = '';
-        } else {
-            event.target.value = this.taxaJurosFormatada;
-        }
     }
 
     // Calcular valor total com juros aplicado (% sobre valor do empréstimo)
@@ -358,7 +263,7 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
         }
         // Declarar e inicializar novaCobranca conforme formato da API
         const dataInicioISO = this.dataInicio ? this.dataInicio.toISOString() : new Date().toISOString();
-        const novaCobranca: any = {
+        const novaCobranca: PessoaCobranca = {
             codigo: 0,
             codigoPessoa: this.clienteSelecionado?.codigo ?? 0,
             tipoCobranca: this.tipoCobranca,
@@ -387,7 +292,7 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
             dialogRef.afterClosed().subscribe(() => {
                 this.router.navigate(['/cobrancas']);
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             this.dialog.open(DialogMessageComponent, {
                 data: {
                     title: 'Erro!',
@@ -402,9 +307,7 @@ export class NovaCobrancaComponent implements OnInit, OnDestroy {
         this.clienteSelecionado = null;
         this.clienteSearch = '';
         this.valorEmprestimo = 0;
-        this.valorEmprestimoFormatado = '';
         this.taxaJuros = 0;
-        this.taxaJurosFormatada = '';
         this.dataInicio = null;
         this.periodicidade = '';
         this.numeroParcelas = 1;

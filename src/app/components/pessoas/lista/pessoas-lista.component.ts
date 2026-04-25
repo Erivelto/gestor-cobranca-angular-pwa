@@ -14,13 +14,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PessoaService } from '../../../services/pessoa.service';
 import { NotificationService } from '../../../services/notification.service';
 import { SpinnerService } from '../../../services/spinner.service';
-import { Pessoa } from '../../../models/api.models';
+import { Pessoa, Cobranca } from '../../../models/api.models';
 import { CobrancaService } from '../../../services/cobranca.service';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 
 @Component({
   selector: 'app-pessoas-lista',
@@ -42,7 +44,9 @@ import { CobrancaService } from '../../../services/cobranca.service';
     MatInputModule,
     MatPaginatorModule,
     MatSortModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule,
+    TitleCasePtPipe
   ]
 })
 export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -102,9 +106,9 @@ export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
         if (Array.isArray(response)) {
           pessoas = response;
         } else if (response && typeof response === 'object' && 'data' in response) {
-          pessoas = (response as any).data || [];
+          pessoas = (response as unknown as { data: Pessoa[] }).data || [];
         } else if (response && typeof response === 'object' && 'pessoas' in response) {
-          pessoas = (response as any).pessoas || [];
+          pessoas = (response as unknown as { pessoas: Pessoa[] }).pessoas || [];
         } else {
           pessoas = [];
         }
@@ -157,8 +161,8 @@ export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
     const id = typeof codigo === 'string' ? parseInt(codigo) : codigo;
     this.spinnerService.showFullScreen('Verificando cobranças...');
     this.cobrancaService.getCobrancas().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (cobrancas: any[]) => {
-        const cobrancasAtivas = cobrancas.filter((c: any) => c.codigoPessoa === id && c.status === 1);
+      next: (cobrancas: Cobranca[]) => {
+        const cobrancasAtivas = cobrancas.filter((c) => c.codigoPessoa === id && c.status === 1);
         if (cobrancasAtivas.length > 0) {
           this.spinnerService.hide();
           this.notificationService.error('Exclusão bloqueada', 'Este cliente possui cobranças ativas e não pode ser excluído.');
@@ -170,13 +174,13 @@ export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
             this.notificationService.successToast('Cliente excluído com sucesso!');
             this.loadPessoas();
           },
-          error: (error: any) => {
+          error: () => {
             this.spinnerService.hide();
             this.notificationService.error('Erro ao Excluir', 'Não foi possível excluir o cliente. Tente novamente.');
           }
         });
       },
-      error: (error: any) => {
+      error: () => {
         this.spinnerService.hide();
         this.notificationService.error('Erro ao verificar cobranças', 'Não foi possível verificar cobranças do cliente. Tente novamente.');
       }
@@ -205,16 +209,16 @@ export class PessoasListaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Performance optimization: TrackBy function for ngFor
-  trackByPessoa(index: number, pessoa: Pessoa): any {
+  trackByPessoa(index: number, pessoa: Pessoa): number {
     return pessoa.codigo || index;
   }
 
   // Método para alternar destaque
-  toggleDestaque(pessoa: any): void {
+  toggleDestaque(pessoa: Pessoa): void {
     pessoa.destacado = !pessoa.destacado;
     
     // Reordenar array: pessoas destacadas primeiro
-    this.pessoas.sort((a: any, b: any) => {
+    this.pessoas.sort((a, b) => {
       if (a.destacado && !b.destacado) return -1;
       if (!a.destacado && b.destacado) return 1;
       return 0;

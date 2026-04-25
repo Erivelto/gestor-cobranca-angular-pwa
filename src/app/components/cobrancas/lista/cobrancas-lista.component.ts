@@ -17,12 +17,15 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CobrancaService } from '../../../services/cobranca.service';
 import { PessoaService } from '../../../services/pessoa.service';
 import { Cobranca, Pessoa } from '../../../models/api.models';
 import { NotificationService } from '../../../services/notification.service';
+import { BrlCurrencyPipe } from '../../../pipes/brl-currency.pipe';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 
 @Component({
   selector: 'app-cobrancas-lista',
@@ -47,7 +50,10 @@ import { NotificationService } from '../../../services/notification.service';
     MatPaginatorModule,
     MatSortModule,
     MatTooltipModule,
-    MatTabsModule
+    MatTabsModule,
+    MatProgressBarModule,
+    BrlCurrencyPipe,
+    TitleCasePtPipe
   ]
 })
 export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -153,21 +159,21 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
       this.cobrancaService.getAllVenceHojeLista()
     ]).pipe(takeUntil(this.destroy$)).subscribe({
       next: ([todas, emDia, atrasadas, venceHoje]) => {
-        const toArr = (v: any) => Array.isArray(v) ? v : (v ? [v] : []);
+        const toArr = (v: Cobranca[] | Cobranca | null | undefined) => Array.isArray(v) ? v : (v ? [v] : []);
 
         // Mapa de status dinâmico: codigo -> status (5, 3 ou 1)
         const statusMap = new Map<number, number>();
-        toArr(emDia).forEach((c: any) => statusMap.set(c.codigo, 5));
-        toArr(atrasadas).forEach((c: any) => statusMap.set(c.codigo, 3));
-        toArr(venceHoje).forEach((c: any) => statusMap.set(c.codigo, 1));
+        toArr(emDia).forEach((c) => statusMap.set(c.codigo, 5));
+        toArr(atrasadas).forEach((c) => statusMap.set(c.codigo, 3));
+        toArr(venceHoje).forEach((c) => statusMap.set(c.codigo, 1));
 
         // Usa dados completos de getCobrancas(), filtra apenas os que têm status dinâmico
         const todasArray = toArr(todas);
         const todasCobrancas = todasArray
-          .filter((c: any) => c && c.excluido !== true && statusMap.has(c.codigo))
-          .map((c: any) => ({
+          .filter((c) => c && c.excluido !== true && statusMap.has(c.codigo))
+          .map((c) => ({
             ...c,
-            status: statusMap.get(c.codigo),
+            status: statusMap.get(c.codigo)!,
             pessoa: this.pessoas.find(p => p.codigo === c.codigoPessoa)
           }));
 
@@ -212,7 +218,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
     this.notification.confirmDelete('Excluir Cobrança', 'Tem certeza que deseja excluir esta cobrança? Esta ação não poderá ser desfeita.')
       .then((confirmed) => {
         if (confirmed) {
-          this.cobrancaService.deleteCobranca(cobranca.codigo!).subscribe({
+          this.cobrancaService.deleteCobranca(cobranca.codigo!).pipe(takeUntil(this.destroy$)).subscribe({
             next: () => {
               this.notification.successToast('Cobrança excluída com sucesso!');
               this.carregarCobrancas();
@@ -272,7 +278,7 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   // Performance optimization: TrackBy function for ngFor
-  trackByCobranca(index: number, cobranca: Cobranca): any {
+  trackByCobranca(index: number, cobranca: Cobranca): number {
     return cobranca.codigo || index;
   }
 

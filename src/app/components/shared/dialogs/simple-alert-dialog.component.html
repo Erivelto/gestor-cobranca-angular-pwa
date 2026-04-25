@@ -6,12 +6,12 @@
   <ng-container [ngSwitch]="data.type">
     <!-- Tipo 'question' (confirmação): Exibe Cancelar e Excluir/Confirmar -->
     <ng-container *ngSwitchCase="'question'">
-      <button mat-button (click)="cancel()" color="primary">{{ data.cancelText || 'Cancelar' }}</button>
-      <button mat-raised-button (click)="confirm()" [color]="data.confirmText === 'Excluir' ? 'warn' : 'primary'">{{ data.confirmText || 'OK' }}</button>
+      <button mat-button (click)="cancel()" color="primary" aria-label="Cancelar">{{ data.cancelText || 'Cancelar' }}</button>
+      <button mat-raised-button (click)="confirm()" [color]="data.confirmText === 'Excluir' ? 'warn' : 'primary'" [attr.aria-label]="data.confirmText || 'OK'">{{ data.confirmText || 'OK' }}</button>
     </ng-container>
     <!-- Tipo padrão (apenas OK) -->
     <ng-container *ngSwitchDefault>
-      <button mat-button color="primary" (click)="close()">OK</button>
+      <button mat-button color="primary" (click)="close()" aria-label="Fechar">OK</button>
     </ng-container>
   </ng-container>
 </div>

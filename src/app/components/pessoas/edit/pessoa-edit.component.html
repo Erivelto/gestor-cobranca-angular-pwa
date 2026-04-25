@@ -2,7 +2,7 @@
   <div class="dashboard-header">
     <div class="header-title">
       <h1>Editar Cliente Avançado</h1>
-      <p *ngIf="pessoa.nome" class="subtitle">{{ pessoa.nome }}</p>
+      <p *ngIf="pessoa.nome" class="subtitle">{{ pessoa.nome | titleCasePt }}</p>
     </div>
     <button 
       mat-icon-button 

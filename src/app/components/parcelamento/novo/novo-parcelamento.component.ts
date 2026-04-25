@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { PessoaParcelamento } from '../../../models/api.models';
 import { ParcelamentoService } from '../../../services/parcelamento.service';
 import { PessoaService } from '../../../services/pessoa.service';
@@ -36,8 +38,11 @@ import Swal from 'sweetalert2';
     MatInputModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    MatDividerModule
-  ]
+    MatDividerModule,
+    NgxMaskDirective,
+    TitleCasePtPipe
+  ],
+  providers: [provideNgxMask()]
 })
 export class NovoParcelamentoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -188,44 +193,6 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
 
   get title(): string {
     return this.isEditing ? 'Editar Parcelamento' : 'Novo Parcelamento';
-  }
-
-  get valorTotalFormatado(): string {
-    const valor = this.form?.get('valorTotal')?.value;
-    if (valor === null || valor === undefined || valor === '') return '';
-    return this.formatCurrency(valor);
-  }
-
-  onValorTotalInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const valor = this.parseCurrency(input.value);
-    this.form.get('valorTotal')?.setValue(valor, { emitEvent: false });
-    input.value = this.formatCurrency(valor);
-  }
-
-  onValorTotalFocus(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const valor = this.form.get('valorTotal')?.value;
-    input.value = valor ? String(valor) : '';
-  }
-
-  onValorTotalBlur(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const valor = this.form.get('valorTotal')?.value;
-    input.value = valor ? this.formatCurrency(valor) : '';
-  }
-
-  private parseCurrency(value: string | number): number {
-    if (typeof value === 'number') return value;
-    const numeric = value.replace(/\D/g, '');
-    const valor = Number(numeric) / 100;
-    return Number.isNaN(valor) ? 0 : Number(valor.toFixed(2));
-  }
-
-  private formatCurrency(value: number | string): string {
-    const num = typeof value === 'string' ? this.parseCurrency(value) : value;
-    if (num === 0) return '0,00';
-    return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   ngOnDestroy(): void {

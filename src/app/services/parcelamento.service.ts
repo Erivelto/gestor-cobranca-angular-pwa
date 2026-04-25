@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, switchMap, concatMap, from, toArray, map } from 'rxjs';
-import { PessoaParcelamento, PessoaParcelamentoDetalhe } from '../models/api.models';
+import { PessoaParcelamento, PessoaParcelamentoDetalhe, PaginatedRequest } from '../models/api.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -15,8 +15,14 @@ export class ParcelamentoService {
   ) {}
 
   // Obter todos os parcelamentos
-  getParcelamentos(): Observable<PessoaParcelamento[]> {
-    return this.http.get<PessoaParcelamento[]>(`${this.apiUrl}/PessoaParcelamento`);
+  getParcelamentos(params?: PaginatedRequest): Observable<PessoaParcelamento[]> {
+    let url = `${this.apiUrl}/PessoaParcelamento`;
+    if (params) {
+      url += `?pageIndex=${params.pageIndex}&pageSize=${params.pageSize}`;
+      if (params.sortField) url += `&sortField=${params.sortField}`;
+      if (params.sortDirection) url += `&sortDirection=${params.sortDirection}`;
+    }
+    return this.http.get<PessoaParcelamento[]>(url);
   }
 
   // Obter parcelamento por ID

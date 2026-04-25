@@ -72,8 +72,8 @@ export class DashboardComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.setCols(event.target.innerWidth);
+  onResize(event: Event) {
+    this.setCols((event.target as Window).innerWidth);
   }
 
   private setCols(width: number) {

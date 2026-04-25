@@ -15,6 +15,7 @@ import { PessoaService } from '../../../services/pessoa.service';
 import { ViaCepService } from '../../../services/viacep.service';
 import { NotificationService } from '../../../services/notification.service';
 import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.models';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 
 @Component({
   selector: 'app-pessoa-edit',
@@ -31,7 +32,8 @@ import { Pessoa, PessoaContato, PessoaEndereco } from '../../../models/api.model
     MatSelectModule,
     MatIconModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TitleCasePtPipe
   ]
 })
 export class PessoaEditComponent implements OnInit, OnDestroy {
@@ -384,39 +386,43 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
     return tipos[tipo.toLowerCase()] || tipo;
   }
 
-  formatDDD(event: any): void {
-    let value = event.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+  formatDDD(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
     if (value.length > 2) {
       value = value.substring(0, 2);
     }
-    event.target.value = value;
+    input.value = value;
     this.novoContato.ddd = value;
   }
 
-  formatDDDAdic(event: any): void {
-    let value = event.target.value.replace(/\D/g, '');
+  formatDDDAdic(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
     if (value.length > 2) {
       value = value.substring(0, 2);
     }
-    event.target.value = value;
+    input.value = value;
     this.novoContatoAdic.dddAdic = value;
   }
 
-  formatTelefone(event: any): void {
-    let value = event.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+  formatTelefone(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
     if (value.length > 9) {
       value = value.substring(0, 9);
     }
-    event.target.value = value;
+    input.value = value;
     this.novoContato.celular = value;
   }
 
-  formatTelefoneAdic(event: any): void {
-    let value = event.target.value.replace(/\D/g, '');
+  formatTelefoneAdic(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
     if (value.length > 9) {
       value = value.substring(0, 9);
     }
-    event.target.value = value;
+    input.value = value;
     this.novoContatoAdic.celularAdic = value;
   }
 
@@ -542,7 +548,7 @@ export class PessoaEditComponent implements OnInit, OnDestroy {
 
   // === CONTROLE DE MUDANÇAS NÃO SALVAS ===
   @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any): void {
+  unloadNotification($event: BeforeUnloadEvent): void {
     if (this.checkForChanges()) {
       $event.returnValue = true;
     }

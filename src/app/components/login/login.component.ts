@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
@@ -22,7 +22,8 @@ import { SpinnerService } from '../../services/spinner.service';
       ])
     ])
   ],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   @ViewChild('loginForm') loginForm!: NgForm;
@@ -66,11 +67,12 @@ export class LoginComponent {
       );
       this.router.navigate(['/dashboard']);
       this.cdr.detectChanges();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const httpError = error as { status?: number };
       let errorMessage: string;
-      if (error.status === 0) {
+      if (httpError.status === 0) {
         errorMessage = 'Não foi possível conectar ao servidor. Por favor, verifique sua conexão com a internet e tente novamente.';
-      } else if (error.status === 401) {
+      } else if (httpError.status === 401) {
         errorMessage = 'O usuário ou senha informados não estão corretos. Por favor, verifique e tente novamente.';
       } else {
         errorMessage = 'Desculpe, ocorreu um problema inesperado. Por favor, tente novamente em alguns instantes.';

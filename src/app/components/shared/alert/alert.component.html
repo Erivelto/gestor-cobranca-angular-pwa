@@ -1,4 +1,4 @@
-<div *ngIf="show" class="alert" [ngClass]="type">
+<div *ngIf="show" class="alert" [ngClass]="type" role="alert" aria-live="assertive">
   <span>{{ message }}</span>
-  <button type="button" class="close-btn" (click)="close()">&times;</button>
+  <button type="button" class="close-btn" (click)="close()" aria-label="Fechar alerta">&times;</button>
 </div>

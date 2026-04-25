@@ -16,6 +16,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { PessoaParcelamento, PessoaParcelamentoDetalhe, Pessoa } from '../../../models/api.models';
 import { ParcelamentoService } from '../../../services/parcelamento.service';
 import { PessoaService } from '../../../services/pessoa.service';
@@ -46,7 +47,8 @@ import { takeUntil } from 'rxjs/operators';
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TitleCasePtPipe
   ]
 })
 export class ParcelamentoDetalhesComponent implements OnInit, OnDestroy {

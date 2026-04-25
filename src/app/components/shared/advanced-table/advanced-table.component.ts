@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChild, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChild, OnInit, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,6 +21,7 @@ export interface TableColumn {
   type?: 'text' | 'number' | 'date' | 'currency' | 'status' | 'actions';
   width?: string;
   align?: 'left' | 'center' | 'right';
+  formatter?: (value: any, row: any) => string;
 }
 
 export interface TableAction {
@@ -29,6 +30,13 @@ export interface TableAction {
   color?: 'primary' | 'accent' | 'warn';
   action: (item: any) => void;
   visible?: (item: any) => boolean;
+}
+
+export interface PageChangeEvent {
+  pageIndex: number;
+  pageSize: number;
+  sortActive: string;
+  sortDirection: string;
 }
 
 @Component({
@@ -53,7 +61,7 @@ export interface TableAction {
   styleUrls: ['./advanced-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdvancedTableComponent implements OnInit {
+export class AdvancedTableComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() data: any[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];
@@ -63,9 +71,13 @@ export class AdvancedTableComponent implements OnInit {
   @Input() pageSize = 10;
   @Input() loading = false;
   @Input() emptyMessage = 'Nenhum dado encontrado';
+  @Input() dense = false;
+  @Input() serverSide = false;
+  @Input() totalCount = 0;
 
   @Output() selectionChange = new EventEmitter<any[]>();
   @Output() rowClick = new EventEmitter<any>();
+  @Output() pageChange = new EventEmitter<PageChangeEvent>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -73,6 +85,8 @@ export class AdvancedTableComponent implements OnInit {
   dataSource = new MatTableDataSource<any>([]);
   selection = new SelectionModel<any>(true, []);
   searchTerm = '';
+
+  private currentSort: Sort = { active: '', direction: '' };
 
   get displayedColumns(): string[] {
     const cols = this.showSelection ? ['select'] : [];
@@ -85,27 +99,74 @@ export class AdvancedTableComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource.data = this.data;
-    this.setupTableFeatures();
+    this.setupFilter();
   }
 
-  private setupTableFeatures() {
-    // Setup pagination
-    if (this.showPagination) {
-      this.dataSource.paginator = this.paginator;
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['data'] && !changes['data'].firstChange) {
+      this.dataSource.data = this.data;
     }
+  }
 
-    // Setup sorting
-    this.dataSource.sort = this.sort;
+  ngAfterViewInit() {
+    if (!this.serverSide) {
+      if (this.showPagination && this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+      if (this.sort) {
+        this.dataSource.sort = this.sort;
+      }
+    }
+  }
 
-    // Setup search filter
+  private setupFilter() {
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const searchStr = Object.keys(data).reduce((currentTerm: string, key: string) => {
         return currentTerm + (data as {[key: string]: any})[key] + '◬';
       }, '').toLowerCase();
-      
       const transformedFilter = filter.trim().toLowerCase();
       return searchStr.indexOf(transformedFilter) !== -1;
     };
+  }
+
+  getColumnAlign(column: TableColumn): string {
+    if (column.align) return column.align;
+    switch (column.type) {
+      case 'currency':
+      case 'number':
+        return 'right';
+      case 'actions':
+        return 'center';
+      default:
+        return 'left';
+    }
+  }
+
+  trackByFn = (index: number, item: any) => item.codigo ?? item.id ?? index;
+
+  onPageEvent(event: PageEvent) {
+    if (this.serverSide) {
+      this.pageChange.emit({
+        pageIndex: event.pageIndex,
+        pageSize: event.pageSize,
+        sortActive: this.currentSort.active,
+        sortDirection: this.currentSort.direction
+      });
+    }
+  }
+
+  onSortChange(sort: Sort) {
+    this.currentSort = sort;
+    if (this.serverSide) {
+      const pageIndex = this.paginator ? this.paginator.pageIndex : 0;
+      const pageSize = this.paginator ? this.paginator.pageSize : this.pageSize;
+      this.pageChange.emit({
+        pageIndex,
+        pageSize,
+        sortActive: sort.active,
+        sortDirection: sort.direction
+      });
+    }
   }
 
   applyFilter() {
@@ -151,19 +212,30 @@ export class AdvancedTableComponent implements OnInit {
     return item[column.key];
   }
 
+  getCurrencyClass(value: any): string {
+    if (value == null || isNaN(value)) return 'currency-null';
+    if (value < 0) return 'currency-negative';
+    return '';
+  }
+
   formatValue(value: any, type: string): string {
     switch (type) {
       case 'currency':
+        if (value == null || isNaN(value)) return '—';
         return new Intl.NumberFormat('pt-BR', {
           style: 'currency',
-          currency: 'BRL'
+          currency: 'BRL',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
         }).format(value);
       case 'date':
+        if (!value) return '—';
         return new Date(value).toLocaleDateString('pt-BR');
       case 'number':
+        if (value == null || isNaN(value)) return '—';
         return new Intl.NumberFormat('pt-BR').format(value);
       default:
-        return value?.toString() || '';
+        return value?.toString() || '—';
     }
   }
 

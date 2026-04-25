@@ -2,7 +2,7 @@
   <mat-card class="form-card">
     <div class="header-row">
       <div class="title-block">
-        <h2 class="title">Nova Cobrança</h2>
+        <h1 class="title">Nova Cobrança</h1>
         <p class="subtitle">Preencha os dados da cobrança</p>
       </div>
       <button mat-icon-button color="primary" routerLink="/cobrancas" matTooltip="Voltar" aria-label="Voltar">
@@ -33,7 +33,7 @@
               (input)="buscarClientes()" placeholder="Digite para buscar">
             <mat-icon matPrefix>search</mat-icon>
             <button mat-icon-button matSuffix *ngIf="clienteSearch"
-              (click)="clienteSearch=''; buscarClientes()" matTooltip="Limpar busca">
+              (click)="clienteSearch=''; buscarClientes()" matTooltip="Limpar busca" aria-label="Limpar busca">
               <mat-icon>clear</mat-icon>
             </button>
           </mat-form-field>
@@ -42,7 +42,7 @@
             (optionSelected)="onClienteSelected($event)" [displayWith]="displayCliente">
             <mat-option *ngFor="let cliente of clientesEncontrados" [value]="cliente">
               <div class="cliente-option">
-                <span class="cliente-nome">{{ cliente.nome }}</span>
+                <span class="cliente-nome">{{ cliente.nome | titleCasePt }}</span>
                 <small>{{ cliente.documento }}</small>
               </div>
             </mat-option>
@@ -55,7 +55,7 @@
           <div *ngIf="clienteSelecionado" class="cliente-info full-width">
             <mat-icon>check_circle</mat-icon>
             <div>
-              <strong>{{ clienteSelecionado.nome }}</strong>
+              <strong>{{ clienteSelecionado.nome | titleCasePt }}</strong>
               <small>{{ clienteSelecionado.documento }}</small>
             </div>
           </div>
@@ -68,10 +68,12 @@
 
           <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
             <mat-label>Valor do Empréstimo</mat-label>
-            <input matInput type="text" [value]="valorEmprestimoFormatado"
-              (input)="onValorEmprestimoInput($event)" (focus)="onValorEmprestimoFocus($event)"
-              (blur)="onValorEmprestimoBlur($event)" placeholder="0,00">
-            <span matTextPrefix>R$ </span>
+            <input matInput
+              [(ngModel)]="valorEmprestimo"
+              mask="separator.2" thousandSeparator="." decimalMarker=","
+              [dropSpecialCharacters]="true" prefix="R$ "
+              (ngModelChange)="onValorEmprestimoChange()"
+              placeholder="0,00">
             <mat-icon matPrefix>attach_money</mat-icon>
           </mat-form-field>
 
@@ -95,19 +97,21 @@
 
           <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
             <mat-label>Juros Aplicado</mat-label>
-            <input matInput type="text" [value]="taxaJurosFormatada"
-              (input)="onTaxaJurosInput($event)" (focus)="onTaxaJurosFocus($event)"
-              (blur)="onTaxaJurosBlur($event)">
-            <span matTextSuffix>%</span>
+            <input matInput
+              [(ngModel)]="taxaJuros"
+              mask="separator.2" decimalMarker=","
+              [dropSpecialCharacters]="true" suffix=" %"
+              (ngModelChange)="onTaxaJurosChange()">
             <mat-icon matPrefix>percent</mat-icon>
           </mat-form-field>
 
           <mat-form-field appearance="outline" *ngIf="clienteSelecionado">
             <mat-label>Multa</mat-label>
-            <input matInput type="text" [value]="multaFormatada"
-              (input)="onMultaInput($event)" (focus)="onMultaFocus($event)"
-              (blur)="onMultaBlur($event)" placeholder="0,00">
-            <span matTextPrefix>R$ </span>
+            <input matInput
+              [(ngModel)]="multa"
+              mask="separator.2" thousandSeparator="." decimalMarker=","
+              [dropSpecialCharacters]="true" prefix="R$ "
+              placeholder="0,00">
             <mat-icon matPrefix>warning</mat-icon>
           </mat-form-field>
 
@@ -116,7 +120,7 @@
             <mat-icon>account_balance_wallet</mat-icon>
             <div>
               <span class="label">Valor Total</span>
-              <span class="value">{{ totalComJuros | currency:'BRL':'symbol':'1.2-2' }}</span>
+              <span class="value">{{ totalComJuros | brl }}</span>
             </div>
           </div>
         </div>

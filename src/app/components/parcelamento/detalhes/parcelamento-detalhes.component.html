@@ -3,7 +3,7 @@
     <!-- Header igual ao formulário de edição -->
     <div class="header-row">
       <div class="title-block">
-        <h2 class="title">Detalhes do Parcelamento</h2>
+        <h1 class="title">Detalhes do Parcelamento</h1>
         <p class="subtitle">Informações e parcelas</p>
       </div>
       <button mat-icon-button color="primary" (click)="voltar()" matTooltip="Voltar" aria-label="Voltar">
@@ -21,7 +21,7 @@
           <!-- Pessoa -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Pessoa</mat-label>
-            <input matInput [value]="pessoa?.nome || 'Carregando...'" readonly disabled>
+            <input matInput [value]="(pessoa?.nome | titleCasePt) ?? 'Carregando...'" readonly disabled>
             <mat-icon matPrefix>person</mat-icon>
           </mat-form-field>
 

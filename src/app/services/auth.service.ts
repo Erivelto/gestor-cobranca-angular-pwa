@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { LoginRequest, LoginResponse, Usuario } from '../models/api.models';
+import { LoginRequest, LoginResponse, Usuario, JwtPayload } from '../models/api.models';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -69,7 +69,7 @@ export class AuthService {
           if (response && response.token) {
             localStorage.setItem('token', response.token);
 
-            const anyResp: any = response as any;
+            const anyResp = response as LoginResponse & { user?: Usuario };
             const rawUser = anyResp?.usuario ?? anyResp?.user ?? null;
 
             const userIdFromObject: number | null = rawUser?.id ?? null;
@@ -78,8 +78,8 @@ export class AuthService {
 
             const normalizedUser: Usuario = {
               id: resolvedUserId ?? undefined,
-              username: rawUser?.username ?? rawUser?.user ?? username,
-              tipo: rawUser?.tipo as any
+              username: rawUser?.username ?? username,
+              tipo: rawUser?.tipo
             };
 
             localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
@@ -152,7 +152,7 @@ export class AuthService {
   }
 
   // Decodifica um JWT sem validar assinatura (uso apenas no cliente)
-  private parseJwt(token: string): any | null {
+  private parseJwt(token: string): JwtPayload | null {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

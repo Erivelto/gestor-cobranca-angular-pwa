@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -15,7 +15,8 @@ import { environment } from '../../../../environments/environment';
   selector: 'app-pessoa-form',
   templateUrl: './pessoa-form.component.html',
   styleUrls: ['./pessoa-form.component.scss'],
-  standalone: false
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PessoaFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -70,7 +71,8 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -87,10 +89,12 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
       next: (pessoa) => {
         this.pessoa = pessoa;
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao carregar dados do cliente. Tente novamente.');
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -115,10 +119,12 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
           this.endereco.uf = response.uf;
         }
         this.loadingCep = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.notificationService.error('Erro do Servidor', 'Erro ao buscar CEP. Verifique sua conexão e tente novamente.');
         this.loadingCep = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -150,7 +156,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
   this.pessoa.usuarioId = resolvedUserId;
     this.pessoaService.createPessoa(this.pessoa).pipe(takeUntil(this.destroy$)).subscribe({
       next: (pessoaCriada) => {
-        const promises: Promise<any>[] = [];
+        const promises: Promise<unknown>[] = [];
 
         // Criar contato se preenchido
         if (this.contato.celular || this.contato.email) {
@@ -234,8 +240,9 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  onFileSelected(event: any): void {
-    const file: File = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (file) {
       this.selectedFile = file;
       this.selectedFileName = file.name;
@@ -318,8 +325,9 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
   }
 
   // Métodos para validação numérica
-  onlyNumbers(event: any, field: string): void {
-    let value = event.target.value.replace(/\D/g, '');
+  onlyNumbers(event: Event, field: string): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
     
     if (field === 'documento') {
       // CPF: até 11 dígitos
@@ -351,7 +359,7 @@ export class PessoaFormComponent implements OnInit, OnDestroy {
       this.endereco.numrero = value;
     }
     
-    event.target.value = value;
+    input.value = value;
   }
 
   ngOnDestroy(): void {

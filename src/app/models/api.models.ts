@@ -17,10 +17,12 @@ export interface PessoaCobranca {
   dataInicio: string;
   diaVencimento: number;
   dataPagamento?: string;
+  dataQuitacao?: string | null;
   status: number;
   excluido: boolean;
   historicos?: PessoaCobrancaHistorico[];
   pessoaCobrancaHistorico?: PessoaCobrancaHistorico;
+  pessoaCobrancaDetalhe?: unknown;
 }
 // Modelos de dados da API
 
@@ -47,6 +49,7 @@ export interface Pessoa {
   documento: string;
   status?: number;
   destacado?: boolean;
+  excluido?: boolean;
   usuarioId?: number;
   contatos?: PessoaContato[];
   enderecos?: PessoaEndereco[];
@@ -98,7 +101,8 @@ export interface Cobranca {
   excluido: boolean;
   historicos?: PessoaCobrancaHistorico[];
   pessoaCobrancaHistorico?: PessoaCobrancaHistorico;
-  pessoa?: any;
+  pessoaCobrancaDetalhe?: unknown;
+  pessoa?: Pessoa;
 }
 
 export interface ViaCepResponse {
@@ -142,4 +146,37 @@ export interface PessoaParcelamentoDetalhe {
   dataPagamento?: string | null;
   status: number;
   excluido: boolean;
+}
+
+// === Cronograma (usado em NovaCobrancaComponent) ===
+export interface CronogramaParcela {
+  numero: number;
+  dataVencimento: Date;
+  valor: number;
+  juros: number;
+  valorTotal: number;
+}
+
+// === Paginação Server-Side ===
+export interface PaginatedRequest {
+  pageIndex: number;
+  pageSize: number;
+  sortField?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalCount: number;
+}
+
+// === JWT ===
+export interface JwtPayload {
+  exp?: number;
+  iat?: number;
+  sub?: string;
+  nameid?: string;
+  uid?: string;
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'?: string;
+  [key: string]: unknown;
 }

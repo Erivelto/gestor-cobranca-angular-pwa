@@ -18,10 +18,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PessoaCobrancaHistorico } from '../../../models/api.models';
+import { PessoaCobrancaHistorico, Pessoa, PessoaCobranca, Cobranca } from '../../../models/api.models';
 import { SpinnerService } from '../../../services/spinner.service';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { BrlCurrencyPipe, formatBrl } from '../../../pipes/brl-currency.pipe';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 
 @Component({
   selector: 'app-cobranca-detalhes',
@@ -42,8 +46,13 @@ import { SpinnerService } from '../../../services/spinner.service';
     MatInputModule,
     MatTableModule,
     MatExpansionModule,
-    MatListModule
-  ]
+    MatListModule,
+    MatProgressBarModule,
+    NgxMaskDirective,
+    BrlCurrencyPipe,
+    TitleCasePtPipe
+  ],
+  providers: [provideNgxMask()]
 })
 export class CobrancaDetalhesComponent implements OnInit, OnDestroy {
       private destroy$ = new Subject<void>();
@@ -90,36 +99,32 @@ export class CobrancaDetalhesComponent implements OnInit, OnDestroy {
     }
   // ...existing code...
 
-  pessoaDetalhes: any = null;
+  pessoaDetalhes: Pessoa | null = null;
   loading: boolean = true;
   cobrancaId: number = 0;
   
-  cobrancaDetalhes: any = null;
+  cobrancaDetalhes: Cobranca & { valorPagamento?: number } = {} as Cobranca & { valorPagamento?: number };
 
   // Histórico de pagamentos
   historicoPagamentos: { valor: number, data: Date }[] = [];
   dataSource = new MatTableDataSource(this.historicoPagamentos);
   displayedColumns: string[] = ['data', 'valor'];
-  
-  // Campo formatado para exibição
-  valorPagamentoFormatado: string = '0,00';
 
   getStatusClass(status?: string | number): string {
-    // Permite status como string ou número para padronizar
     if (typeof status === 'number') {
       switch (status) {
-        case 1: return 'badge-warning';
-        case 2: return 'badge-success';
-        case 3: return 'badge-danger';
-        case 4: return 'badge-secondary';
-        default: return 'badge-secondary';
+        case 1: return 'status-pending';
+        case 2: return 'status-completed';
+        case 3: return 'status-overdue';
+        case 4: return 'status-cancelled';
+        default: return 'status-cancelled';
       }
     } else {
       switch (status) {
-        case 'ativo': return 'badge-success';
-        case 'vencido': return 'badge-danger';
-        case 'quitado': return 'badge-warning';
-        default: return 'badge-secondary';
+        case 'ativo': return 'status-active';
+        case 'vencido': return 'status-overdue';
+        case 'quitado': return 'status-completed';
+        default: return 'status-cancelled';
       }
     }
   }
@@ -255,60 +260,16 @@ carregarDetalhes(): void {
 
   getStatusColor(): string {
     switch (this.cobrancaDetalhes.status) {
-      case 'ativo': return 'primary';
-      case 'vencido': return 'warn';
-      case 'quitado': return 'accent';
+      case 1: return 'primary';  // ativo
+      case 3: return 'warn';     // vencido/atrasado
+      case 2: return 'accent';   // quitado
       default: return '';
     }
   }
 
 
-  // Métodos para máscara de moeda
-  onValorPagamentoInput(event: any): void {
-    const input = event.target;
-    let valor = input.value;
-    
-    // Remove tudo que não for número
-    valor = valor.replace(/\D/g, '');
-    
-    // Converte para número e divide por 100 para ter os centavos
-    const numeroValor = parseInt(valor || '0') / 100;
-    
-    // Atualiza o valor numérico no modelo
-    this.cobrancaDetalhes.valorPagamento = numeroValor;
-    
-    // Formata para exibição
-    this.valorPagamentoFormatado = this.formatarMoeda(numeroValor);
-    
-    // Atualiza o input
-    input.value = this.valorPagamentoFormatado;
-  }
-
-  onValorPagamentoFocus(event: any): void {
-    const input = event.target;
-    if (this.cobrancaDetalhes.valorPagamento === 0) {
-      input.value = '';
-    }
-  }
-
-  onValorPagamentoBlur(event: any): void {
-    const input = event.target;
-    if (input.value === '') {
-      this.cobrancaDetalhes.valorPagamento = 0;
-      this.valorPagamentoFormatado = '0,00';
-      input.value = this.valorPagamentoFormatado;
-    }
-  }
-
-  private formatarMoeda(valor: number): string {
-    return valor.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-
   abaterPagamento(): void {
-    if (this.cobrancaDetalhes.valorPagamento <= 0) {
+    if ((this.cobrancaDetalhes.valorPagamento ?? 0) <= 0) {
       this.dialog.open(DialogMessageComponent, {
         data: {
           title: 'Valor Inválido',
@@ -318,7 +279,7 @@ carregarDetalhes(): void {
       return;
     }
 
-    if (this.cobrancaDetalhes.valorPagamento > this.cobrancaDetalhes.valorTotal) {
+    if ((this.cobrancaDetalhes.valorPagamento ?? 0) > (this.cobrancaDetalhes.valorTotal ?? 0)) {
       this.dialog.open(DialogMessageComponent, {
         data: {
           title: 'Valor Excedente',
@@ -332,7 +293,7 @@ carregarDetalhes(): void {
     const dialogRef = this.dialog.open(DialogMessageComponent, {
       data: {
         title: 'Confirmar Pagamento',
-        message: `Deseja abater R$ ${this.formatarMoeda(this.cobrancaDetalhes.valorPagamento)} do empréstimo?`
+        message: `Deseja abater ${formatBrl(this.cobrancaDetalhes.valorPagamento)} do empréstimo?`
       }
     });
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
@@ -345,7 +306,7 @@ carregarDetalhes(): void {
 
   private async processarPagamento(): Promise<void> {
     // Armazenar o valor do pagamento antes de resetar
-    const valorPago = this.cobrancaDetalhes.valorPagamento;
+    const valorPago = this.cobrancaDetalhes.valorPagamento ?? 0;
     const dataPagamento = new Date().toISOString();
 
     // Adicionar ao histórico de pagamentos (visual)
@@ -392,9 +353,8 @@ carregarDetalhes(): void {
     };
 
     // Lógica para abater o pagamento
-    this.cobrancaDetalhes.valorTotal -= valorPago;
+    this.cobrancaDetalhes.valorTotal = (this.cobrancaDetalhes.valorTotal ?? 0) - valorPago;
     this.cobrancaDetalhes.valorPagamento = 0;
-    this.valorPagamentoFormatado = '0,00';
 
     // Chamar updateCobranca para gravar os dados no backend
     // Montar todos os campos obrigatórios esperados pela API
@@ -444,8 +404,8 @@ carregarDetalhes(): void {
         { message: 'Abatendo pagamento...', fullScreen: true }
       );
 
-      if (this.cobrancaDetalhes.valorTotal <= 0) {
-        this.cobrancaDetalhes.status = 'quitado';
+      if ((this.cobrancaDetalhes.valorTotal ?? 0) <= 0) {
+        this.cobrancaDetalhes.status = 2; // quitado
         this.dialog.open(DialogMessageComponent, {
           data: {
             title: 'Empréstimo Quitado!',
@@ -456,17 +416,18 @@ carregarDetalhes(): void {
         this.dialog.open(DialogMessageComponent, {
           data: {
             title: 'Pagamento Realizado!',
-            message: `Pagamento de R$ ${this.formatarMoeda(valorPago)} abatido com sucesso!`
+            message: `Pagamento de ${formatBrl(valorPago)} abatido com sucesso!`
           }
         });
       }
       this.carregarDetalhes();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const httpError = error as { error?: { message?: string }; status?: number };
       let mensagem = 'Não foi possível gravar o pagamento.';
-      if (error?.error?.message) {
-        mensagem = error.error.message;
-      } else if (error?.status) {
-        mensagem += ` (Código: ${error.status})`;
+      if (httpError?.error?.message) {
+        mensagem = httpError.error.message;
+      } else if (httpError?.status) {
+        mensagem += ` (Código: ${httpError.status})`;
       }
       this.dialog.open(DialogMessageComponent, {
         data: {

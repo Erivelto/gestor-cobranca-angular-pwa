@@ -16,6 +16,7 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ViewChild } from '@angular/core';
 import { PessoaParcelamento } from '../../../models/api.models';
@@ -24,6 +25,8 @@ import { PessoaService } from '../../../services/pessoa.service';
 import { SpinnerService } from '../../../services/spinner.service';
 import { NotificationService } from '../../../services/notification.service';
 import { DialogMessageComponent } from '../../shared/dialog-message.component';
+import { BrlCurrencyPipe } from '../../../pipes/brl-currency.pipe';
+import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -50,7 +53,10 @@ import { takeUntil } from 'rxjs/operators';
     MatSortModule,
     MatTooltipModule,
     MatTabsModule,
-    MatDialogModule
+    MatProgressBarModule,
+    MatDialogModule,
+    BrlCurrencyPipe,
+    TitleCasePtPipe
   ]
 })
 export class ParcelamentoListaComponent implements OnInit, OnDestroy {
@@ -72,7 +78,7 @@ export class ParcelamentoListaComponent implements OnInit, OnDestroy {
   proximosVencimentosMap: { [key: number]: string | null } = {};
   searchTerm = '';
   loading = false;
-  displayedColumns: string[] = ['pessoa', 'quantidadeParcelas', 'valorTotal', 'proximoVencimento', 'acoes'];
+  displayedColumns: string[] = ['pessoa', 'quantidadeParcelas', 'valorTotal', 'proximoVencimento', 'status', 'acoes'];
   selectedTabIndex = 0;
 
   ngOnInit(): void {
@@ -217,10 +223,10 @@ export class ParcelamentoListaComponent implements OnInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
         this.spinner.show();
-        this.parcelamentoService.excluirParcelamento(parcelamento.codigo).subscribe({
+        this.parcelamentoService.excluirParcelamento(parcelamento.codigo).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.notificationService.successToast('Parcelamento excluído com sucesso');
             this.carregarParcelamentos();

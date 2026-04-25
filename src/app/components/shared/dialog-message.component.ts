@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { MatDialogModule } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
     </mat-dialog-actions>
   `,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatButtonModule]
 })
 export class DialogMessageComponent {

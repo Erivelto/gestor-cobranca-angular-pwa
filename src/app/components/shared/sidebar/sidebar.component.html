@@ -1,6 +1,6 @@
 <mat-sidenav-container class="sidebar-container">
   <!-- Sidebar Principal -->
-  <mat-sidenav mode="side" opened class="sidebar">
+  <mat-sidenav mode="side" opened class="sidebar" role="navigation" aria-label="Navegação principal">
     <!-- Header do Sidebar -->
     <div class="sidebar-header">
       <div class="logo-container">
@@ -82,7 +82,8 @@
         class="logout-btn"
         (click)="logout()"
         matTooltip="Sair do sistema"
-        matTooltipPosition="right">
+        matTooltipPosition="right"
+        aria-label="Sair do sistema">
         <mat-icon>logout</mat-icon>
         Sair
       </button>
