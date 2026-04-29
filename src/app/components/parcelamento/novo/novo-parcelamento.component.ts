@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS, DateAdapter } from '@angular/material/core';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 import { PessoaParcelamento } from '../../../models/api.models';
@@ -20,6 +22,16 @@ import { Pessoa } from '../../../models/api.models';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
+
+const BR_DATE_FORMATS = {
+  parse: { dateInput: 'DD/MM/YYYY' },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY'
+  }
+};
 
 @Component({
   selector: 'app-novo-parcelamento',
@@ -40,9 +52,15 @@ import Swal from 'sweetalert2';
     MatProgressSpinnerModule,
     MatDividerModule,
     NgxMaskDirective,
-    TitleCasePtPipe
+    TitleCasePtPipe,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
-  providers: [provideNgxMask()]
+  providers: [
+    provideNgxMask(),
+    { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+    { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS }
+  ]
 })
 export class NovoParcelamentoComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -53,6 +71,7 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
 
   form!: FormGroup;
   loading = false;
@@ -61,6 +80,7 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
   parcelamentoId?: number;
 
   ngOnInit(): void {
+    this.dateAdapter.setLocale('pt-BR');
     this.initForm();
     this.carregarPessoas();
     this.verificarEdicao();
@@ -71,6 +91,7 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
       codigoPessoa: ['', Validators.required],
       quantidadeParcelas: ['', [Validators.required, Validators.min(1), Validators.max(120)]],
       valorTotal: ['', [Validators.required, Validators.min(0.01)]],
+      dataInicial: [new Date(), Validators.required],
       status: [1, Validators.required]
     });
   }
@@ -158,7 +179,7 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
       });
     } else {
       // Se criando, usa o novo método que cria parcelamento + detalhes das parcelas
-      const dataCadastroAgora = this.obterDataAtualFormatada();
+      const dataCadastroAgora = this.formatarData(this.form.value.dataInicial);
 
       this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataCadastroAgora).pipe(takeUntil(this.destroy$)).subscribe({
         next: (result) => {
@@ -179,11 +200,10 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
     }
   }
 
-  private obterDataAtualFormatada(): string {
-    const hoje = new Date();
-    const year = hoje.getFullYear();
-    const month = String(hoje.getMonth() + 1).padStart(2, '0');
-    const day = String(hoje.getDate()).padStart(2, '0');
+  private formatarData(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 
