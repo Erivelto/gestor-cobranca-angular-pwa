@@ -59,34 +59,22 @@ import { TitleCasePtPipe } from '../../../pipes/title-case.pipe';
 export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   selectedTabIndex = 0;
-      get emDiaCobrancas(): Cobranca[] {
-        return this.cobrancas.filter(c => c.status === 5);
-      }
 
-      get atrasadasCobrancas(): Cobranca[] {
-        return this.cobrancas.filter(c => c.status === 3);
-      }
-
-      get venceHojeCobrancas(): Cobranca[] {
-        return this.cobrancas.filter(c => c.status === 1);
-      }
-  statusSortDirection: 'asc' | 'desc' = 'asc';
-
-  sortByStatus(): void {
-    const direction = this.statusSortDirection;
-    this.dataSource.data = [...this.dataSource.data].sort((a, b) => {
-      if (a.status === b.status) return 0;
-      if (direction === 'asc') return (a.status ?? 0) - (b.status ?? 0);
-      else return (b.status ?? 0) - (a.status ?? 0);
-    });
-    this.statusSortDirection = direction === 'asc' ? 'desc' : 'asc';
-  }
-  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('paginatorEmDia') paginatorEmDia!: MatPaginator;
+  @ViewChild('paginatorAtrasadas') paginatorAtrasadas!: MatPaginator;
+  @ViewChild('paginatorVenceHoje') paginatorVenceHoje!: MatPaginator;
+  @ViewChild('sortEmDia') sortEmDia!: MatSort;
+  @ViewChild('sortAtrasadas') sortAtrasadas!: MatSort;
+  @ViewChild('sortVenceHoje') sortVenceHoje!: MatSort;
 
   cobrancas: Cobranca[] = [];
   pessoas: Pessoa[] = [];
-  dataSource = new MatTableDataSource<Cobranca>([]);
+  dataSourceEmDia = new MatTableDataSource<Cobranca>([]);
+  dataSourceAtrasadas = new MatTableDataSource<Cobranca>([]);
+  dataSourceVenceHoje = new MatTableDataSource<Cobranca>([]);
+  searchEmDia = '';
+  searchAtrasadas = '';
+  searchVenceHoje = '';
   loading: boolean = true;
   error: string = '';
 
@@ -111,20 +99,38 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngAfterViewInit(): void {
-    // Conectar paginator e sort após a view estar inicializada
-    this.dataSource.paginator = this.paginator!;
-    this.dataSource.sort = this.sort;
+    this.dataSourceEmDia.paginator = this.paginatorEmDia;
+    this.dataSourceEmDia.sort = this.sortEmDia;
+    this.dataSourceAtrasadas.paginator = this.paginatorAtrasadas;
+    this.dataSourceAtrasadas.sort = this.sortAtrasadas;
+    this.dataSourceVenceHoje.paginator = this.paginatorVenceHoje;
+    this.dataSourceVenceHoje.sort = this.sortVenceHoje;
     this.cdr.detectChanges();
   }
 
   private setupTable(): void {
-    // Filtro customizado: busca pelo nome da pessoa associada à cobrança
-    this.dataSource.filterPredicate = (data: Cobranca, filter: string) => {
-      const searchString = filter.toLowerCase();
-      // Busca pelo nome da pessoa associada
+    const predicate = (data: Cobranca, filter: string) => {
       const pessoaNome = this.pessoas.find(p => p.codigo === data.codigoPessoa)?.nome?.toLowerCase() || '';
-      return pessoaNome.includes(searchString);
+      return pessoaNome.includes(filter);
     };
+    this.dataSourceEmDia.filterPredicate = predicate;
+    this.dataSourceAtrasadas.filterPredicate = predicate;
+    this.dataSourceVenceHoje.filterPredicate = predicate;
+  }
+
+  applyFilterEmDia(): void {
+    this.dataSourceEmDia.filter = this.searchEmDia.trim().toLowerCase();
+    if (this.dataSourceEmDia.paginator) this.dataSourceEmDia.paginator.firstPage();
+  }
+
+  applyFilterAtrasadas(): void {
+    this.dataSourceAtrasadas.filter = this.searchAtrasadas.trim().toLowerCase();
+    if (this.dataSourceAtrasadas.paginator) this.dataSourceAtrasadas.paginator.firstPage();
+  }
+
+  applyFilterVenceHoje(): void {
+    this.dataSourceVenceHoje.filter = this.searchVenceHoje.trim().toLowerCase();
+    if (this.dataSourceVenceHoje.paginator) this.dataSourceVenceHoje.paginator.firstPage();
   }
 
   carregarPessoas(): void {
@@ -178,9 +184,15 @@ export class CobrancasListaComponent implements OnInit, AfterViewInit, OnDestroy
           }));
 
         this.cobrancas = todasCobrancas;
-        this.dataSource.data = todasCobrancas;
-        if (this.paginator) this.dataSource.paginator = this.paginator;
-        if (this.sort) this.dataSource.sort = this.sort;
+        this.dataSourceEmDia.data = todasCobrancas.filter(c => c.status === 5);
+        this.dataSourceAtrasadas.data = todasCobrancas.filter(c => c.status === 3);
+        this.dataSourceVenceHoje.data = todasCobrancas.filter(c => c.status === 1);
+        if (this.paginatorEmDia) this.dataSourceEmDia.paginator = this.paginatorEmDia;
+        if (this.sortEmDia) this.dataSourceEmDia.sort = this.sortEmDia;
+        if (this.paginatorAtrasadas) this.dataSourceAtrasadas.paginator = this.paginatorAtrasadas;
+        if (this.sortAtrasadas) this.dataSourceAtrasadas.sort = this.sortAtrasadas;
+        if (this.paginatorVenceHoje) this.dataSourceVenceHoje.paginator = this.paginatorVenceHoje;
+        if (this.sortVenceHoje) this.dataSourceVenceHoje.sort = this.sortVenceHoje;
         this.loading = false;
         this.cdr.markForCheck();
       },

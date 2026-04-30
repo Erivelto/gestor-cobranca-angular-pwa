@@ -26,7 +26,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-tab-group *ngIf="!loading && !error && pessoas && pessoas.length > 0" class="cobrancas-tabs" [selectedIndex]="selectedTabIndex">
+      <mat-tab-group *ngIf="!loading && !error" class="cobrancas-tabs" [selectedIndex]="selectedTabIndex">
 
         <!-- Aba: Em Dia -->
         <mat-tab>
@@ -35,35 +35,44 @@
             <span class="tab-label">Em Dia</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="emDiaCobrancas.length === 0" class="empty-message">Nenhuma cobrança em dia encontrada.</div>
-            <table *ngIf="emDiaCobrancas.length > 0" mat-table [dataSource]="emDiaCobrancas" class="enhanced-cobrancas-table">
+            <div class="table-header">
+              <mat-form-field class="search-field" appearance="outline">
+                <mat-label>Buscar cobranças em dia...</mat-label>
+                <input matInput [(ngModel)]="searchEmDia" (input)="applyFilterEmDia()" placeholder="Digite para buscar">
+                <mat-icon matSuffix>search</mat-icon>
+                <button mat-icon-button matSuffix *ngIf="searchEmDia" (click)="searchEmDia=''; applyFilterEmDia()" matTooltip="Limpar busca" aria-label="Limpar busca">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+            <table mat-table [dataSource]="dataSourceEmDia" matSort #sortEmDia="matSort" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
-                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
                   <span class="nome-text">{{ cobranca.pessoa?.nome | titleCasePt }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="dataInicio">
-                <th mat-header-cell *matHeaderCellDef>Início</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Início</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.dataInicio ? (cobranca.dataInicio | date:'dd/MM/yyyy') : '-' }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valor">
-                <th mat-header-cell *matHeaderCellDef>Valor Emprestado</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Emprestado</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valor | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="juros">
-                <th mat-header-cell *matHeaderCellDef>Juros</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Juros</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.juros | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valorTotal">
-                <th mat-header-cell *matHeaderCellDef>Valor Total</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Total</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valorTotal | brl }}
                 </td>
@@ -85,7 +94,19 @@
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="['nome','dataInicio','valor','juros','valorTotal','acoes']"></tr>
               <tr mat-row *matRowDef="let row; columns: ['nome','dataInicio','valor','juros','valorTotal','acoes'];" class="data-row row-hover"></tr>
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" colspan="6">
+                  <div class="no-data-container">
+                    <mat-icon class="no-data-icon">search_off</mat-icon>
+                    <p class="no-data-message">
+                      <span *ngIf="searchEmDia; else noResultsEmDia">Nenhum resultado para "{{ searchEmDia }}"</span>
+                      <ng-template #noResultsEmDia>Nenhuma cobrança em dia encontrada</ng-template>
+                    </p>
+                  </div>
+                </td>
+              </tr>
             </table>
+            <mat-paginator #paginatorEmDia [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
           </div>
         </mat-tab>
 
@@ -96,35 +117,44 @@
             <span class="tab-label">Atrasadas</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="atrasadasCobrancas.length === 0" class="empty-message">Nenhuma cobrança atrasada encontrada.</div>
-            <table *ngIf="atrasadasCobrancas.length > 0" mat-table [dataSource]="atrasadasCobrancas" class="enhanced-cobrancas-table">
+            <div class="table-header">
+              <mat-form-field class="search-field" appearance="outline">
+                <mat-label>Buscar cobranças atrasadas...</mat-label>
+                <input matInput [(ngModel)]="searchAtrasadas" (input)="applyFilterAtrasadas()" placeholder="Digite para buscar">
+                <mat-icon matSuffix>search</mat-icon>
+                <button mat-icon-button matSuffix *ngIf="searchAtrasadas" (click)="searchAtrasadas=''; applyFilterAtrasadas()" matTooltip="Limpar busca" aria-label="Limpar busca">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+            <table mat-table [dataSource]="dataSourceAtrasadas" matSort #sortAtrasadas="matSort" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
-                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
                   <span class="nome-text">{{ cobranca.pessoa?.nome | titleCasePt }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="dataInicio">
-                <th mat-header-cell *matHeaderCellDef>Início</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Início</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.dataInicio ? (cobranca.dataInicio | date:'dd/MM/yyyy') : '-' }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valor">
-                <th mat-header-cell *matHeaderCellDef>Valor Emprestado</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Emprestado</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valor | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="juros">
-                <th mat-header-cell *matHeaderCellDef>Juros</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Juros</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.juros | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valorTotal">
-                <th mat-header-cell *matHeaderCellDef>Valor Total</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Total</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valorTotal | brl }}
                 </td>
@@ -146,7 +176,19 @@
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="['nome','dataInicio','valor','juros','valorTotal','acoes']"></tr>
               <tr mat-row *matRowDef="let row; columns: ['nome','dataInicio','valor','juros','valorTotal','acoes'];" class="data-row row-hover"></tr>
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" colspan="6">
+                  <div class="no-data-container">
+                    <mat-icon class="no-data-icon">search_off</mat-icon>
+                    <p class="no-data-message">
+                      <span *ngIf="searchAtrasadas; else noResultsAtrasadas">Nenhum resultado para "{{ searchAtrasadas }}"</span>
+                      <ng-template #noResultsAtrasadas>Nenhuma cobrança atrasada encontrada</ng-template>
+                    </p>
+                  </div>
+                </td>
+              </tr>
             </table>
+            <mat-paginator #paginatorAtrasadas [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
           </div>
         </mat-tab>
 
@@ -157,35 +199,44 @@
             <span class="tab-label">Vence Hoje</span>
           </ng-template>
           <div class="tab-content">
-            <div *ngIf="venceHojeCobrancas.length === 0" class="empty-message">Nenhuma cobrança vencendo hoje encontrada.</div>
-            <table *ngIf="venceHojeCobrancas.length > 0" mat-table [dataSource]="venceHojeCobrancas" class="enhanced-cobrancas-table">
+            <div class="table-header">
+              <mat-form-field class="search-field" appearance="outline">
+                <mat-label>Buscar cobranças de hoje...</mat-label>
+                <input matInput [(ngModel)]="searchVenceHoje" (input)="applyFilterVenceHoje()" placeholder="Digite para buscar">
+                <mat-icon matSuffix>search</mat-icon>
+                <button mat-icon-button matSuffix *ngIf="searchVenceHoje" (click)="searchVenceHoje=''; applyFilterVenceHoje()" matTooltip="Limpar busca" aria-label="Limpar busca">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+            <table mat-table [dataSource]="dataSourceVenceHoje" matSort #sortVenceHoje="matSort" class="enhanced-cobrancas-table">
               <ng-container matColumnDef="nome">
-                <th mat-header-cell *matHeaderCellDef>Nome do Cliente</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome do Cliente</th>
                 <td mat-cell *matCellDef="let cobranca" class="nome-cell">
                   <mat-icon class="person-icon">person</mat-icon>
                   <span class="nome-text">{{ cobranca.pessoa?.nome | titleCasePt }}</span>
                 </td>
               </ng-container>
               <ng-container matColumnDef="dataInicio">
-                <th mat-header-cell *matHeaderCellDef>Início</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Início</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.dataInicio ? (cobranca.dataInicio | date:'dd/MM/yyyy') : '-' }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valor">
-                <th mat-header-cell *matHeaderCellDef>Valor Emprestado</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Emprestado</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valor | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="juros">
-                <th mat-header-cell *matHeaderCellDef>Juros</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Juros</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.juros | brl }}
                 </td>
               </ng-container>
               <ng-container matColumnDef="valorTotal">
-                <th mat-header-cell *matHeaderCellDef>Valor Total</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor Total</th>
                 <td mat-cell *matCellDef="let cobranca">
                   {{ cobranca.valorTotal | brl }}
                 </td>
@@ -207,7 +258,19 @@
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="['nome','dataInicio','valor','juros','valorTotal','acoes']"></tr>
               <tr mat-row *matRowDef="let row; columns: ['nome','dataInicio','valor','juros','valorTotal','acoes'];" class="data-row row-hover"></tr>
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" colspan="6">
+                  <div class="no-data-container">
+                    <mat-icon class="no-data-icon">search_off</mat-icon>
+                    <p class="no-data-message">
+                      <span *ngIf="searchVenceHoje; else noResultsVenceHoje">Nenhum resultado para "{{ searchVenceHoje }}"</span>
+                      <ng-template #noResultsVenceHoje>Nenhuma cobrança vencendo hoje encontrada</ng-template>
+                    </p>
+                  </div>
+                </td>
+              </tr>
             </table>
+            <mat-paginator #paginatorVenceHoje [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
           </div>
         </mat-tab>
 

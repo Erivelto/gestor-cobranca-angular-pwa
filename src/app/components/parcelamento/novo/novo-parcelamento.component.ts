@@ -92,6 +92,7 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
       quantidadeParcelas: ['', [Validators.required, Validators.min(1), Validators.max(120)]],
       valorTotal: ['', [Validators.required, Validators.min(0.01)]],
       dataInicial: [new Date(), Validators.required],
+      intervaloDias: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
       status: [1, Validators.required]
     });
   }
@@ -116,6 +117,10 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
       if (id) {
         this.isEditing = true;
         this.parcelamentoId = Number(id);
+        this.form.get('dataInicial')?.clearValidators();
+        this.form.get('dataInicial')?.updateValueAndValidity();
+        this.form.get('intervaloDias')?.clearValidators();
+        this.form.get('intervaloDias')?.updateValueAndValidity();
         this.carregarParcelamento();
       }
     });
@@ -163,12 +168,12 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
     if (this.isEditing) {
       // Se editando, usa o método de atualização padrão
       this.parcelamentoService.atualizarParcelamento(this.parcelamentoId!, dados).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (result) => {
+        next: () => {
           Swal.fire('Sucesso!', 'Parcelamento atualizado com sucesso', 'success');
           this.loading = false;
           this.cdr.markForCheck();
           this.spinner.hide();
-          this.router.navigate(['/parcelamento']);
+          this.router.navigate(['/parcelamento/detalhes', this.parcelamentoId]);
         },
         error: () => {
           Swal.fire('Erro!', 'Falha ao atualizar parcelamento', 'error');
@@ -179,9 +184,10 @@ export class NovoParcelamentoComponent implements OnInit, OnDestroy {
       });
     } else {
       // Se criando, usa o novo método que cria parcelamento + detalhes das parcelas
-      const dataCadastroAgora = this.formatarData(this.form.value.dataInicial);
+      const dataPrimeiroPagamento = this.formatarData(this.form.value.dataInicial);
+      const intervaloDias = this.form.value.intervaloDias;
 
-      this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataCadastroAgora).pipe(takeUntil(this.destroy$)).subscribe({
+      this.parcelamentoService.criarParcelamentoComDetalhes(dados, dataPrimeiroPagamento, intervaloDias).pipe(takeUntil(this.destroy$)).subscribe({
         next: (result) => {
           Swal.fire('Sucesso!', 'Parcelamento criado com sucesso com todas as parcelas', 'success');
           this.loading = false;

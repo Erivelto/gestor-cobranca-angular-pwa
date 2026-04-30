@@ -73,8 +73,9 @@ export class ParcelamentoService {
 
   // Criar parcelamento com detalhes (duas etapas)
   criarParcelamentoComDetalhes(
-    parcelamento: PessoaParcelamento, 
-    dataCadastro: string
+    parcelamento: PessoaParcelamento,
+    dataPrimeiroPagamento: string,
+    intervaloDias: number = 30
   ): Observable<PessoaParcelamento> {
     const url = `${this.apiUrl}/PessoaParcelamento`;
 
@@ -90,7 +91,8 @@ export class ParcelamentoService {
           parcelamento.codigoPessoa,
           quantidadeParcelas,
           valorParcela,
-          dataCadastro
+          dataPrimeiroPagamento,
+          intervaloDias
         ).pipe(map(() => parcelamentoResult));
       })
     );
@@ -102,14 +104,16 @@ export class ParcelamentoService {
     codigoPessoa: number,
     quantidadeParcelas: number,
     valorParcela: number,
-    dataCadastro: string
+    dataPrimeiroPagamento: string,
+    intervaloDias: number
   ): Observable<PessoaParcelamentoDetalhe[]> {
-    const dataCadastroObj = new Date(dataCadastro);
+    const [ano, mes, dia] = dataPrimeiroPagamento.split('-').map(Number);
+    const dataPrimeiraObj = new Date(ano, mes - 1, dia); // horário local, sem deslocamento UTC
     const parcelas: PessoaParcelamentoDetalhe[] = [];
 
     for (let i = 1; i <= quantidadeParcelas; i++) {
-      const dataVencimento = new Date(dataCadastroObj);
-      dataVencimento.setDate(dataVencimento.getDate() + (30 * i));
+      const dataVencimento = new Date(dataPrimeiraObj);
+      dataVencimento.setDate(dataVencimento.getDate() + (intervaloDias * (i - 1)));
 
       parcelas.push({
         codigo: 0,
